@@ -9,8 +9,8 @@ Synapse X Genius のプロトタイプのためのレポジトリです。
 1. **プロジェクトのクローンを作成します：**
 
    ```bash
-   git clone [git@github.com:tipo122/synapse-genius.git]
-   cd [synapse-genius]
+   git clone git@github.com:tipo122/synapse-genius.git
+   cd synapse-genius
    ```
 
 1. **依存関係をインストールします：**
@@ -35,7 +35,7 @@ Synapse X Genius のプロトタイプのためのレポジトリです。
    yarn start
    ```
 
-   これでアプリケーションは`localhost:8080`（ポートはあなたの設定による）で動作します。
+   これでアプリケーションは`localhost:3000`で動作します。
 
 ## ビルド方法
 
