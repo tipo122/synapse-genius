@@ -32,13 +32,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/checkout@v3
       - name: Download Build
         uses: actions/download-artifact@v2
         with:
           name: dist
           path: dist
-      - name: Deploy to firebase
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: "${{ secrets.GITHUB_TOKEN }}"
