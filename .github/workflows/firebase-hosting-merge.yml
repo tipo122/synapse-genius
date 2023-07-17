@@ -37,7 +37,6 @@ jobs:
         with:
           name: dist
           path: dist
-      - name: Deploy to firebase
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: "${{ secrets.GITHUB_TOKEN }}"
