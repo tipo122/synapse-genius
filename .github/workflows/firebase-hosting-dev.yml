@@ -12,9 +12,9 @@ jobs:
     environment: development
     steps:
       - uses: actions/checkout@v3
-      - run: npm install
-      - run: npm run build
-        env:
+        with:
+          environment: development
+        secrets:
           REACT_APP_OPENAI_API_KEY: ${{ secrets.REACT_APP_OPENAI_API_KEY }}
           REACT_APP_FIREBASE_APIKEY: ${{ secrets.REACT_APP_FIREBASE_APIKEY }}
           REACT_APP_FIREBASE_AUTHDOMAIN: ${{ secrets.REACT_APP_FIREBASE_AUTHDOMAIN }}
@@ -23,6 +23,8 @@ jobs:
           REACT_APP_FIREBASE_MESSAGINGSENDERID: ${{ secrets.REACT_APP_FIREBASE_MESSAGINGSENDERID }}
           REACT_APP_FIREBASE_APPID: ${{ secrets.REACT_APP_FIREBASE_APPID }}
           REACT_APP_FIREBASE_MEASUREMENTID: ${{ secrets.REACT_APP_FIREBASE_MEASUREMENTID }}
+      - run: npm install
+      - run: npm run build
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: "${{ secrets.GITHUB_TOKEN }}"
