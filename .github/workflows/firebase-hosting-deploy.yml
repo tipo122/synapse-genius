@@ -1,0 +1,72 @@
+name: Deploy React Application
+
+on:
+  push:
+    branches:
+      - main
+      - development
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+      - name: Install Dependencies
+        run: npm ci
+      - name: Build
+        run: npm run build
+        env:
+          REACT_APP_OPENAI_API_KEY: ${{ secrets.REACT_APP_OPENAI_API_KEY }}
+          REACT_APP_FIREBASE_APIKEY: ${{ secrets.REACT_APP_FIREBASE_APIKEY }}
+          REACT_APP_FIREBASE_AUTHDOMAIN: ${{ secrets.REACT_APP_FIREBASE_AUTHDOMAIN }}
+          REACT_APP_FIREBASE_PROJECTID: ${{ secrets.REACT_APP_FIREBASE_PROJECTID }}
+          REACT_APP_FIREBASE_STORAGEBUCKET: ${{ secrets.REACT_APP_FIREBASE_STORAGEBUCKET }}
+          REACT_APP_FIREBASE_MESSAGINGSENDERID: ${{ secrets.REACT_APP_FIREBASE_MESSAGINGSENDERID }}
+          REACT_APP_FIREBASE_APPID: ${{ secrets.REACT_APP_FIREBASE_APPID }}
+          REACT_APP_FIREBASE_MEASUREMENTID: ${{ secrets.REACT_APP_FIREBASE_MEASUREMENTID }}
+      - name: Archive Build
+        uses: actions/upload-artifact@v2
+        with:
+          name: dist
+          path: dist
+
+  deploy-production:
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+    steps:
+      - name: Deploy
+        uses: actions/checkout@v3
+      - name: Download Build
+        uses: actions/download-artifact@v2
+        with:
+          name: dist
+          path: dist
+      - uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: "${{ secrets.GITHUB_TOKEN }}"
+          firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT_SYNAPSE_GENIUS }}"
+          projectId: synapse-genius
+
+  deploy-development:
+    needs: build
+    if: github.ref == 'refs/heads/development'
+    runs-on: ubuntu-latest
+    environment:
+      name: development
+    steps:
+      - name: Deploy
+        uses: actions/checkout@v3
+      - name: Download Build
+        uses: actions/download-artifact@v2
+        with:
+          name: dist
+          path: dist
+      - uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: "${{ secrets.GITHUB_TOKEN }}"
+          firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT_SYNAPSE_GENIUS_DEV_FBE11 }}"
+          projectId: synapse-genius
