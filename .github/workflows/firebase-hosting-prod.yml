@@ -16,6 +16,7 @@ jobs:
       - run: npm install
       - run: npm run build
         env:
+          NODE_ENV: "production"
           REACT_APP_OPENAI_API_KEY: ${{ secrets.REACT_APP_OPENAI_API_KEY_PROD }}
           REACT_APP_FIREBASE_APIKEY: ${{ secrets.REACT_APP_FIREBASE_APIKEY_PROD }}
           REACT_APP_FIREBASE_AUTHDOMAIN: ${{ secrets.REACT_APP_FIREBASE_AUTHDOMAIN_PROD}}
