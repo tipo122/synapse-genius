@@ -53,4 +53,14 @@ module.exports = {
       "process.env": JSON.stringify(process.env),
     }),
   ],
+  resolve: {
+    alias: {
+      "@models": path.join(__dirname, "src/models"),
+      "@domain-types": path.join(__dirname, "src/domain-types"),
+      "@components": path.join(__dirname, "src/components"),
+      "@containers": path.join(__dirname, "src/containers"),
+      "@pages": path.join(__dirname, "src/pages"),
+      "@hooks": path.join(__dirname, "src/hooks"),
+    },
+  },
 };
