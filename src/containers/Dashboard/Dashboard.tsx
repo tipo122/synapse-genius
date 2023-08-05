@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { Layout, Menu, Button, theme } from "antd";
-import { BrowserRouter as Router } from "react-router-dom";
-import { Routes, Route, Navigate, Link } from "react-router-dom";
+import { Routes, Route, Link } from "react-router-dom";
 import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
@@ -9,8 +8,8 @@ import {
   UserOutlined,
   FormOutlined,
 } from "@ant-design/icons";
-import Canvas from "../../pages/Canvas";
-import Home from "../../pages/Home";
+import Canvas from "@pages/Canvas";
+import Home from "@pages/Home";
 
 const { Header, Sider, Content } = Layout;
 
@@ -27,20 +26,21 @@ const Dashboard = () => {
         <Menu
           theme="dark"
           mode="inline"
-          defaultSelectedKeys={["1"]}
+          defaultSelectedKeys={[window.location.pathname]}
+          // selectedKeys={[window.location.pathname]}
           items={[
             {
-              key: "1",
+              key: "/home",
               icon: <HomeOutlined />,
               label: <Link to="/home">ホーム</Link>,
             },
             {
-              key: "2",
+              key: "/canvas",
               icon: <FormOutlined />,
               label: <Link to="/canvas">キャンバス</Link>,
             },
             {
-              key: "3",
+              key: "/profile",
               icon: <UserOutlined />,
               label: "プロフィール",
             },
@@ -69,7 +69,7 @@ const Dashboard = () => {
           }}
         >
           <Routes>
-            <Route path="/home" element={<Home />} />
+            <Route path="/*" element={<Home />} />
             <Route path="/canvas" element={<Canvas />} />
           </Routes>
         </Content>

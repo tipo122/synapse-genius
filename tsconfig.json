@@ -23,9 +23,9 @@
       "@models/*": ["src/models/*"],
       "@domain-types/*": ["src/types/*"],
       "@components/*": ["src/components/*"],
-      "@comtainers/*": ["src/containers/*"],
-      "@pages/*": ["src/pages"],
-      "@hooks/*": ["src/hooks"]
+      "@containers/*": ["src/containers/*"],
+      "@pages/*": ["src/pages/*"],
+      "@hooks/*": ["src/hooks/*"]
     }
   }
 }

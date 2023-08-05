@@ -3,8 +3,8 @@ import { useIdToken } from "react-firebase-hooks/auth";
 import { BrowserRouter as Router } from "react-router-dom";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { auth } from "./firebase";
-import Dashboard from "./containers/Dashboard";
-import Login from "./pages/Login";
+import Dashboard from "@containers/Dashboard";
+import Login from "@pages/Login";
 import "./App.css";
 
 const App = () => {
