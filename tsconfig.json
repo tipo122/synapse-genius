@@ -1,13 +1,31 @@
 {
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "include": ["src/**/*.ts", "src/**/*.tsx"],
+  "exclude": ["node_modules", "src/**/*spec.ts", "src/**/*spec.tsx"],
   "compilerOptions": {
     "esModuleInterop": true,
     "jsx": "react",
-    "module": "esnext",
     "moduleResolution": "node",
     "lib": ["dom", "esnext"],
     "strict": true,
     "sourceMap": true,
-    "target": "esnext"
-  },
-  "exclude": ["node_modules"]
+    "target": "esnext",
+    "allowSyntheticDefaultImports": true,
+    "baseUrl": "./",
+    "declaration": true,
+    "forceConsistentCasingInFileNames": true,
+    "module": "commonjs",
+    "noImplicitAny": false,
+    "outDir": "lib",
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "paths": {
+      "@models/*": ["src/models/*"],
+      "@domain-types/*": ["src/types/*"],
+      "@components/*": ["src/components/*"],
+      "@comtainers/*": ["src/containers/*"],
+      "@pages/*": ["src/pages"],
+      "@hooks/*": ["src/hooks"]
+    }
+  }
 }
