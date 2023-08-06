@@ -42,7 +42,7 @@ const Dashboard = () => {
             {
               key: "/profile",
               icon: <UserOutlined />,
-              label: "プロフィール",
+              label: <Link to="/profile">プロフィール</Link>,
             },
           ]}
         />
@@ -69,8 +69,9 @@ const Dashboard = () => {
           }}
         >
           <Routes>
-            <Route path="/*" element={<Home />} />
-            <Route path="/canvas" element={<Canvas />} />
+            <Route path="/home" element={<Home />} />
+            <Route path="/*" element={<Canvas />} />
+            <Route path="/profile" element={<h1>Profile</h1>} />
           </Routes>
         </Content>
       </Layout>

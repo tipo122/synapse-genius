@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Input, Button } from "antd";
 import { useChatCompletion } from "../../hooks/useChatCompletion";
+import "./ChatArea.css";
 
 interface ChatProps {
   children?: React.ReactElement;
