@@ -36,21 +36,3 @@ export default {{ inputs.component | pascal }};
 ```css
 
 ```
-
-# {{ inputs.component | pascal }}/{{ inputs.component | pascal }}.stories.tsx
-
-```tsx
-import React from 'react'
-import { ComponentStory, ComponentMeta } from '@storybook/react'
-import {{ inputs.component | pascal }} from './{{ inputs.component | pascal }}'
-
-export default {
-  title: 'Example/{{ inputs.component | pascal }}',
-  component: {{ inputs.component | pascal }},
-} as ComponentMeta<typeof {{ inputs.component | pascal }}>
-
-const Template: ComponentStory<typeof {{ inputs.component | pascal }}> = (args) => <{{ inputs.component | pascal }} {...args} />
-
-export const Primary = Template.bind({})
-Primary.args = {}
-```
