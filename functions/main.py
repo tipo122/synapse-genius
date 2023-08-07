@@ -10,6 +10,6 @@ initialize_app()
 @https_fn.on_request(
     cors=options.CorsOptions(cors_origins="*", cors_methods=["get", "post"])
 )
-def on_create_chatcompletion(req: https_fn.Request) -> https_fn.Response:
+def oncreatechatcompletion(req: https_fn.Request) -> https_fn.Response:
     import create_chatcompletion
-    return create_chatcompletion.main(req)
+    return https_fn.Response(create_chatcompletion.main(req))
