@@ -19,14 +19,36 @@ Synapse X Genius のプロトタイプのためのレポジトリです。
    yarn install
    ```
 
-1. **環境変数を設定します：**
+1. **環境変数を設定します**
 
-   プロジェクトのルートに`.env.local`ファイルを作成し、Firebase の設定を含む環境変数を記述します。
+   ### 通常の方法
+
+   .env.local ファイルを作成し、以下の内容を設定します
 
    ```
-   REACT_APP_FIREBASE_API_KEY=your-api-key
-   REACT_APP_FIREBASE_AUTH_DOMAIN=your-auth-domain
-   ...
+   OPENAI_API_KEY=
+   REACT_APP_FIREBASE_APIKEY=
+   REACT_APP_FIREBASE_AUTHDOMAIN=
+   REACT_APP_FIREBASE_PROJECTID=
+   REACT_APP_FIREBASE_STORAGEBUCKET=
+   REACT_APP_FIREBASE_MESSAGINGSENDERID=
+   REACT_APP_FIREBASE_APPID=
+   REACT_APP_FIREBASE_MEASUREMENTID=
+   ```
+
+   ### dotenv-vault を使って取り出す方法(調整中)
+
+   dotenv-vault を使って、.env ファイルを取得します。
+
+   ```
+   npx dotenv-vault@latest pull
+   ```
+
+   functions の.env ファイルも取得する必要があります。
+
+   ```
+   cd functions
+   npx dotenv-vault@latest pull
    ```
 
 1. **開発サーバーを起動します：**
@@ -104,6 +126,90 @@ Synapse X Genius のプロトタイプのためのレポジトリです。
 
     https://synapse-genius.web.app/
 
+# FireStore Collections
+
+```mermaid
+erDiagram
+    user ||--|{ item: own
+    user ||--|{ campaign : own
+    user ||--|{ canvasdata : own
+    user {
+      string uid
+      string username
+      string email
+    }
+    item {
+      string name
+      string user_uid FK
+      boolean current
+    }
+    campaign {
+      string uid
+      string user_uid FK
+      string campaign_name
+      string campaign_string
+    }
+    canvasdata ||--|| item: refere
+    canvasdata ||--|| campaign: refere
+    canvasdata {
+      string uid
+      string user_uid FK
+      string template_id
+      object copydata
+      string bg_image_hash
+    }
+   prompts {
+      string prompt_id
+
+   }
+```
+
+```ts
+canvases: {
+   uid: string,
+   user_id: string,
+   template_id: string,
+   copydata: map {
+      strings: array [
+         strings: string,
+         ...
+      ]
+   }
+   bg_image_uid: reference,
+   bg_image_prompt: string,
+   collaborators: array [
+      email: string,
+      ...
+   ]
+   item_property: map {
+      item_name: string,
+      item_category: string,
+      item_description: string,
+   }
+   campaign_property: map {
+      campaign_name: string,
+      campaign_description: string,
+   }
+   collaborators: array [
+      {user_id: string}
+      ...
+   ]
+   create_dt: timestamp,
+   update_dt: timestamp,
+}
+
+prompts: {
+   uid: string,
+   user_id: string,
+   prompt: PromptObject,
+   messages: array [
+      {role: string, message: string}
+   ]
+   create_dt: timestamp,
+   update_dt: timestamp,
+}
+```
+
 ## フォルダ構成
 
 ```
@@ -169,4 +275,23 @@ src/
   |- index.css
   |- App.tsx
   |- App.css
+```
+
+## シーケンス図
+
+### キャンバスの流れ
+
+```mermaid
+sequenceDiagram
+   participant web
+   participant firestore
+   participant functions
+   web->>firestore: プロパティの書き込み
+   web->>functions: コピー生成のリクエスト
+   functions->>firestore: プロンプトの書き込み
+   functions->>firestore: コピーの結果をcanvasに書き込み
+   web->>functions: 画像生成のリクエスト
+   functions->>firestore: 画像をstorageに格納後storeにreferernceを書き込む
+   firestore-->>web: onSnapshotの通知
+    Note right of web: canvasから画像とコピーを<br>読み取って表示
 ```
