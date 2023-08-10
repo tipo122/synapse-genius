@@ -13,3 +13,10 @@ initialize_app()
 def oncreatechatcompletion(req: https_fn.Request) -> https_fn.Response:
     import create_chatcompletion
     return https_fn.Response(create_chatcompletion.main(req))
+
+@https_fn.on_request(
+    cors=options.CorsOptions(cors_origins="*", cors_methods=["get", "post"])
+)
+def on_create_copywriting(req: https_fn.Request) -> https_fn.Response:
+    import create_copywriting
+    return https_fn.Response(create_copywriting.main(req))
