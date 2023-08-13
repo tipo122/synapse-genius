@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { getAuth, signOut } from "firebase/auth";
 import { Layout, Menu, Button, theme } from "antd";
 import { Routes, Route, Link } from "react-router-dom";
 import {
@@ -43,6 +44,15 @@ const Dashboard = () => {
               key: "/profile",
               icon: <UserOutlined />,
               label: <Link to="/profile">プロフィール</Link>,
+            },
+            {
+              key: "/logout",
+              icon: <UserOutlined />,
+              label: "ログアウト",
+              onClick: () => {
+                const auth = getAuth();
+                signOut(auth);
+              },
             },
           ]}
         />
