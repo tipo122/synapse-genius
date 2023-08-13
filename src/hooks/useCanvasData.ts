@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   DocumentReference,
   doc,
@@ -40,33 +40,48 @@ export const initialCanvasData: Canvas = {
 export const useCanvasData = ({
   user_id,
 }: UseCanvasDataProps): {
-  canvas: Canvas;
-  saveCanvasData: (canvas: Canvas | undefined) => Promise<void>;
+  canvasData: Canvas;
+  saveCanvasData: (canvasData: Canvas | undefined) => Promise<void>;
 } => {
-  const [canvas, setCanvas] = useState<Canvas>(initialCanvasData);
+  const [canvasData, setCanvasData] = useState<Canvas>(initialCanvasData);
+  const canvasRef = useRef<Canvas>(initialCanvasData);
+  const [test, setTest] = useState("out");
   const q = query(collection(db, "canvases"), where("user_id", "==", user_id));
 
   useEffect(() => {
-    const loadCanvas = async () => {
+    (async () => {
+      setTest("2");
       const querySnapshot = await getDocs(q);
       if (querySnapshot.empty) {
+        console.log("new");
         initialCanvasData.user_id = user_id;
         const docRef = await addDoc(
           collection(db, "canvases"),
           initialCanvasData
         );
         initialCanvasData.uid = docRef.id;
-        setCanvas(initialCanvasData);
+        setCanvasData(initialCanvasData);
       } else {
-        querySnapshot.forEach((doc) => setCanvas(doc.data() as Canvas));
+        console.log("load");
+        querySnapshot.forEach((doc) => {
+          const canvasData = { ...(doc.data() as Canvas), uid: doc.id };
+          setCanvasData(canvasData);
+          setTest("in");
+        });
       }
-    };
-    loadCanvas().then(() => console.log(canvas));
+    })();
   }, []);
 
+  useEffect(() => {
+    canvasRef.current = canvasData;
+  }, [canvasData]);
+
   const saveCanvasData = async (canvas: Canvas | undefined) => {
-    // canvas && setDoc(doc(db, "canvases", canvas.uid), {}, { merge: true });
+    // console.log("------------------");
+    console.log(canvasRef.current);
+    console.log(test);
+    // canvas && setDoc(doc(db, "canvases", canvas.uid), canvas);
   };
 
-  return { canvas, saveCanvasData };
+  return { canvasData: canvasRef.current, saveCanvasData };
 };

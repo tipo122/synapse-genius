@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useCallback, useRef, useEffect } from "react";
 import {
   FabricJSCanvas,
   useFabricJSEditor,
@@ -12,13 +12,18 @@ import { auth } from "../../firebase";
 
 const CanvasPane = () => {
   const [user] = useAuthState(auth);
-  const { canvas, saveCanvasData } = useCanvasData({
+  const { canvasData, saveCanvasData } = useCanvasData({
     user_id: user?.uid || "",
   });
 
-  const onChange = () => {
-    saveCanvasData(canvas);
-  };
+  // useEffect(() => console.log(canvasData), [canvasData]);
+
+  const onChange = useCallback(
+    (string: string) => {
+      saveCanvasData({ ...canvasData, canvas_data: string });
+    },
+    [canvasData]
+  );
   const { selectedObjects, editor, onReady } = useFabricJSEditor({
     onChange: onChange,
   });
