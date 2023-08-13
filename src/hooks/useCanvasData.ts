@@ -44,13 +44,10 @@ export const useCanvasData = ({
   saveCanvasData: (canvasData: Canvas | undefined) => Promise<void>;
 } => {
   const [canvasData, setCanvasData] = useState<Canvas>(initialCanvasData);
-  const canvasRef = useRef<Canvas>(initialCanvasData);
-  const [test, setTest] = useState("out");
   const q = query(collection(db, "canvases"), where("user_id", "==", user_id));
 
   useEffect(() => {
     (async () => {
-      setTest("2");
       const querySnapshot = await getDocs(q);
       if (querySnapshot.empty) {
         console.log("new");
@@ -66,22 +63,14 @@ export const useCanvasData = ({
         querySnapshot.forEach((doc) => {
           const canvasData = { ...(doc.data() as Canvas), uid: doc.id };
           setCanvasData(canvasData);
-          setTest("in");
         });
       }
     })();
   }, []);
 
-  useEffect(() => {
-    canvasRef.current = canvasData;
-  }, [canvasData]);
-
   const saveCanvasData = async (canvas: Canvas | undefined) => {
-    // console.log("------------------");
-    console.log(canvasRef.current);
-    console.log(test);
-    // canvas && setDoc(doc(db, "canvases", canvas.uid), canvas);
+    canvas && setDoc(doc(db, "canvases", canvas.uid), canvas);
   };
 
-  return { canvasData: canvasRef.current, saveCanvasData };
+  return { canvasData: canvasData, saveCanvasData };
 };
