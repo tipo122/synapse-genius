@@ -1,17 +1,33 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   FabricJSCanvas,
   useFabricJSEditor,
 } from "../../hooks/useFabricJSEditor";
+import { Button, Input } from "antd";
+import { SketchPicker } from "react-color";
 import "./CanvasPane.css";
+import { useCanvasData } from "@hooks/useCanvasData";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { auth } from "../../firebase";
 
 const CanvasPane = () => {
-  const { selectedObjects, editor, onReady } = useFabricJSEditor({
-    defaultStrokeColor: "red",
+  const [user] = useAuthState(auth);
+  const { canvas, saveCanvasData } = useCanvasData({
+    user_id: user?.uid || "",
   });
+
+  const onChange = () => {
+    saveCanvasData(canvas);
+  };
+  const { selectedObjects, editor, onReady } = useFabricJSEditor({
+    onChange: onChange,
+  });
+
   const [text, setText] = useState("");
-  const [strokeColor, setStrokeColor] = useState("");
-  const [fillColor, setFillColor] = useState("");
+  const [strokeColorPane, setStrokeColorPane] = useState<boolean>(false);
+  const [strokeColor, setStrokeColor] = useState<string>("");
+  const [fillColorPane, setFillColorPane] = useState<boolean>(false);
+  const [fillColor, setFillColor] = useState<string>("");
 
   const onAddCircle = () => {
     editor?.addCircle();
@@ -25,11 +41,13 @@ const CanvasPane = () => {
     }
     editor?.addText(text);
   };
-  const onSetStrokeColor = () => {
-    editor?.setStrokeColor(strokeColor);
+  const onSetStrokeColor = (color) => {
+    setStrokeColor(color.hex);
+    editor?.setStrokeColor(color.hex);
   };
-  const onSetFillColor = () => {
-    editor?.setFillColor(fillColor);
+  const onSetFillColor = (color) => {
+    setFillColor(color.hex);
+    editor?.setFillColor(color.hex);
   };
   const onDeleteAll = () => {
     editor?.deleteAll();
@@ -37,39 +55,48 @@ const CanvasPane = () => {
   const onDeleteSelected = () => {
     editor?.deleteSelected();
   };
-  const onZoomIn = () => {
-    editor?.zoomIn();
-  };
-  const onZoomOut = () => {
-    editor?.zoomOut();
-  };
   return (
     <>
       {editor ? (
         <div>
-          <button onClick={onZoomIn}>Zoom In</button>
-          <button onClick={onZoomOut}>Zoom Out</button>
-          <button onClick={onAddCircle}>Add circle</button>
-          <button onClick={onAddRectangle}>Add Rectangle</button>
-          <button onClick={onDeleteSelected}>Delete Selected</button>
-          <input
+          <Button onClick={onAddCircle}>Add circle</Button>
+          <Button onClick={onAddRectangle}>Add Rectangle</Button>
+          <Button onClick={onDeleteSelected}>Delete Selected</Button>
+          <Button onClick={onDeleteAll}>Delete All</Button>
+          <Input
             type="text"
             value={text}
             onChange={(e) => setText(e.target.value)}
           />
-          <button onClick={onAddText}>Add Text</button>
-          <input
-            type="text"
-            value={strokeColor || editor.strokeColor}
-            onChange={(e) => setStrokeColor(e.target.value)}
-          />
-          <button onClick={onSetStrokeColor}>Set Stroke Color</button>
-          <input
-            type="text"
-            value={fillColor || editor.fillColor}
-            onChange={(e) => setFillColor(e.target.value)}
-          />
-          <button onClick={onSetFillColor}>Set Fill Color</button>
+          <Button onClick={onAddText}>Add Text</Button>
+          <Button
+            style={{ backgroundColor: strokeColor }}
+            onClick={() => setStrokeColorPane(!strokeColorPane)}
+          >
+            Stroke Color
+          </Button>
+          {strokeColorPane && (
+            <div className="color-popover">
+              <SketchPicker
+                color={strokeColor}
+                onChangeComplete={onSetStrokeColor}
+              />
+            </div>
+          )}
+          <Button
+            style={{ backgroundColor: fillColor }}
+            onClick={() => setFillColorPane(!fillColorPane)}
+          >
+            Fill Color
+          </Button>
+          {fillColorPane && (
+            <div className="color-popover">
+              <SketchPicker
+                color={fillColor}
+                onChangeComplete={onSetFillColor}
+              />
+            </div>
+          )}
         </div>
       ) : (
         <>Loading...</>

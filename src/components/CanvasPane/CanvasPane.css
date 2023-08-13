@@ -1,4 +1,17 @@
 .synapse-canvas {
-  height: 100%;
-  width: 100%;
+  height: 800px;
+  width: 800px;
+}
+
+.color-popover {
+  position: absolute;
+  z-index: 2;
+}
+
+.color-cover {
+  position: fixed;
+  top: 0px;
+  right: 0px;
+  bottom: 0px;
+  left: 0px;
 }

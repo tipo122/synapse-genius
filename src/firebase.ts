@@ -23,5 +23,4 @@ const functions = getFunctions(app);
 // ローカルでテストする場合は、以下の行をコメントインしてください
 // connectFunctionsEmulator(functions, "127.0.0.1", 5001);
 
-export { auth, provider, functions };
-export default db;
+export { db, auth, provider, functions };

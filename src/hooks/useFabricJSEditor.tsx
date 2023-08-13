@@ -28,6 +28,23 @@ export interface FabricJSEditor {
   zoomIn: () => void;
   zoomOut: () => void;
 }
+export interface FabricJSCanvasProps {
+  className?: string;
+  onReady?: (canvas: fabric.Canvas) => void;
+}
+interface FabricJSEditorHookProps {
+  defaultFillColor?: string;
+  defaultStrokeColor?: string;
+  scaleStep?: number;
+  onChange?: (string: string) => void;
+}
+interface FabricJSEditorState {
+  editor?: FabricJSEditor;
+}
+interface FabricJSEditorHook extends FabricJSEditorState {
+  selectedObjects?: fabric.Object[];
+  onReady: (canvas: fabric.Canvas) => void;
+}
 
 /**
  * Creates editor
@@ -119,26 +136,12 @@ const buildEditor = (
   };
 };
 
-interface FabricJSEditorState {
-  editor?: FabricJSEditor;
-}
-
-interface FabricJSEditorHook extends FabricJSEditorState {
-  selectedObjects?: fabric.Object[];
-  onReady: (canvas: fabric.Canvas) => void;
-}
-
-interface FabricJSEditorHookProps {
-  defaultFillColor?: string;
-  defaultStrokeColor?: string;
-  scaleStep?: number;
-}
-
-const useFabricJSEditor = (
-  props: FabricJSEditorHookProps = {}
-): FabricJSEditorHook => {
-  const scaleStep = props.scaleStep || 0.5;
-  const { defaultFillColor, defaultStrokeColor } = props;
+const useFabricJSEditor = ({
+  defaultFillColor,
+  defaultStrokeColor,
+  scaleStep = 0.5,
+  onChange,
+}: FabricJSEditorHookProps = {}): FabricJSEditorHook => {
   const [canvas, setCanvas] = useState<null | fabric.Canvas>(null);
   const [fillColor, setFillColor] = useState<string>(defaultFillColor || FILL);
   const [strokeColor, setStrokeColor] = useState<string>(
@@ -155,6 +158,9 @@ const useFabricJSEditor = (
       });
       canvas.on("selection:updated", (e: any) => {
         setSelectedObject(e.selected);
+      });
+      canvas.on("object:modified", (e: any) => {
+        onChange && onChange(JSON.stringify(canvas));
       });
     };
     if (canvas) {
@@ -181,15 +187,10 @@ const useFabricJSEditor = (
   };
 };
 
-export interface Props {
-  className?: string;
-  onReady?: (canvas: fabric.Canvas) => void;
-}
-
 /**
  * Fabric canvas as component
  */
-const FabricJSCanvas = ({ className, onReady }: Props) => {
+const FabricJSCanvas = ({ className, onReady }: FabricJSCanvasProps) => {
   const canvasEl = useRef(null);
   const canvasElParent = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -204,11 +205,11 @@ const FabricJSCanvas = ({ className, onReady }: Props) => {
     };
     setCurrentDimensions();
 
+    // const resizeObserver = new ResizeObserver(resizeCanvas);
+    // canvasEl.current && resizeObserver.observe(canvasEl.current);
     window.addEventListener("resize", resizeCanvas, false);
 
-    if (onReady) {
-      onReady(canvas);
-    }
+    onReady && onReady(canvas);
 
     return () => {
       canvas.dispose();
