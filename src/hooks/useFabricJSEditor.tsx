@@ -27,6 +27,7 @@ export interface FabricJSEditor {
   setStrokeColor: (color: string) => void;
   zoomIn: () => void;
   zoomOut: () => void;
+  setCanvas: (text: string) => void;
 }
 export interface FabricJSCanvasProps {
   className?: string;
@@ -55,7 +56,8 @@ const buildEditor = (
   strokeColor: string,
   _setFillColor: (color: string) => void,
   _setStrokeColor: (color: string) => void,
-  scaleStep: number
+  scaleStep: number,
+  onChange?: (string: string) => void
 ): FabricJSEditor => {
   return {
     canvas,
@@ -66,6 +68,7 @@ const buildEditor = (
         stroke: strokeColor,
       });
       canvas.add(object);
+      onChange && onChange(JSON.stringify(canvas));
     },
     addRectangle: () => {
       const object = new fabric.Rect({
@@ -74,6 +77,7 @@ const buildEditor = (
         stroke: strokeColor,
       });
       canvas.add(object);
+      onChange && onChange(JSON.stringify(canvas));
     },
     addLine: () => {
       const object = new fabric.Line(LINE.points, {
@@ -81,12 +85,14 @@ const buildEditor = (
         stroke: strokeColor,
       });
       canvas.add(object);
+      onChange && onChange(JSON.stringify(canvas));
     },
     addText: (text: string) => {
       // use stroke in text fill, fill default is most of the time transparent
       const object = new fabric.Textbox(text, { ...TEXT, fill: strokeColor });
       object.set({ text: text });
       canvas.add(object);
+      onChange && onChange(JSON.stringify(canvas));
     },
     updateText: (text: string) => {
       const objects: any[] = canvas.getActiveObjects();
@@ -94,17 +100,20 @@ const buildEditor = (
         const textObject: fabric.Textbox = objects[0];
         textObject.set({ text });
         canvas.renderAll();
+        onChange && onChange(JSON.stringify(canvas));
       }
     },
     deleteAll: () => {
       canvas.getObjects().forEach((object) => canvas.remove(object));
       canvas.discardActiveObject();
       canvas.renderAll();
+      onChange && onChange(JSON.stringify(canvas));
     },
     deleteSelected: () => {
       canvas.getActiveObjects().forEach((object) => canvas.remove(object));
       canvas.discardActiveObject();
       canvas.renderAll();
+      onChange && onChange(JSON.stringify(canvas));
     },
     fillColor,
     strokeColor,
@@ -112,6 +121,7 @@ const buildEditor = (
       _setFillColor(fill);
       canvas.getActiveObjects().forEach((object) => object.set({ fill }));
       canvas.renderAll();
+      onChange && onChange(JSON.stringify(canvas));
     },
     setStrokeColor: (stroke: string) => {
       _setStrokeColor(stroke);
@@ -124,6 +134,7 @@ const buildEditor = (
         object.set({ stroke });
       });
       canvas.renderAll();
+      onChange && onChange(JSON.stringify(canvas));
     },
     zoomIn: () => {
       const zoom = canvas.getZoom();
@@ -132,6 +143,9 @@ const buildEditor = (
     zoomOut: () => {
       const zoom = canvas.getZoom();
       canvas.setZoom(zoom * scaleStep);
+    },
+    setCanvas: (canvasData) => {
+      canvas.loadFromJSON(canvasData);
     },
   };
 };
@@ -181,7 +195,8 @@ const useFabricJSEditor = ({
           strokeColor,
           setFillColor,
           setStrokeColor,
-          scaleStep
+          scaleStep,
+          onChange
         )
       : undefined,
   };

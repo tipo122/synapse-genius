@@ -44,32 +44,41 @@ export const useCanvasData = ({
   saveCanvasData: (canvasData: Canvas | undefined) => Promise<void>;
 } => {
   const [canvasData, setCanvasData] = useState<Canvas>(initialCanvasData);
+  const loading = useRef<boolean>(false);
   const q = query(collection(db, "canvases"), where("user_id", "==", user_id));
 
   useEffect(() => {
-    (async () => {
-      const querySnapshot = await getDocs(q);
-      if (querySnapshot.empty) {
-        console.log("new");
-        initialCanvasData.user_id = user_id;
-        const docRef = await addDoc(
-          collection(db, "canvases"),
-          initialCanvasData
-        );
-        initialCanvasData.uid = docRef.id;
-        setCanvasData(initialCanvasData);
-      } else {
-        console.log("load");
-        querySnapshot.forEach((doc) => {
-          const canvasData = { ...(doc.data() as Canvas), uid: doc.id };
-          setCanvasData(canvasData);
-        });
-      }
-    })();
+    if (!loading.current) {
+      loading.current = true;
+      (async () => {
+        const querySnapshot = await getDocs(q);
+        if (querySnapshot.empty) {
+          console.log("new");
+          initialCanvasData.user_id = user_id;
+          const docRef = await addDoc(
+            collection(db, "canvases"),
+            initialCanvasData
+          );
+          initialCanvasData.uid = docRef.id;
+          setCanvasData(initialCanvasData);
+        } else {
+          console.log("load");
+          querySnapshot.forEach((doc) => {
+            const canvasData = { ...(doc.data() as Canvas), uid: doc.id };
+            setCanvasData(canvasData);
+          });
+        }
+        loading.current = false;
+      })();
+    }
   }, []);
 
   const saveCanvasData = async (canvas: Canvas | undefined) => {
-    canvas && setDoc(doc(db, "canvases", canvas.uid), canvas);
+    try {
+      canvas && setDoc(doc(db, "canvases", canvas.uid), canvas);
+    } catch (e: any) {
+      console.error(e);
+    }
   };
 
   return { canvasData: canvasData, saveCanvasData };

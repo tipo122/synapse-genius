@@ -34,6 +34,8 @@ const CanvasPane = () => {
 
   useEffect(() => {
     canvasRef.current = canvasData;
+    if (typeof canvasData.canvas_data === "string")
+      editor?.setCanvas(canvasData.canvas_data as string);
   }, [canvasData]);
 
   const onAddCircle = () => {
