@@ -33,3 +33,10 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# functions
+/functions/lib
+
+# etc
+/lib
+/dist

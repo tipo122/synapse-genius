@@ -1,12 +1,16 @@
 import React, { useState } from "react";
+import { getAuth, signOut } from "firebase/auth";
 import { Layout, Menu, Button, theme } from "antd";
+import { Routes, Route, Link } from "react-router-dom";
 import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
-  UploadOutlined,
+  HomeOutlined,
   UserOutlined,
-  VideoCameraOutlined,
+  FormOutlined,
 } from "@ant-design/icons";
+import Canvas from "@pages/Canvas";
+import Home from "@pages/Home";
 
 const { Header, Sider, Content } = Layout;
 
@@ -23,22 +27,32 @@ const Dashboard = () => {
         <Menu
           theme="dark"
           mode="inline"
-          defaultSelectedKeys={["1"]}
+          defaultSelectedKeys={[window.location.pathname]}
+          // selectedKeys={[window.location.pathname]}
           items={[
             {
-              key: "1",
+              key: "/home",
+              icon: <HomeOutlined />,
+              label: <Link to="/home">ホーム</Link>,
+            },
+            {
+              key: "/canvas",
+              icon: <FormOutlined />,
+              label: <Link to="/canvas">キャンバス</Link>,
+            },
+            {
+              key: "/profile",
               icon: <UserOutlined />,
-              label: "nav 1",
+              label: <Link to="/profile">プロフィール</Link>,
             },
             {
-              key: "2",
-              icon: <VideoCameraOutlined />,
-              label: "nav 2",
-            },
-            {
-              key: "3",
-              icon: <UploadOutlined />,
-              label: "nav 3",
+              key: "/logout",
+              icon: <UserOutlined />,
+              label: "ログアウト",
+              onClick: () => {
+                const auth = getAuth();
+                signOut(auth);
+              },
             },
           ]}
         />
@@ -64,7 +78,11 @@ const Dashboard = () => {
             background: colorBgContainer,
           }}
         >
-          Content
+          <Routes>
+            <Route path="/home" element={<Home />} />
+            <Route path="/*" element={<Canvas />} />
+            <Route path="/profile" element={<h1>Profile</h1>} />
+          </Routes>
         </Content>
       </Layout>
     </Layout>
