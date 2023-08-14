@@ -2,7 +2,7 @@ export interface Canvas {
   uid: string;
   user_id: string;
   template_id: string;
-  copydata: {
+  copy_data: {
     strings: [strings: string];
   };
   bg_image_uid: string;

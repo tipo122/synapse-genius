@@ -20,7 +20,7 @@ export const initialCanvasData: Canvas = {
   uid: "",
   user_id: "",
   template_id: "",
-  copydata: {
+  copy_data: {
     strings: [""],
   },
   bg_image_uid: "",
