@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { singletonHook } from "react-singleton-hook";
 import {
   DocumentReference,
   doc,
@@ -9,7 +10,8 @@ import {
   setDoc,
   addDoc,
 } from "firebase/firestore";
-import { db } from "../firebase";
+import { db, auth } from "../firebase";
+import { useAuthState } from "react-firebase-hooks/auth";
 import { Canvas } from "@domain-types/canvas";
 
 interface UseCanvasDataProps {
@@ -37,12 +39,17 @@ export const initialCanvasData: Canvas = {
   canvas_data: "",
 };
 
-export const useCanvasData = ({
-  user_id,
-}: UseCanvasDataProps): {
+const init = {
+  canvasData: initialCanvasData,
+  saveCanvasData: () => {},
+};
+
+export const useCanvasDataImpl = (): {
   canvasData: Canvas;
-  saveCanvasData: (canvasData: Canvas | undefined) => Promise<void>;
+  saveCanvasData: (canvas: Canvas | undefined) => void;
 } => {
+  const [user] = useAuthState(auth);
+  const user_id = user ? user.uid : "";
   const [canvasData, setCanvasData] = useState<Canvas>(initialCanvasData);
   const loading = useRef<boolean>(false);
   const q = query(collection(db, "canvases"), where("user_id", "==", user_id));
@@ -83,3 +90,5 @@ export const useCanvasData = ({
 
   return { canvasData: canvasData, saveCanvasData };
 };
+
+export const useCanvasData = singletonHook(init, useCanvasDataImpl);

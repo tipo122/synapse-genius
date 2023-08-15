@@ -13,16 +13,11 @@ import { Canvas } from "@domain-types/canvas";
 
 const CanvasPane = () => {
   const [user] = useAuthState(auth);
-  const { canvasData, saveCanvasData } = useCanvasData({
-    user_id: user?.uid || "",
-  });
+  const { canvasData, saveCanvasData } = useCanvasData();
   const canvasRef = useRef<Canvas>(initialCanvasData);
-  const onChange = useCallback(
-    (string: string) => {
-      saveCanvasData({ ...canvasRef.current, canvas_data: string });
-    },
-    [canvasData]
-  );
+  const onChange = (string: string) => {
+    saveCanvasData({ ...canvasRef.current, canvas_data: string });
+  };
   const { selectedObjects, editor, onReady } = useFabricJSEditor({
     onChange: onChange,
   });
