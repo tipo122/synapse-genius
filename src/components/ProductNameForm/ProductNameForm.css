@@ -1,0 +1,22 @@
+.product-name-body-div {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  align-items: start;
+  justify-content: flex-end;
+  /*height: 100%;*/
+  margin-left: 20px;
+}
+
+.product-name-textarea-div {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: space-around;
+  width: 100%;
+}
+
+.product-name-button {
+  margin: 0.7rem 0 0 1rem;
+}

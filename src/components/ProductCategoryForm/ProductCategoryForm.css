@@ -1,0 +1,22 @@
+.product-category-body-div {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: start;
+    justify-content: flex-end;
+    /*height: 100%;*/
+    margin-left: 20px;
+}
+
+.product-category-textarea-div {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: normal;
+    justify-content: space-around;
+    width: 100%;
+}
+
+.product-category-button {
+    margin: 0.7rem 0 0 1rem;
+}
