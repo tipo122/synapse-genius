@@ -14,10 +14,6 @@ import { db, auth } from "../firebase";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { Canvas } from "@domain-types/canvas";
 
-interface UseCanvasDataProps {
-  user_id: string;
-}
-
 export const initialCanvasData: Canvas = {
   uid: "",
   user_id: "",
