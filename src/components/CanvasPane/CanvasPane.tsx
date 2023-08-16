@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import {
   FabricJSCanvas,
   useFabricJSEditor,
@@ -6,21 +6,17 @@ import {
 import { Button, Input } from "antd";
 import { SketchPicker } from "react-color";
 import "./CanvasPane.css";
-import { useCanvasData, initialCanvasData } from "@hooks/useCanvasData";
-import { useAuthState } from "react-firebase-hooks/auth";
-import { auth } from "../../firebase";
-import { Canvas } from "@domain-types/canvas";
+import { useCanvasData } from "@hooks/useCanvasData";
+// import { useAuthState } from "react-firebase-hooks/auth";
+// import { auth } from "../../firebase";
+// import { Canvas } from "@domain-types/canvas";
 
 const CanvasPane = () => {
-  const [user] = useAuthState(auth);
-  const { canvasData, saveCanvasData } = useCanvasData();
-  const canvasRef = useRef<Canvas>(initialCanvasData);
-  const onChange = (string: string) => {
-    saveCanvasData({ ...canvasRef.current, canvas_data: string });
+  const { canvasImageData, saveCanvasImageData } = useCanvasData();
+  const onChange = (canvas_data: string) => {
+    saveCanvasImageData(canvas_data);
   };
-  const { selectedObjects, editor, onReady } = useFabricJSEditor({
-    onChange: onChange,
-  });
+  const { selectedObjects, editor, onReady } = useFabricJSEditor({ onChange });
   const [text, setText] = useState("");
   const [strokeColorPane, setStrokeColorPane] = useState<boolean>(false);
   const [strokeColor, setStrokeColor] = useState<string>("");
@@ -28,10 +24,8 @@ const CanvasPane = () => {
   const [fillColor, setFillColor] = useState<string>("");
 
   useEffect(() => {
-    canvasRef.current = canvasData;
-    if (typeof canvasData.canvas_data === "string")
-      editor?.setCanvas(canvasData.canvas_data as string);
-  }, [canvasData]);
+    if (typeof canvasImageData === "string") editor?.setCanvas(canvasImageData);
+  }, [canvasImageData]);
 
   const onAddCircle = () => {
     editor?.addCircle();

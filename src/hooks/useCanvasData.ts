@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { singletonHook } from "react-singleton-hook";
+// import { singletonHook } from "react-singleton-hook";
 import {
   DocumentReference,
   doc,
@@ -39,19 +39,19 @@ export const initialCanvasData: Canvas = {
   canvas_data: "",
 };
 
-const init = {
-  canvasData: initialCanvasData,
-  saveCanvasData: () => {},
-};
-
-export const useCanvasDataImpl = (): {
+export const useCanvasData = (): {
   canvasData: Canvas;
-  saveCanvasData: (canvas: Canvas | undefined) => void;
+  canvasImageData: string;
+  saveCanvasData: (canvas: Canvas) => void;
+  saveCanvasImageData: (canvas_data: string) => void;
 } => {
   const [user] = useAuthState(auth);
   const user_id = user ? user.uid : "";
   const [canvasData, setCanvasData] = useState<Canvas>(initialCanvasData);
+  const [canvasImageData, setCanvasImageData] = useState<string>("");
   const loading = useRef<boolean>(false);
+  const canvasDataRef = useRef<Canvas>(initialCanvasData);
+  const canvasImageDataRef = useRef<string>("");
   const q = query(collection(db, "canvases"), where("user_id", "==", user_id));
 
   useEffect(() => {
@@ -73,6 +73,7 @@ export const useCanvasDataImpl = (): {
           querySnapshot.forEach((doc) => {
             const canvasData = { ...(doc.data() as Canvas), uid: doc.id };
             setCanvasData(canvasData);
+            setCanvasImageData(canvasData.canvas_data as string);
           });
         }
         loading.current = false;
@@ -80,15 +81,43 @@ export const useCanvasDataImpl = (): {
     }
   }, []);
 
-  const saveCanvasData = async (canvas: Canvas | undefined) => {
+  useEffect(() => {
+    canvasDataRef.current = canvasData;
+  }, [canvasData]);
+
+  useEffect(() => {
+    canvasImageDataRef.current = canvasImageData;
+  }, [canvasImageData]);
+
+  const saveCanvasData = (canvas: Canvas) => {
+    canvas.canvas_data = canvasImageDataRef.current;
+    saveCanvasDataMain(canvas);
+  };
+
+  const saveCanvasImageData = (canvas_data: string) => {
+    console.log(canvasDataRef.current);
+    setCanvasImageData(canvas_data);
+    saveCanvasDataMain({ ...canvasDataRef.current, canvas_data: canvas_data });
+  };
+
+  const saveCanvasDataMain = async (canvas: Canvas) => {
     try {
-      canvas && setDoc(doc(db, "canvases", canvas.uid), canvas);
+      canvas && (await setDoc(doc(db, "canvases", canvas.uid), canvas));
     } catch (e: any) {
       console.error(e);
     }
   };
 
-  return { canvasData: canvasData, saveCanvasData };
+  return { canvasData, canvasImageData, saveCanvasData, saveCanvasImageData };
 };
 
-export const useCanvasData = singletonHook(init, useCanvasDataImpl);
+// useCanvasDataImpl();
+
+// const init = {
+//   canvasData: initialCanvasData,
+//   canvasImageData: "",
+//   saveCanvasData: useCanvasDataImpl.prototype.saveCanvasData,
+//   saveCanvasImageData: useCanvasDataImpl.prototype.saveCanvasImageData,
+// };
+
+// export const useCanvasData = singletonHook(init, useCanvasDataImpl);
