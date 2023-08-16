@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-// import { singletonHook } from "react-singleton-hook";
 import {
   DocumentReference,
   doc,
@@ -91,7 +90,6 @@ export const useCanvasData = (): {
   };
 
   const saveCanvasImageData = (canvas_data: string) => {
-    console.log(canvasDataRef.current);
     setCanvasImageData(canvas_data);
     saveCanvasDataMain({ ...canvasDataRef.current, canvas_data: canvas_data });
   };
@@ -106,14 +104,3 @@ export const useCanvasData = (): {
 
   return { canvasData, canvasImageData, saveCanvasData, saveCanvasImageData };
 };
-
-// useCanvasDataImpl();
-
-// const init = {
-//   canvasData: initialCanvasData,
-//   canvasImageData: "",
-//   saveCanvasData: useCanvasDataImpl.prototype.saveCanvasData,
-//   saveCanvasImageData: useCanvasDataImpl.prototype.saveCanvasImageData,
-// };
-
-// export const useCanvasData = singletonHook(init, useCanvasDataImpl);
