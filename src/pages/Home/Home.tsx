@@ -1,22 +1,24 @@
 import React, { useEffect, useState } from "react";
 import "./Home.css";
 import { List, Card, Col, Row } from "antd";
-import { Link } from "react-router-dom";
-import { collection, getDocs, query, where } from "firebase/firestore";
+import { Link, useNavigate } from "react-router-dom";
+import { addDoc, collection, getDocs, query, where } from "firebase/firestore";
 import { auth, db } from "../../firebase";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { Canvas } from "@domain-types/canvas";
+import { initialCanvasData } from "@hooks/useCanvasData";
 
 const { Meta } = Card;
 
 const Home = () => {
+  const navigate = useNavigate();
   const [user] = useAuthState(auth);
   const user_id = user ? user.uid : "";
   const [canvases, setCanvases] = useState<Canvas[]>();
   let loading = false;
 
   useEffect(() => {
-    if (!loading) {
+    if (!loading && user_id !== "") {
       (async () => {
         loading = true;
         const q = query(
@@ -34,6 +36,12 @@ const Home = () => {
     }
   }, []);
 
+  const handleNewCanvas = async () => {
+    initialCanvasData.user_id = user_id;
+    const docRef = await addDoc(collection(db, "canvases"), initialCanvasData);
+    navigate(`/canvas/${docRef.id}`);
+  };
+
   return (
     <>
       <h1>Home</h1>
@@ -43,11 +51,13 @@ const Home = () => {
         renderItem={(canvas) =>
           canvas.uid === "new" ? (
             <List.Item>
-              <Link to="/canvas/new">
-                <Card hoverable style={{ width: 240, height: 240 }}>
-                  <Meta title="新規作成" />
-                </Card>
-              </Link>
+              <Card
+                hoverable
+                style={{ width: 240, height: 240 }}
+                onClick={handleNewCanvas}
+              >
+                <Meta title="新規作成" />
+              </Card>
             </List.Item>
           ) : (
             <List.Item>
