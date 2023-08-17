@@ -29,12 +29,12 @@ const Home = () => {
           result.push(doc.data() as Canvas);
         });
         setCanvases([{ uid: "new" } as Canvas, ...result]);
-        console.log(canvases);
         loading = false;
       })();
     }
   }, []);
 
+  console.log(canvases);
   return (
     <>
       <h1>Home</h1>
@@ -54,8 +54,8 @@ const Home = () => {
             <List.Item>
               <Link to={`/canvas/${canvas.uid}`}>
                 <Card hoverable style={{ width: 240, height: 240 }}>
-                  <Meta title={canvas.uid} description="www.instagram.com" />
-                  {canvas.user_id}
+                  <Meta title={canvas.title} />
+                  サムネイルはまだ
                 </Card>
               </Link>
             </List.Item>

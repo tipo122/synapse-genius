@@ -7,6 +7,7 @@ import { Canvas } from "@domain-types/canvas";
 export const initialCanvasData: Canvas = {
   uid: "",
   user_id: "",
+  title: "Untitled",
   template_id: "",
   copy_data: {
     strings: [""],
