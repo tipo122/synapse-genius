@@ -34,7 +34,6 @@ const Home = () => {
     }
   }, []);
 
-  console.log(canvases);
   return (
     <>
       <h1>Home</h1>

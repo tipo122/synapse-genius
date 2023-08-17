@@ -38,7 +38,7 @@ const Dashboard = () => {
             {
               key: "/canvas/new",
               icon: <FormOutlined />,
-              label: <Link to="/canvas/new">キャンバス</Link>,
+              label: <Link to="/canvas/new">新規キャンバス</Link>,
             },
             {
               key: "/profile",
