@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { getAuth, signOut } from "firebase/auth";
 import { Layout, Menu, Button, theme } from "antd";
-import { Routes, Route, Link } from "react-router-dom";
+import { Routes, Route, Link, Navigate } from "react-router-dom";
 import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
@@ -36,9 +36,9 @@ const Dashboard = () => {
               label: <Link to="/home">ホーム</Link>,
             },
             {
-              key: "/canvas",
+              key: "/canvas/new",
               icon: <FormOutlined />,
-              label: <Link to="/canvas">キャンバス</Link>,
+              label: <Link to="/canvas/new">キャンバス</Link>,
             },
             {
               key: "/profile",
@@ -79,8 +79,9 @@ const Dashboard = () => {
           }}
         >
           <Routes>
+            <Route path="/*" element={<Navigate to="/home" />} />
             <Route path="/home" element={<Home />} />
-            <Route path="/*" element={<Canvas />} />
+            <Route path="/canvas/:canvasId" element={<Canvas />} />
             <Route path="/profile" element={<h1>Profile</h1>} />
           </Routes>
         </Content>
