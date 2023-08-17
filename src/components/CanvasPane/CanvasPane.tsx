@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import {
   FabricJSCanvas,
   useFabricJSEditor,
@@ -6,13 +6,10 @@ import {
 import { Button, Input } from "antd";
 import { SketchPicker } from "react-color";
 import "./CanvasPane.css";
-import { useCanvasData } from "@hooks/useCanvasData";
-// import { useAuthState } from "react-firebase-hooks/auth";
-// import { auth } from "../../firebase";
-// import { Canvas } from "@domain-types/canvas";
+import { CanvasContext } from "@pages/Canvas/Canvas";
 
 const CanvasPane = () => {
-  const { canvasImageData, saveCanvasImageData } = useCanvasData();
+  const { canvasImageData, saveCanvasImageData } = useContext(CanvasContext);
   const onChange = (canvas_data: string) => {
     saveCanvasImageData(canvas_data);
   };
