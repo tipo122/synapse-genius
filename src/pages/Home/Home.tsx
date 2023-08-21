@@ -28,7 +28,7 @@ const Home = () => {
         const result: Canvas[] = [];
         const querySnapshot = await getDocs(q);
         querySnapshot.forEach((doc) => {
-          result.push(doc.data() as Canvas);
+          result.push({ ...doc.data(), uid: doc.id } as Canvas);
         });
         setCanvases([{ uid: "new" } as Canvas, ...result]);
         loading = false;
