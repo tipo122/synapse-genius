@@ -3,6 +3,7 @@ import { Layout, Menu, Button, theme } from "antd";
 import ChatArea from "@components/ChatArea";
 import CanvasPane from "@components/CanvasPane";
 import ItemProperty from "@components/ItemProperty";
+import "./Canvas.css";
 
 const { Header, Content, Footer, Sider } = Layout;
 
@@ -13,7 +14,7 @@ const Canvas = () => {
         <CanvasPane />
       </Content>
       <Sider theme="light" width={"40%"}>
-        <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
+        <div className="canvas-body-div">
           <ItemProperty />
           <ChatArea />
         </div>
