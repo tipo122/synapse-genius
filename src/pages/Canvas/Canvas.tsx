@@ -2,6 +2,8 @@ import React, { createContext, useEffect } from "react";
 import { Layout } from "antd";
 import ChatArea from "@components/ChatArea";
 import CanvasPane from "@components/CanvasPane";
+import ItemProperty from "@components/ItemProperty";
+import "./Canvas.css";
 import { CanvasDataInterface, useCanvasData } from "@hooks/useCanvasData";
 import { useParams } from "react-router";
 
@@ -36,7 +38,10 @@ const Canvas = () => {
           <CanvasPane />
         </Content>
         <Sider theme="light" width={"40%"}>
-          <ChatArea />
+          <div className="canvas-body-div">
+            <ItemProperty />
+            <ChatArea />
+          </div>
         </Sider>
       </Layout>
     </CanvasContext.Provider>

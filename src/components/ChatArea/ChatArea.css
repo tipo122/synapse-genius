@@ -5,14 +5,13 @@
   align-items: start;
   justify-content: flex-end;
   height: 100%;
-  margin-left: 20px;
 }
 
 .chat-textarea-div {
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
-  align-items: nomal;
+  align-items: normal;
   justify-content: space-around;
   width: 100%;
 }
