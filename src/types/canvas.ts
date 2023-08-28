@@ -1,6 +1,7 @@
 export interface Canvas {
   uid: string;
   user_id: string;
+  title: string;
   template_id: string;
   copy_data: {
     strings: [strings: string];

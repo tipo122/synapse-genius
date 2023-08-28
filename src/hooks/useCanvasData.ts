@@ -1,24 +1,13 @@
 import { useEffect, useRef, useState } from "react";
-import {
-  DocumentReference,
-  doc,
-  collection,
-  query,
-  where,
-  getDocs,
-  setDoc,
-  addDoc,
-} from "firebase/firestore";
-import { db } from "../firebase";
+import { doc, collection, setDoc, addDoc, getDoc } from "firebase/firestore";
+import { db, auth } from "../firebase";
+import { useAuthState } from "react-firebase-hooks/auth";
 import { Canvas } from "@domain-types/canvas";
-
-interface UseCanvasDataProps {
-  user_id: string;
-}
 
 export const initialCanvasData: Canvas = {
   uid: "",
   user_id: "",
+  title: "Untitled",
   template_id: "",
   copy_data: {
     strings: [""],
@@ -37,49 +26,86 @@ export const initialCanvasData: Canvas = {
   canvas_data: "",
 };
 
-export const useCanvasData = ({
-  user_id,
-}: UseCanvasDataProps): {
+export interface CanvasDataInterface {
+  canvasId: string;
   canvasData: Canvas;
-  saveCanvasData: (canvasData: Canvas | undefined) => Promise<void>;
-} => {
+  canvasImageData: string;
+  saveCanvasData: (canvas: Canvas) => void;
+  saveCanvasImageData: (canvas_data: string) => void;
+  error: boolean;
+}
+
+export const useCanvasData = (canvasIdProp: string): CanvasDataInterface => {
+  const [user] = useAuthState(auth);
+  const user_id = user ? user.uid : "";
+  const [error, setError] = useState<boolean>(false);
+  const [canvasId, setCanvasId] = useState<string>(canvasIdProp);
   const [canvasData, setCanvasData] = useState<Canvas>(initialCanvasData);
+  const [canvasImageData, setCanvasImageData] = useState<string>("");
   const loading = useRef<boolean>(false);
-  const q = query(collection(db, "canvases"), where("user_id", "==", user_id));
+  const canvasDataRef = useRef<Canvas>(initialCanvasData);
+  const canvasImageDataRef = useRef<string>("");
 
   useEffect(() => {
     if (!loading.current) {
       loading.current = true;
+
       (async () => {
-        const querySnapshot = await getDocs(q);
-        if (querySnapshot.empty) {
-          console.log("new");
+        if (canvasIdProp === "new") {
           initialCanvasData.user_id = user_id;
           const docRef = await addDoc(
             collection(db, "canvases"),
             initialCanvasData
           );
-          initialCanvasData.uid = docRef.id;
-          setCanvasData(initialCanvasData);
+          setCanvasId(docRef.id);
+          return;
+        }
+        const docRef = doc(db, "canvases", canvasId);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          const doc = { ...docSnap.data(), uid: docSnap.id } as Canvas;
+          setCanvasData(doc);
+          setCanvasImageData(doc.canvas_data as string);
         } else {
-          console.log("load");
-          querySnapshot.forEach((doc) => {
-            const canvasData = { ...(doc.data() as Canvas), uid: doc.id };
-            setCanvasData(canvasData);
-          });
+          setError(true);
         }
         loading.current = false;
       })();
     }
   }, []);
 
-  const saveCanvasData = async (canvas: Canvas | undefined) => {
+  useEffect(() => {
+    canvasDataRef.current = canvasData;
+  }, [canvasData]);
+
+  useEffect(() => {
+    canvasImageDataRef.current = canvasImageData;
+  }, [canvasImageData]);
+
+  const saveCanvasData = (canvas: Canvas) => {
+    canvas.canvas_data = canvasImageDataRef.current;
+    saveCanvasDataMain(canvas);
+  };
+
+  const saveCanvasImageData = (canvas_data: string) => {
+    setCanvasImageData(canvas_data);
+    saveCanvasDataMain({ ...canvasDataRef.current, canvas_data: canvas_data });
+  };
+
+  const saveCanvasDataMain = async (canvas: Canvas) => {
     try {
-      canvas && setDoc(doc(db, "canvases", canvas.uid), canvas);
+      canvas && (await setDoc(doc(db, "canvases", canvas.uid), canvas));
     } catch (e: any) {
       console.error(e);
     }
   };
 
-  return { canvasData: canvasData, saveCanvasData };
+  return {
+    canvasId,
+    canvasData,
+    canvasImageData,
+    saveCanvasData,
+    saveCanvasImageData,
+    error,
+  };
 };

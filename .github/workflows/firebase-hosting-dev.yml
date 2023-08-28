@@ -14,9 +14,9 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: NPM Install
-        run: npm install
+        run: yarn install
       - name: NPM Build
-        run: npm run build
+        run: yarn build
         env:
           REACT_APP_OPENAI_API_KEY: ${{ secrets.REACT_APP_OPENAI_API_KEY_DEV }}
           REACT_APP_FIREBASE_APIKEY: ${{ secrets.REACT_APP_FIREBASE_APIKEY_DEV }}
