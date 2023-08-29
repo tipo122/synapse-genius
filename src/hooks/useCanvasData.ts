@@ -15,6 +15,7 @@ export const initialCanvasData: Canvas = {
   bg_image_uid: "",
   bg_image_prompt: "",
   item_property: {
+    item_url: "",
     item_name: "",
     item_category: "",
     item_description: "",

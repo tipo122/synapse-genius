@@ -9,9 +9,10 @@ export interface Canvas {
   bg_image_uid: string;
   bg_image_prompt: string;
   item_property: {
-    item_name: string;
-    item_category: string;
-    item_description: string;
+    item_url?: string;
+    item_name?: string;
+    item_category?: string;
+    item_description?: string;
   };
   campaign_property: {
     campaign_name: string;
