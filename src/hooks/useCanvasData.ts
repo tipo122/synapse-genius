@@ -1,5 +1,12 @@
 import { useEffect, useRef, useState } from "react";
-import { doc, collection, setDoc, addDoc, getDoc } from "firebase/firestore";
+import {
+  doc,
+  collection,
+  setDoc,
+  addDoc,
+  getDoc,
+  onSnapshot,
+} from "firebase/firestore";
 import { db, auth } from "../firebase";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { Canvas } from "@domain-types/canvas";
@@ -44,8 +51,13 @@ export const useCanvasData = (canvasIdProp: string): CanvasDataInterface => {
   const [canvasData, setCanvasData] = useState<Canvas>(initialCanvasData);
   const [canvasImageData, setCanvasImageData] = useState<string>("");
   const loading = useRef<boolean>(false);
+  const unsub = useRef<() => void>(() => {});
   const canvasDataRef = useRef<Canvas>(initialCanvasData);
   const canvasImageDataRef = useRef<string>("");
+
+  const updateCanvasData = (doc) => {
+    setCanvasData(doc.data());
+  };
 
   useEffect(() => {
     if (!loading.current) {
@@ -65,6 +77,7 @@ export const useCanvasData = (canvasIdProp: string): CanvasDataInterface => {
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
           const doc = { ...docSnap.data(), uid: docSnap.id } as Canvas;
+          unsub.current = onSnapshot(docRef, updateCanvasData);
           setCanvasData(doc);
           setCanvasImageData(doc.canvas_data as string);
         } else {
@@ -73,6 +86,9 @@ export const useCanvasData = (canvasIdProp: string): CanvasDataInterface => {
         loading.current = false;
       })();
     }
+    return () => {
+      unsub.current();
+    };
   }, []);
 
   useEffect(() => {

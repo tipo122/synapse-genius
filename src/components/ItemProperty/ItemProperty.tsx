@@ -1,10 +1,12 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import "./ItemProperty.css";
 import { Button, Input } from "antd";
 import { httpsCallable } from "firebase/functions";
 import { functions } from "../../firebase";
 import { Canvas } from "@domain-types/canvas";
 import { initialCanvasData } from "@hooks/useCanvasData";
+import { useParams } from "react-router";
+import { CanvasContext } from "@pages/Canvas/Canvas";
 interface ProductUrlFormProps {
   children?: React.ReactElement;
 }
@@ -20,7 +22,10 @@ interface ProductFeatureFormProps {
 const { TextArea } = Input;
 
 const ItemProperty = () => {
-  const [canvasData, setCanvasData] = useState<Canvas>(initialCanvasData);
+  const { canvasData, saveCanvasData } = useContext(CanvasContext);
+  // const [canvasData, setCanvasData] = useState<Canvas>(initialCanvasData);
+  const { canvasId } = useParams();
+
   const handleBlur = async () => {
     // ここでfirebaseにsaveする予定
   };
@@ -32,6 +37,7 @@ const ItemProperty = () => {
   const handleClick = async () => {
     const result = await onAnalyzeProductInsight({
       target_url: canvasData.item_property.item_url,
+      canvas_id: canvasId,
     });
   };
   return (
@@ -42,7 +48,7 @@ const ItemProperty = () => {
           <Input
             value={canvasData.item_property.item_url}
             onChange={(e) => {
-              setCanvasData({
+              saveCanvasData({
                 ...canvasData,
                 item_property: { item_url: e.target.value },
               });

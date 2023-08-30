@@ -2,9 +2,11 @@ import openai
 import logging
 import json
 import os
-from firebase_functions import https_fn
+from firebase_functions import firestore_fn, https_fn
 import requests
 from bs4 import BeautifulSoup
+from firebase_admin import initialize_app, firestore
+import google.cloud.firestore
 
 log = logging.getLogger(__name__)
 logging.basicConfig(level=logging.DEBUG)
@@ -13,9 +15,12 @@ def main(req:https_fn) -> https_fn.Response:
     openai.api_key = os.environ.get("OPENAI_API_KEY")
     params = req.get_json()["data"]
     target_url = params["target_url"] if "target_url" in params else None
+    canvas_id = params["canvas_id"] if "canvas_id" in params else None
     if target_url is None:
         return json.dumps({"data": "target_url is not in req.data"})
 
+    firestore_client: google.cloud.firestore.Client = firestore.client()
+    # return json.dumps({"data": "end"})
     item_name = ""
     item_category = ""
     item_description = ""
@@ -27,7 +32,7 @@ def main(req:https_fn) -> https_fn.Response:
             "item_description" : item_description,
         }
     }
-
+ 
     text = fetch_webpage_text(target_url)
 
     messages=[
@@ -53,8 +58,26 @@ def main(req:https_fn) -> https_fn.Response:
         model="gpt-3.5-turbo",
         max_tokens=400
     ) 
-    print(response["choices"][0]["message"]["content"])
-    return json.dumps({"data" : response})
+
+    result = json.loads(response["choices"][0]["message"]["content"])
+    print(result)
+
+    item_name = result["item_property"]["item_name"]
+    item_category = result["item_property"]["item_category"]
+    item_description = result["item_property"]["item_description"]
+
+    result = {
+        "item_property" : {
+            "item_name" : item_name,
+            "item_category" : item_category,
+            "item_description" : item_description,
+        }
+    }
+ 
+    doc_ref = firestore_client.collection("canvases").document(canvas_id)
+    doc_ref.set(result, merge=True)
+
+    return json.dumps({"data" : "ok"})
 
 def fetch_webpage_text(url):
     headers = {
