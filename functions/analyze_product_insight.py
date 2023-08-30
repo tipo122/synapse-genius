@@ -58,9 +58,9 @@ def main(req:https_fn) -> https_fn.Response:
         model="gpt-3.5-turbo",
         max_tokens=400
     ) 
-
-    result = json.loads(response["choices"][0]["message"]["content"])
+    
     print(result)
+    result = json.loads(response["choices"][0]["message"]["content"])
 
     item_name = result["item_property"]["item_name"]
     item_category = result["item_property"]["item_category"]
