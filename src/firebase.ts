@@ -21,6 +21,6 @@ const provider = new GoogleAuthProvider();
 const functions = getFunctions(app);
 
 // ローカルでテストする場合は、以下の行をコメントインしてください
-connectFunctionsEmulator(functions, "127.0.0.1", 5001);
+// connectFunctionsEmulator(functions, "127.0.0.1", 5001);
 
 export { db, auth, provider, functions };
