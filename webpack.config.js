@@ -47,12 +47,13 @@ module.exports = {
   },
   devtool: prod ? undefined : "source-map",
   plugins: [
-    // new HtmlWebpackPlugin({
-    //   template: "./public/index.html",
-    // }),
-    new CopyPlugin({
-      patterns: [{ from: "public", to: "" }],
-    }),
+    prod
+      ? new CopyPlugin({
+          patterns: [{ from: "public", to: "" }],
+        })
+      : new HtmlWebpackPlugin({
+          template: "./public/index.html",
+        }),
     new MiniCssExtractPlugin(),
     new webpack.DefinePlugin({
       "process.env": JSON.stringify(process.env),
