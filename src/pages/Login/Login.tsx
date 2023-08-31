@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { signInWithPopup } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
 import { auth, provider } from "../../firebase";
-import { Navigate, useNavigate } from "react-router-dom";
+import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { Button } from "antd";
 import { db } from "../../firebase";
@@ -10,6 +10,7 @@ import "./Login.css";
 
 const Login = () => {
   const [user, loading, error] = useAuthState(auth);
+  const { url } = useParams();
   const navigate = useNavigate();
 
   const signIn = async () => {
@@ -38,7 +39,7 @@ const Login = () => {
     <div className="Login">
       {error && <strong>Error: {JSON.stringify(error)}</strong>}
       {loading && <span>User: Loading...</span>}
-      {user && <Navigate to="/" />}
+      {user && <Navigate to={`/${url}`} />}
       <Button onClick={signIn}>Sign in</Button>
     </div>
   );
