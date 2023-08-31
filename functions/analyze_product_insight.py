@@ -59,7 +59,6 @@ def main(req:https_fn) -> https_fn.Response:
         max_tokens=400
     ) 
     
-    print(result)
     result = json.loads(response["choices"][0]["message"]["content"])
 
     item_name = result["item_property"]["item_name"]
