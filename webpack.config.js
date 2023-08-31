@@ -4,6 +4,7 @@ const path = require("path");
 
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const CopyPlugin = require("copy-webpack-plugin");
 const webpack = require("webpack");
 
 var dotenvFiles = [`./.env.local`, `./.env`].filter(Boolean);
@@ -46,8 +47,11 @@ module.exports = {
   },
   devtool: prod ? undefined : "source-map",
   plugins: [
-    new HtmlWebpackPlugin({
-      template: "./public/index.html",
+    // new HtmlWebpackPlugin({
+    //   template: "./public/index.html",
+    // }),
+    new CopyPlugin({
+      patterns: [{ from: "public", to: "" }],
     }),
     new MiniCssExtractPlugin(),
     new webpack.DefinePlugin({
