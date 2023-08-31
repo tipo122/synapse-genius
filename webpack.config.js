@@ -47,11 +47,11 @@ module.exports = {
   },
   devtool: prod ? undefined : "source-map",
   plugins: [
-    // new HtmlWebpackPlugin({
-    //   template: "./public/index.html",
-    // }),
     new CopyPlugin({
-      patterns: [{ from: "public", to: "" }],
+      patterns: [{ from: "public/img", to: "img" }],
+    }),
+    new HtmlWebpackPlugin({
+      template: "./public/index.html",
     }),
     new MiniCssExtractPlugin(),
     new webpack.DefinePlugin({
