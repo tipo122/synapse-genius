@@ -38,7 +38,7 @@ export interface CanvasDataInterface {
   canvasId: string;
   canvasData: Canvas;
   canvasImageData: string;
-  saveCanvasData: (canvas: Canvas) => void;
+  saveCanvasData: (canvas: any) => void;
   saveCanvasImageData: (canvas_data: string) => void;
   error: boolean;
 }
@@ -56,7 +56,7 @@ export const useCanvasData = (canvasIdProp: string): CanvasDataInterface => {
   const canvasImageDataRef = useRef<string>("");
 
   const updateCanvasData = (doc) => {
-    setCanvasData(doc.data());
+    setCanvasData({ ...doc.data(), uid: canvasDataRef.current.uid });
   };
 
   useEffect(() => {
@@ -99,19 +99,24 @@ export const useCanvasData = (canvasIdProp: string): CanvasDataInterface => {
     canvasImageDataRef.current = canvasImageData;
   }, [canvasImageData]);
 
-  const saveCanvasData = (canvas: Canvas) => {
+  const saveCanvasData = (canvas: any) => {
     canvas.canvas_data = canvasImageDataRef.current;
     saveCanvasDataMain(canvas);
   };
 
   const saveCanvasImageData = (canvas_data: string) => {
     setCanvasImageData(canvas_data);
-    saveCanvasDataMain({ ...canvasDataRef.current, canvas_data: canvas_data });
+    // saveCanvasDataMain({ ...canvasDataRef.current, canvas_data: canvas_data });
+    canvas_data &&
+      setDoc(doc(db, "canvases", canvasId), { canvas_data }, { merge: true });
   };
 
   const saveCanvasDataMain = async (canvas: Canvas) => {
     try {
-      canvas && (await setDoc(doc(db, "canvases", canvas.uid), canvas));
+      canvas &&
+        (await setDoc(doc(db, "canvases", canvas.uid), canvas, {
+          merge: true,
+        }));
     } catch (e: any) {
       console.error(e);
     }

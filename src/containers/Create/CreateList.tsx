@@ -22,9 +22,7 @@ export const CreateList = () => {
         doc(db, "templates", "WgxpZYMkjCVpt52dreXN")
       );
       if (snapshot.exists()) template_data = snapshot.data().canvas_data;
-      if (canvasId) initialCanvasData.uid = canvasId;
-      // saveCanvasData(initialCanvasData);
-      // saveCanvasImageData(template_data);
+      saveCanvasImageData(template_data);
     })();
   }, []);
 
