@@ -7,6 +7,7 @@ import { Button, Input } from "antd";
 import { SketchPicker } from "react-color";
 import "./CanvasPane.css";
 import { CanvasContext } from "@pages/Canvas/Canvas";
+import { fabric } from "fabric";
 
 const CanvasPane = () => {
   const { canvasImageData, saveCanvasImageData } = useContext(CanvasContext);
@@ -50,6 +51,14 @@ const CanvasPane = () => {
   const onDeleteSelected = () => {
     editor?.deleteSelected();
   };
+  const onLoadSVG = (e) => {
+    var url = URL.createObjectURL(e.target.files[0]);
+    fabric.loadSVGFromURL(url, function (objects, options) {
+      objects.forEach(function (svg) {
+        editor?.canvas.add(svg).renderAll();
+      });
+    });
+  };
   return (
     <>
       {editor ? (
@@ -58,6 +67,7 @@ const CanvasPane = () => {
           <Button onClick={onAddRectangle}>Add Rectangle</Button>
           <Button onClick={onDeleteSelected}>Delete Selected</Button>
           <Button onClick={onDeleteAll}>Delete All</Button>
+          <Input type="file" onChange={onLoadSVG} />
           <Input
             type="text"
             value={text}
