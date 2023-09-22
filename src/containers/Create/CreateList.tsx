@@ -3,6 +3,10 @@ import { List, Card, Col, Row } from "antd";
 import { Button, Input, Layout, Typography, theme } from "antd";
 import { CreateContext } from "./CreateContainer";
 import { Link, useNavigate, useParams } from "react-router-dom";
+import {
+  FabricJSCanvas,
+  useFabricJSEditor,
+} from "../../hooks/useFabricJSEditor";
 import { initialCanvasData, useCanvasData } from "@hooks/useCanvasData";
 import { collection, doc, getDoc, query } from "firebase/firestore";
 import { db } from "../../firebase";
@@ -13,7 +17,8 @@ export const CreateList = () => {
   // const { targetUrl, setTargetUrl, handleStart } = useContext(CreateContext);
   const { canvasId } = useParams();
   const { saveCanvasData, saveCanvasImageData } = useCanvasData(canvasId ?? "");
-  const creatives = ["1", "2", "3", "4", "5"];
+  const creatives = ["1", "2", "3"];
+  const { selectedObjects, editor, onReady } = useFabricJSEditor();
 
   useEffect(() => {
     (async () => {
@@ -38,7 +43,11 @@ export const CreateList = () => {
               <Link to={`/canvas/${canvasId}`}>
                 <Card hoverable style={{ width: 240, height: 240 }}>
                   <Card.Meta />
-                  <img src={`/img/${item}.png`} width={190} height={190} />
+                  {/* <img src={`/img/${item}.png`} width={190} height={190} /> */}
+                  <FabricJSCanvas
+                    className="synapse-canvas"
+                    onReady={onReady}
+                  />
                 </Card>
               </Link>
             </List.Item>
