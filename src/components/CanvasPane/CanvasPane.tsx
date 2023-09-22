@@ -59,6 +59,12 @@ const CanvasPane = () => {
       });
     });
   };
+  const onSendBackwards = (e) => {
+    editor?.sendBackwards();
+  };
+  const onBringForward = (e) => {
+    editor?.bringForward();
+  };
   return (
     <>
       {editor ? (
@@ -102,6 +108,8 @@ const CanvasPane = () => {
               />
             </div>
           )}
+          <Button onClick={onSendBackwards}>Send to back</Button>
+          <Button onClick={onBringForward}>Bring to front</Button>
         </div>
       ) : (
         <>Loading...</>

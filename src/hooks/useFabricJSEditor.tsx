@@ -27,6 +27,8 @@ export interface FabricJSEditor {
   setStrokeColor: (color: string) => void;
   zoomIn: () => void;
   zoomOut: () => void;
+  bringForward: () => void;
+  sendBackwards: () => void;
   setCanvas: (text: string) => void;
 }
 export interface FabricJSCanvasProps {
@@ -114,6 +116,16 @@ const buildEditor = (
       canvas.discardActiveObject();
       canvas.renderAll();
       onChange && onChange(JSON.stringify(canvas));
+    },
+    sendBackwards: () => {
+      canvas
+        .getActiveObjects()
+        .forEach((object) => canvas.sendBackwards(object));
+    },
+    bringForward: () => {
+      canvas
+        .getActiveObjects()
+        .forEach((object) => canvas.bringForward(object));
     },
     fillColor,
     strokeColor,
