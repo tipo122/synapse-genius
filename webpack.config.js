@@ -4,6 +4,7 @@ const path = require("path");
 
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const CopyPlugin = require("copy-webpack-plugin");
 const webpack = require("webpack");
 
 var dotenvFiles = [`./.env.local`, `./.env`].filter(Boolean);
@@ -23,6 +24,7 @@ module.exports = {
   entry: "./src/index.tsx",
   output: {
     path: __dirname + "/dist/",
+    publicPath: "/",
   },
   module: {
     rules: [
@@ -45,6 +47,9 @@ module.exports = {
   },
   devtool: prod ? undefined : "source-map",
   plugins: [
+    new CopyPlugin({
+      patterns: [{ from: "public/img", to: "img" }],
+    }),
     new HtmlWebpackPlugin({
       template: "./public/index.html",
     }),

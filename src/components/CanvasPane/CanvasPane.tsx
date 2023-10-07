@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import {
   FabricJSCanvas,
   useFabricJSEditor,
@@ -11,22 +11,15 @@ import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "../../firebase";
 import { Canvas } from "@domain-types/canvas";
 import { FontFamilyList } from "@components/TextStyle/TextStyle";
+import { CanvasContext } from "@pages/Canvas/Canvas";
+import { fabric } from "fabric";
 
 const CanvasPane = () => {
-  const [user] = useAuthState(auth);
-  const { canvasData, saveCanvasData } = useCanvasData({
-    user_id: user?.uid || "",
-  });
-  const canvasRef = useRef<Canvas>(initialCanvasData);
-  const onChange = useCallback(
-    (string: string) => {
-      saveCanvasData({ ...canvasRef.current, canvas_data: string });
-    },
-    [canvasData]
-  );
-  const { selectedObjects, editor, onReady } = useFabricJSEditor({
-    onChange: onChange,
-  });
+  const { canvasImageData, saveCanvasImageData } = useContext(CanvasContext);
+  const onChange = (canvas_data: string) => {
+    saveCanvasImageData(canvas_data);
+  };
+  const { selectedObjects, editor, onReady } = useFabricJSEditor({ onChange });
   const [text, setText] = useState("");
   const [strokeColorPane, setStrokeColorPane] = useState<boolean>(false);
   const [strokeColor, setStrokeColor] = useState<string>("");
@@ -34,10 +27,8 @@ const CanvasPane = () => {
   const [fillColor, setFillColor] = useState<string>("");
 
   useEffect(() => {
-    canvasRef.current = canvasData;
-    if (typeof canvasData.canvas_data === "string")
-      editor?.setCanvas(canvasData.canvas_data as string);
-  }, [canvasData]);
+    if (typeof canvasImageData === "string") editor?.setCanvas(canvasImageData);
+  }, [canvasImageData]);
 
   const onAddCircle = () => {
     editor?.addCircle();
@@ -70,6 +61,20 @@ const CanvasPane = () => {
   const handleFontChange = (fontFamily) => {
     editor?.changeTextFont(fontFamily)
   }
+  const onLoadSVG = (e) => {
+    var url = URL.createObjectURL(e.target.files[0]);
+    fabric.loadSVGFromURL(url, function (objects, options) {
+      objects.forEach(function (svg) {
+        editor?.canvas.add(svg).renderAll();
+      });
+    });
+  };
+  const onSendBackwards = (e) => {
+    editor?.sendBackwards();
+  };
+  const onBringForward = (e) => {
+    editor?.bringForward();
+  };
   return (
     <>
       {editor ? (
@@ -78,6 +83,7 @@ const CanvasPane = () => {
           <Button onClick={onAddRectangle}>Add Rectangle</Button>
           <Button onClick={onDeleteSelected}>Delete Selected</Button>
           <Button onClick={onDeleteAll}>Delete All</Button>
+          <Input type="file" onChange={onLoadSVG} />
           <Input
             type="text"
             value={text}
@@ -116,6 +122,8 @@ const CanvasPane = () => {
               />
             </div>
           )}
+          <Button onClick={onSendBackwards}>Send to back</Button>
+          <Button onClick={onBringForward}>Bring to front</Button>
         </div>
       ) : (
         <>Loading...</>
