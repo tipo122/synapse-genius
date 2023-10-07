@@ -6,10 +6,6 @@ import {
 import { Button, Input, Select } from "antd";
 import { SketchPicker } from "react-color";
 import "./CanvasPane.css";
-import { useCanvasData, initialCanvasData } from "@hooks/useCanvasData";
-import { useAuthState } from "react-firebase-hooks/auth";
-import { auth } from "../../firebase";
-import { Canvas } from "@domain-types/canvas";
 import { FontFamilyList } from "@components/TextStyle/TextStyle";
 import { CanvasContext } from "@pages/Canvas/Canvas";
 import { fabric } from "fabric";
