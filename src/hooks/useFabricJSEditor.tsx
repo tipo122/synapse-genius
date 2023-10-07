@@ -19,6 +19,7 @@ export interface FabricJSEditor {
   addLine: () => void;
   addText: (text: string) => void;
   updateText: (text: string) => void;
+  changeTextFont: (fontFamily: string) => void;
   deleteAll: () => void;
   deleteSelected: () => void;
   fillColor: string;
@@ -102,6 +103,11 @@ const buildEditor = (
         canvas.renderAll();
         onChange && onChange(JSON.stringify(canvas));
       }
+    },
+    changeTextFont: (fontFamily: string) =>{
+      canvas.getActiveObjects().forEach((object) => object.set({fontFamily: fontFamily}));
+      canvas.renderAll();
+      onChange && onChange(JSON.stringify(canvas));
     },
     deleteAll: () => {
       canvas.getObjects().forEach((object) => canvas.remove(object));

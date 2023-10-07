@@ -3,13 +3,14 @@ import {
   FabricJSCanvas,
   useFabricJSEditor,
 } from "../../hooks/useFabricJSEditor";
-import { Button, Input } from "antd";
+import { Button, Input, Select } from "antd";
 import { SketchPicker } from "react-color";
 import "./CanvasPane.css";
 import { useCanvasData, initialCanvasData } from "@hooks/useCanvasData";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "../../firebase";
 import { Canvas } from "@domain-types/canvas";
+import { FontFamilyList } from "@components/TextStyle/TextStyle";
 
 const CanvasPane = () => {
   const [user] = useAuthState(auth);
@@ -64,6 +65,11 @@ const CanvasPane = () => {
   const onDeleteSelected = () => {
     editor?.deleteSelected();
   };
+  
+  const fontFamilyList = FontFamilyList;
+  const handleFontChange = (fontFamily) => {
+    editor?.changeTextFont(fontFamily)
+  }
   return (
     <>
       {editor ? (
@@ -98,6 +104,10 @@ const CanvasPane = () => {
           >
             Fill Color
           </Button>
+          <Select defaultValue={fontFamilyList[0]}
+            style={{ width: 120 }}
+            onChange={handleFontChange}
+            options={fontFamilyList}></Select>
           {fillColorPane && (
             <div className="color-popover">
               <SketchPicker
