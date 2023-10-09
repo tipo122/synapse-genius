@@ -20,6 +20,7 @@ export interface FabricJSEditor {
   addText: (text: string) => void;
   updateText: (text: string) => void;
   changeTextFont: (fontFamily: string) => void;
+  changeTextSize: (textSize: number) => void;
   deleteAll: () => void;
   deleteSelected: () => void;
   fillColor: string;
@@ -95,7 +96,7 @@ const buildEditor = (
       const object = new fabric.Textbox(text, { ...TEXT, fill: strokeColor });
       object.set({ text: text });
       canvas.add(object);
-      onChange && onChange(JSON.stringify(canvas));
+      // onChange && onChange(JSON.stringify(canvas));
     },
     updateText: (text: string) => {
       const objects: any[] = canvas.getActiveObjects();
@@ -110,6 +111,10 @@ const buildEditor = (
       canvas.getActiveObjects().forEach((object) => object.set({fontFamily: fontFamily}));
       canvas.renderAll();
       onChange && onChange(JSON.stringify(canvas));
+    },
+    changeTextSize: (textSize: number) => {
+      canvas.getActiveObjects().forEach((object) => object.set({fontSize: textSize}));
+      canvas.renderAll();
     },
     deleteAll: () => {
       canvas.getObjects().forEach((object) => canvas.remove(object));

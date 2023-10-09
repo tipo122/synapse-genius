@@ -9,6 +9,7 @@ import "./CanvasPane.css";
 import { FontFamilyList } from "@components/TextStyle/TextStyle";
 import { CanvasContext } from "@pages/Canvas/Canvas";
 import { fabric } from "fabric";
+import { TEXT } from "../../types/defaultShapes";
 
 const CanvasPane = () => {
   const { canvasImageData, saveCanvasImageData } = useContext(CanvasContext);
@@ -57,6 +58,10 @@ const CanvasPane = () => {
   const handleFontChange = (fontFamily) => {
     editor?.changeTextFont(fontFamily)
   }
+  const [textSize, setTextSize] = useState(TEXT.fontSize);
+  useEffect(() => {
+    editor?.changeTextSize(textSize)
+  }, [textSize])
   const onLoadSVG = (e) => {
     var url = URL.createObjectURL(e.target.files[0]);
     fabric.loadSVGFromURL(url, function (objects, options) {
@@ -109,7 +114,13 @@ const CanvasPane = () => {
           <Select defaultValue={fontFamilyList[0]}
             style={{ width: 120 }}
             onChange={handleFontChange}
-            options={fontFamilyList}></Select>
+            options={fontFamilyList}>
+          </Select>
+          <div>
+            <Button onClick={()=>{setTextSize(textSize - 1)}}>-</Button>
+            <Input style={{ width: 50 }} value={textSize} onChange={(e)=>setTextSize(Number(e.target.value))}></Input>
+            <Button onClick={()=>{setTextSize(textSize + 1)}}>+</Button>
+          </div>
           {fillColorPane && (
             <div className="color-popover">
               <SketchPicker
