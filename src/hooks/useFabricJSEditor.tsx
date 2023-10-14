@@ -21,6 +21,10 @@ export interface FabricJSEditor {
   updateText: (text: string) => void;
   changeTextFont: (fontFamily: string) => void;
   changeTextSize: (textSize: number) => void;
+  changeBoldFont: (apply: boolean) => void;
+  changeItalicFont: (apply: boolean) => void;
+  changeUnderLineFont: (apply: boolean) => void;
+  changeStrikethroughFont: (apply: boolean) => void;
   deleteAll: () => void;
   deleteSelected: () => void;
   fillColor: string;
@@ -114,6 +118,32 @@ const buildEditor = (
     },
     changeTextSize: (textSize: number) => {
       canvas.getActiveObjects().forEach((object) => object.set({fontSize: textSize}));
+      canvas.renderAll();
+    },
+    changeBoldFont: (apply: boolean) => {
+      if(apply){
+        canvas.getActiveObjects().forEach((object) => object.set({fontWeight: "bold"}));
+        canvas.renderAll();
+        return
+      }
+      canvas.getActiveObjects().forEach((object) => object.set({fontWeight: "normal"}));
+      canvas.renderAll();
+    },
+    changeItalicFont: (apply: boolean) => {
+      if(apply){
+        canvas.getActiveObjects().forEach((object) => object.set({fontStyle: "italic"}));
+      canvas.renderAll();
+        return
+      }
+      canvas.getActiveObjects().forEach((object) => object.set({fontStyle: "normal"}));
+      canvas.renderAll();
+    },
+    changeUnderLineFont: (apply: boolean) => {
+      canvas.getActiveObjects().forEach((object) => object.set({underline: apply}));
+      canvas.renderAll();
+    },
+    changeStrikethroughFont: (apply: boolean) => {
+      canvas.getActiveObjects().forEach((object) => object.set({linethrough: apply}));
       canvas.renderAll();
     },
     deleteAll: () => {
