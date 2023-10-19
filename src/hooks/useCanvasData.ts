@@ -60,7 +60,7 @@ export const useCanvasData = (canvasIdProp: string): CanvasDataInterface => {
   };
 
   useEffect(() => {
-    if (!loading.current) {
+    if (!loading.current && canvasId) {
       loading.current = true;
 
       (async () => {
