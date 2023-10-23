@@ -19,7 +19,6 @@ const Canvas = () => {
     canvasImageData,
     saveCanvasData,
     saveCanvasImageData,
-    saveThumbnail,
     error,
   } = useCanvasData(canvasIdParam ?? "");
 
@@ -31,7 +30,6 @@ const Canvas = () => {
         canvasImageData,
         saveCanvasData,
         saveCanvasImageData,
-        saveThumbnail,
         error,
       }}
     >

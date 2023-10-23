@@ -8,10 +8,8 @@ import {
   onSnapshot,
 } from "firebase/firestore";
 import { db, auth } from "../firebase";
-import { getStorage, ref, uploadBytes, uploadString } from "firebase/storage";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { Canvas } from "@domain-types/canvas";
-import { FabricJSEditor } from "./useFabricJSEditor";
 
 export const initialCanvasData: Canvas = {
   uid: "",
@@ -34,7 +32,6 @@ export const initialCanvasData: Canvas = {
     campaign_description: "",
   },
   canvas_data: "",
-  thumbnail: "",
 };
 
 export interface CanvasDataInterface {
@@ -43,13 +40,11 @@ export interface CanvasDataInterface {
   canvasImageData: string;
   saveCanvasData: (canvas: any) => void;
   saveCanvasImageData: (canvas_data: string) => void;
-  saveThumbnail: (editor: FabricJSEditor) => void;
   error: boolean;
 }
 
 export const useCanvasData = (canvasIdProp: string): CanvasDataInterface => {
   const [user] = useAuthState(auth);
-  const storage = getStorage();
   const user_id = user ? user.uid : "";
   const [error, setError] = useState<boolean>(false);
   const [canvasId, setCanvasId] = useState<string>(canvasIdProp);
@@ -59,8 +54,6 @@ export const useCanvasData = (canvasIdProp: string): CanvasDataInterface => {
   const unsub = useRef<() => void>(() => {});
   const canvasDataRef = useRef<Canvas>(initialCanvasData);
   const canvasImageDataRef = useRef<string>("");
-  const thumbnailName = `thumbnail/${canvasId}.svg`;
-  const thumbnailRef = canvasId ? ref(storage, thumbnailName) : null;
 
   const updateCanvasData = (doc) => {
     setCanvasData({ ...doc.data(), uid: canvasDataRef.current.uid });
@@ -106,17 +99,6 @@ export const useCanvasData = (canvasIdProp: string): CanvasDataInterface => {
     canvasImageDataRef.current = canvasImageData;
   }, [canvasImageData]);
 
-  const saveThumbnail = (editor: FabricJSEditor) => {
-    console.log("saving");
-    const content = new Blob([editor.toSVG()], {
-      type: "image/svg+xml",
-    });
-    const metadata = {
-      contentType: "image/svg+xml",
-    };
-    thumbnailRef && uploadBytes(thumbnailRef, content, metadata);
-  };
-
   const saveCanvasData = (canvas: any) => {
     canvas.canvas_data = canvasImageDataRef.current;
     saveCanvasDataMain(canvas);
@@ -146,7 +128,6 @@ export const useCanvasData = (canvasIdProp: string): CanvasDataInterface => {
     canvasImageData,
     saveCanvasData,
     saveCanvasImageData,
-    saveThumbnail,
     error,
   };
 };

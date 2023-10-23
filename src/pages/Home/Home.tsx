@@ -15,17 +15,15 @@ import { useAuthState } from "react-firebase-hooks/auth";
 import { Canvas } from "@domain-types/canvas";
 import { initialCanvasData } from "@hooks/useCanvasData";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { getDownloadURL, getStorage, ref } from "firebase/storage";
 import "./Home.css";
 
 const { Meta } = Card;
 
 const Home = () => {
   const navigate = useNavigate();
-  const storage = getStorage();
   const [user] = useAuthState(auth);
   const user_id = user ? user.uid : "";
-  const [canvases, setCanvases] = useState<Canvas[]>([]);
+  const [canvases, setCanvases] = useState<Canvas[]>();
   let loading = false;
 
   useEffect(() => {
@@ -87,11 +85,7 @@ const Home = () => {
                 onClick={() => navigate(`/canvas/${canvas.uid}`)}
               >
                 <Meta title={canvas.title} />
-                <img
-                  src={`https://firebasestorage.googleapis.com/v0/b/${process.env.REACT_APP_FIREBASE_STORAGEBUCKET}/o/thumbnail%2F${canvas.uid}.svg?alt=media`}
-                  width={160}
-                  height={160}
-                />
+                サムネイルはまだ
                 <div
                   className="controleIcons"
                   onClick={(e) => {
