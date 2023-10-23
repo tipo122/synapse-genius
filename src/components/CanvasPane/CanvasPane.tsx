@@ -12,9 +12,16 @@ import { fabric } from "fabric";
 import { TEXT } from "../../types/defaultShapes";
 
 const CanvasPane = () => {
-  const { canvasImageData, saveCanvasImageData } = useContext(CanvasContext);
+  let thumbTimer = null as unknown as NodeJS.Timeout;
+  const { canvasImageData, saveCanvasImageData, saveThumbnail } =
+    useContext(CanvasContext);
   const onChange = (canvas_data: string) => {
     saveCanvasImageData(canvas_data);
+    if (thumbTimer) {
+      clearTimeout(thumbTimer);
+      thumbTimer = null as unknown as NodeJS.Timeout;
+    }
+    thumbTimer = setTimeout(handleSaveThumbnail, 2000);
   };
   const { selectedObjects, editor, onReady } = useFabricJSEditor({ onChange });
   const [text, setText] = useState("");
@@ -23,9 +30,20 @@ const CanvasPane = () => {
   const [fillColorPane, setFillColorPane] = useState<boolean>(false);
   const [fillColor, setFillColor] = useState<string>("");
 
+  const handleSaveThumbnail = () => {
+    console.log(`save thumbnail ${editor ? "available" : "not available"}`);
+    editor && saveThumbnail(editor);
+    thumbTimer = null as unknown as NodeJS.Timeout;
+  };
+
   useEffect(() => {
     if (typeof canvasImageData === "string") editor?.setCanvas(canvasImageData);
+    editor && saveThumbnail(editor);
   }, [canvasImageData]);
+
+  useEffect(() => {
+    return () => clearTimeout(thumbTimer);
+  }, []);
 
   const onAddCircle = () => {
     editor?.addCircle();
@@ -53,36 +71,36 @@ const CanvasPane = () => {
   const onDeleteSelected = () => {
     editor?.deleteSelected();
   };
-  
+
   const fontFamilyList = FontFamilyList;
   const handleFontChange = (fontFamily) => {
-    editor?.changeTextFont(fontFamily)
-  }
+    editor?.changeTextFont(fontFamily);
+  };
   const [textSize, setTextSize] = useState(TEXT.fontSize);
   const [isBold, setIsBold] = useState(true);
   const [isItalic, setIsItalic] = useState(true);
   const [isUnderLine, setIsUnderLine] = useState(true);
   const [isStrikethrough, setIsStrikethrough] = useState(true);
   const onChangeBoldFont = () => {
-    editor?.changeBoldFont(isBold)
-    setIsBold(!isBold)
-  }
+    editor?.changeBoldFont(isBold);
+    setIsBold(!isBold);
+  };
   const onChangeItalicFont = () => {
-    editor?.changeItalicFont(isItalic)
-    setIsItalic(!isItalic)
-  }
+    editor?.changeItalicFont(isItalic);
+    setIsItalic(!isItalic);
+  };
   const onChangeUnderLineFont = () => {
-    editor?.changeUnderLineFont(isUnderLine)
-    setIsUnderLine(!isUnderLine)
-  }
+    editor?.changeUnderLineFont(isUnderLine);
+    setIsUnderLine(!isUnderLine);
+  };
   const onChangeStrikethroughFont = () => {
-    editor?.changeStrikethroughFont(isStrikethrough)
-    setIsStrikethrough(!isStrikethrough)
-  }
+    editor?.changeStrikethroughFont(isStrikethrough);
+    setIsStrikethrough(!isStrikethrough);
+  };
 
   useEffect(() => {
-    editor?.changeTextSize(textSize)
-  }, [textSize])
+    editor?.changeTextSize(textSize);
+  }, [textSize]);
   const onLoadSVG = (e) => {
     var url = URL.createObjectURL(e.target.files[0]);
     fabric.loadSVGFromURL(url, function (objects, options) {
@@ -132,15 +150,32 @@ const CanvasPane = () => {
           >
             Fill Color
           </Button>
-          <Select defaultValue={fontFamilyList[0]}
+          <Select
+            defaultValue={fontFamilyList[0]}
             style={{ width: 120 }}
             onChange={handleFontChange}
-            options={fontFamilyList}>
-          </Select>
+            options={fontFamilyList}
+          ></Select>
           <div>
-            <Button onClick={()=>{setTextSize(textSize - 1)}}>-</Button>
-            <Input style={{ width: 50 }} value={textSize} onChange={(e)=>setTextSize(Number(e.target.value))}></Input>
-            <Button onClick={()=>{setTextSize(textSize + 1)}}>+</Button>
+            <Button
+              onClick={() => {
+                setTextSize(textSize - 1);
+              }}
+            >
+              -
+            </Button>
+            <Input
+              style={{ width: 50 }}
+              value={textSize}
+              onChange={(e) => setTextSize(Number(e.target.value))}
+            ></Input>
+            <Button
+              onClick={() => {
+                setTextSize(textSize + 1);
+              }}
+            >
+              +
+            </Button>
           </div>
           <Button onClick={onChangeBoldFont}>bold</Button>
           <Button onClick={onChangeItalicFont}>Italic</Button>
