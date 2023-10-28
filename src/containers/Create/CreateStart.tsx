@@ -1,17 +1,82 @@
 import React, { useContext } from "react";
-import { Button, Input, Layout, Typography, theme } from "antd";
+import {
+  Button,
+  Card,
+  Col,
+  Input,
+  Layout,
+  Radio,
+  Row,
+  Typography,
+  theme,
+} from "antd";
 import { CreateContext } from "./CreateContainer";
 
 const { Text, Title, Link } = Typography;
 
 export const CreateStart = () => {
-  const { targetUrl, setTargetUrl, handleStart } = useContext(CreateContext);
+  const {
+    creativeType,
+    setCreativeType,
+    targetUrl,
+    setTargetUrl,
+    handleStart,
+  } = useContext(CreateContext);
   return (
     <>
-      <Text style={{ fontSize: "80px" }}>ECのProduct Imageを</Text>
+      {/* <Text style={{ fontSize: "80px" }}>ECのProduct Imageを</Text>
       <br />
       <Text style={{ fontSize: "80px" }}>一瞬で創作</Text>
+      <p></p> */}
       <p></p>
+      <Card style={{ width: "70%" }} title="Creative Type">
+        <Radio.Group
+          size="large"
+          buttonStyle="solid"
+          className="large-icons"
+          value={creativeType}
+          onChange={(e) => {
+            setCreativeType(e.target.value);
+          }}
+        >
+          <Row gutter={16}>
+            <Col span={6}>
+              <Radio value="New">
+                <Card>
+                  <img width={120} height={120} />
+                  New Item
+                </Card>
+              </Radio>
+            </Col>
+            <Col span={6}>
+              <Radio value="Comparison">
+                <Card>
+                  <img width={120} height={120} />
+                  Comparison
+                </Card>
+              </Radio>
+            </Col>
+            <Col span={6}>
+              <Radio value="Feature">
+                <Card>
+                  {" "}
+                  <img width={120} height={120} />
+                  Feature
+                </Card>
+              </Radio>
+            </Col>
+            <Col span={6}>
+              <Radio value="Sale">
+                <Card>
+                  {" "}
+                  <img width={120} height={120} />
+                  Sale
+                </Card>
+              </Radio>
+            </Col>
+          </Row>
+        </Radio.Group>
+      </Card>
       <div style={{ width: "600px", textAlign: "left" }}>
         あなたの商品を出品しているECサイトのURLを入力して始める
         <br />
