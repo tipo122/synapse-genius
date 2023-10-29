@@ -25,6 +25,7 @@ export interface FabricJSEditor {
   changeItalicFont: (apply: boolean) => void;
   changeUnderLineFont: (apply: boolean) => void;
   changeStrikethroughFont: (apply: boolean) => void;
+  addImage: (imageFile: string) => void;
   deleteAll: () => void;
   deleteSelected: () => void;
   fillColor: string;
@@ -145,6 +146,11 @@ const buildEditor = (
     changeStrikethroughFont: (apply: boolean) => {
       canvas.getActiveObjects().forEach((object) => object.set({linethrough: apply}));
       canvas.renderAll();
+    },
+    addImage: (imageUrl: string) => {
+      fabric.Image.fromURL(imageUrl, (img) => {
+        canvas.add(img);
+      });
     },
     deleteAll: () => {
       canvas.getObjects().forEach((object) => canvas.remove(object));
