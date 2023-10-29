@@ -22,4 +22,5 @@ export interface Canvas {
   canvas_data: {};
   create_dt?: Date;
   update_dt?: Date;
+  thumbnail?: string;
 }

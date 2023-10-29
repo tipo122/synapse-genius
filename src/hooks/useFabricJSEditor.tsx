@@ -36,6 +36,7 @@ export interface FabricJSEditor {
   zoomOut: () => void;
   bringForward: () => void;
   sendBackwards: () => void;
+  toSVG: () => any;
   setCanvas: (text: string) => void;
 }
 export interface FabricJSCanvasProps {
@@ -112,39 +113,55 @@ const buildEditor = (
         onChange && onChange(JSON.stringify(canvas));
       }
     },
-    changeTextFont: (fontFamily: string) =>{
-      canvas.getActiveObjects().forEach((object) => object.set({fontFamily: fontFamily}));
+    changeTextFont: (fontFamily: string) => {
+      canvas
+        .getActiveObjects()
+        .forEach((object) => object.set({ fontFamily: fontFamily }));
       canvas.renderAll();
       onChange && onChange(JSON.stringify(canvas));
     },
     changeTextSize: (textSize: number) => {
-      canvas.getActiveObjects().forEach((object) => object.set({fontSize: textSize}));
+      canvas
+        .getActiveObjects()
+        .forEach((object) => object.set({ fontSize: textSize }));
       canvas.renderAll();
     },
     changeBoldFont: (apply: boolean) => {
-      if(apply){
-        canvas.getActiveObjects().forEach((object) => object.set({fontWeight: "bold"}));
+      if (apply) {
+        canvas
+          .getActiveObjects()
+          .forEach((object) => object.set({ fontWeight: "bold" }));
         canvas.renderAll();
-        return
+        return;
       }
-      canvas.getActiveObjects().forEach((object) => object.set({fontWeight: "normal"}));
+      canvas
+        .getActiveObjects()
+        .forEach((object) => object.set({ fontWeight: "normal" }));
       canvas.renderAll();
     },
     changeItalicFont: (apply: boolean) => {
-      if(apply){
-        canvas.getActiveObjects().forEach((object) => object.set({fontStyle: "italic"}));
-      canvas.renderAll();
-        return
+      if (apply) {
+        canvas
+          .getActiveObjects()
+          .forEach((object) => object.set({ fontStyle: "italic" }));
+        canvas.renderAll();
+        return;
       }
-      canvas.getActiveObjects().forEach((object) => object.set({fontStyle: "normal"}));
+      canvas
+        .getActiveObjects()
+        .forEach((object) => object.set({ fontStyle: "normal" }));
       canvas.renderAll();
     },
     changeUnderLineFont: (apply: boolean) => {
-      canvas.getActiveObjects().forEach((object) => object.set({underline: apply}));
+      canvas
+        .getActiveObjects()
+        .forEach((object) => object.set({ underline: apply }));
       canvas.renderAll();
     },
     changeStrikethroughFont: (apply: boolean) => {
-      canvas.getActiveObjects().forEach((object) => object.set({linethrough: apply}));
+      canvas
+        .getActiveObjects()
+        .forEach((object) => object.set({ linethrough: apply }));
       canvas.renderAll();
     },
     addImage: (imageUrl: string) => {
@@ -173,6 +190,9 @@ const buildEditor = (
       canvas
         .getActiveObjects()
         .forEach((object) => canvas.bringForward(object));
+    },
+    toSVG: () => {
+      return canvas.toSVG();
     },
     fillColor,
     strokeColor,

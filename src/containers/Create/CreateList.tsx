@@ -14,10 +14,11 @@ import { db } from "../../firebase";
 const { Text, Title } = Typography;
 
 export const CreateList = () => {
-  // const { targetUrl, setTargetUrl, handleStart } = useContext(CreateContext);
+  const { creatives, targetUrl, setTargetUrl, handleStart } =
+    useContext(CreateContext);
   const { canvasId } = useParams();
   const { saveCanvasData, saveCanvasImageData } = useCanvasData(canvasId ?? "");
-  const creatives = ["1", "2", "3"];
+  // const creatives = ["1", "2", "3"];
   const { selectedObjects, editor, onReady } = useFabricJSEditor();
 
   useEffect(() => {
@@ -43,7 +44,11 @@ export const CreateList = () => {
               <Link to={`/canvas/${canvasId}`}>
                 <Card hoverable style={{ width: 240, height: 240 }}>
                   <Card.Meta />
-                  {/* <img src={`/img/${item}.png`} width={190} height={190} /> */}
+                  <img
+                    src={`https://firebasestorage.googleapis.com/v0/b/${process.env.REACT_APP_FIREBASE_STORAGEBUCKET}/o/templates%2F${item}.png?alt=media`}
+                    width={190}
+                    height={190}
+                  />
                   <FabricJSCanvas
                     className="synapse-canvas"
                     onReady={onReady}

@@ -12,9 +12,16 @@ import Creative from "@components/Creative/Creative";
 import TextStyle from "@components/TextStyle/TextStyle";
 
 const CanvasPane = () => {
-  const { canvasImageData, saveCanvasImageData } = useContext(CanvasContext);
+  let thumbTimer = null as unknown as NodeJS.Timeout;
+  const { canvasImageData, saveCanvasImageData, saveThumbnail } =
+    useContext(CanvasContext);
   const onChange = (canvas_data: string) => {
     saveCanvasImageData(canvas_data);
+    if (thumbTimer) {
+      clearTimeout(thumbTimer);
+      thumbTimer = null as unknown as NodeJS.Timeout;
+    }
+    thumbTimer = setTimeout(handleSaveThumbnail, 2000);
   };
   const { selectedObjects, editor, onReady } = useFabricJSEditor({ onChange });
   const [text, setText] = useState("");
@@ -23,9 +30,20 @@ const CanvasPane = () => {
   const [fillColorPane, setFillColorPane] = useState<boolean>(false);
   const [fillColor, setFillColor] = useState<string>("");
 
+  const handleSaveThumbnail = () => {
+    console.log(`save thumbnail ${editor ? "available" : "not available"}`);
+    editor && saveThumbnail(editor);
+    thumbTimer = null as unknown as NodeJS.Timeout;
+  };
+
   useEffect(() => {
     if (typeof canvasImageData === "string") editor?.setCanvas(canvasImageData);
+    editor && saveThumbnail(editor);
   }, [canvasImageData]);
+
+  useEffect(() => {
+    return () => clearTimeout(thumbTimer);
+  }, []);
 
   const onAddCircle = () => {
     editor?.addCircle();
@@ -53,7 +71,6 @@ const CanvasPane = () => {
   const onDeleteSelected = () => {
     editor?.deleteSelected();
   };
-
   const onLoadSVG = (e) => {
     var url = URL.createObjectURL(e.target.files[0]);
     fabric.loadSVGFromURL(url, function (objects, options) {
@@ -104,7 +121,7 @@ const CanvasPane = () => {
             Fill Color
           </Button>
 
-          <TextStyle editor={editor}/>
+          <TextStyle editor={editor} />
 
           {fillColorPane && (
             <div className="color-popover">
@@ -117,7 +134,7 @@ const CanvasPane = () => {
           <Button onClick={onSendBackwards}>Send to back</Button>
           <Button onClick={onBringForward}>Bring to front</Button>
 
-          <Creative editor={editor}/>
+          <Creative editor={editor} />
         </div>
       ) : (
         <>Loading...</>
