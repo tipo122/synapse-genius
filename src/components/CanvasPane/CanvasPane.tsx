@@ -8,7 +8,7 @@ import { SketchPicker } from "react-color";
 import "./CanvasPane.css";
 import { CanvasContext } from "@pages/Canvas/Canvas";
 import { fabric } from "fabric";
-import Creative from "@components/Creative/Creative";
+import ImageUpload from "@components/ImageUpload/ImageUpload";
 import TextStyle from "@components/TextStyle/TextStyle";
 
 const CanvasPane = () => {
@@ -134,7 +134,7 @@ const CanvasPane = () => {
           <Button onClick={onSendBackwards}>Send to back</Button>
           <Button onClick={onBringForward}>Bring to front</Button>
 
-          <Creative editor={editor} />
+          <ImageUpload editor={editor} />
         </div>
       ) : (
         <>Loading...</>
