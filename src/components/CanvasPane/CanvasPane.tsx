@@ -3,13 +3,13 @@ import {
   FabricJSCanvas,
   useFabricJSEditor,
 } from "../../hooks/useFabricJSEditor";
-import { Button, Input, Select } from "antd";
+import { Button, Input } from "antd";
 import { SketchPicker } from "react-color";
 import "./CanvasPane.css";
-import { FontFamilyList } from "@components/TextStyle/TextStyle";
 import { CanvasContext } from "@pages/Canvas/Canvas";
 import { fabric } from "fabric";
-import { TEXT } from "../../types/defaultShapes";
+import ImageUpload from "@components/ImageUpload/ImageUpload";
+import TextStyle from "@components/TextStyle/TextStyle";
 
 const CanvasPane = () => {
   let thumbTimer = null as unknown as NodeJS.Timeout;
@@ -71,36 +71,6 @@ const CanvasPane = () => {
   const onDeleteSelected = () => {
     editor?.deleteSelected();
   };
-
-  const fontFamilyList = FontFamilyList;
-  const handleFontChange = (fontFamily) => {
-    editor?.changeTextFont(fontFamily);
-  };
-  const [textSize, setTextSize] = useState(TEXT.fontSize);
-  const [isBold, setIsBold] = useState(true);
-  const [isItalic, setIsItalic] = useState(true);
-  const [isUnderLine, setIsUnderLine] = useState(true);
-  const [isStrikethrough, setIsStrikethrough] = useState(true);
-  const onChangeBoldFont = () => {
-    editor?.changeBoldFont(isBold);
-    setIsBold(!isBold);
-  };
-  const onChangeItalicFont = () => {
-    editor?.changeItalicFont(isItalic);
-    setIsItalic(!isItalic);
-  };
-  const onChangeUnderLineFont = () => {
-    editor?.changeUnderLineFont(isUnderLine);
-    setIsUnderLine(!isUnderLine);
-  };
-  const onChangeStrikethroughFont = () => {
-    editor?.changeStrikethroughFont(isStrikethrough);
-    setIsStrikethrough(!isStrikethrough);
-  };
-
-  useEffect(() => {
-    editor?.changeTextSize(textSize);
-  }, [textSize]);
   const onLoadSVG = (e) => {
     var url = URL.createObjectURL(e.target.files[0]);
     fabric.loadSVGFromURL(url, function (objects, options) {
@@ -150,37 +120,9 @@ const CanvasPane = () => {
           >
             Fill Color
           </Button>
-          <Select
-            defaultValue={fontFamilyList[0]}
-            style={{ width: 120 }}
-            onChange={handleFontChange}
-            options={fontFamilyList}
-          ></Select>
-          <div>
-            <Button
-              onClick={() => {
-                setTextSize(textSize - 1);
-              }}
-            >
-              -
-            </Button>
-            <Input
-              style={{ width: 50 }}
-              value={textSize}
-              onChange={(e) => setTextSize(Number(e.target.value))}
-            ></Input>
-            <Button
-              onClick={() => {
-                setTextSize(textSize + 1);
-              }}
-            >
-              +
-            </Button>
-          </div>
-          <Button onClick={onChangeBoldFont}>bold</Button>
-          <Button onClick={onChangeItalicFont}>Italic</Button>
-          <Button onClick={onChangeUnderLineFont}>Under Line</Button>
-          <Button onClick={onChangeStrikethroughFont}>strikethrough</Button>
+
+          <TextStyle editor={editor} />
+
           {fillColorPane && (
             <div className="color-popover">
               <SketchPicker
@@ -191,6 +133,8 @@ const CanvasPane = () => {
           )}
           <Button onClick={onSendBackwards}>Send to back</Button>
           <Button onClick={onBringForward}>Bring to front</Button>
+
+          <ImageUpload editor={editor} />
         </div>
       ) : (
         <>Loading...</>
