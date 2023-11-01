@@ -42,7 +42,7 @@ export default function Creative({ editor }: creativeProps) {
     if (!imageFile) {
       return;
     }
-    const storageRef = ref(storage, `/creativeresources/${imageFile?.name}`);
+    const storageRef = ref(storage, `/resources/${imageFile?.name}`);
     const res = await uploadBytes(storageRef, imageFile)
       .then((res) => {
         console.log("アップロード成功");
