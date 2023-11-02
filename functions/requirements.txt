@@ -5,15 +5,18 @@ async-timeout==4.0.2
 attrs==23.1.0
 beautifulsoup4==4.12.2
 blinker==1.6.2
-cairosvg==2.7.1
 CacheControl==0.13.1
 cachetools==5.3.1
+cairocffi==1.6.1
+CairoSVG==2.7.1
 certifi==2023.7.22
 cffi==1.15.1
 charset-normalizer==3.2.0
 click==8.1.6
 cloudevents==1.9.0
 cryptography==41.0.2
+cssselect2==0.7.0
+defusedxml==0.7.1
 deprecation==2.1.0
 dnspython==2.4.2
 filelock==3.12.4
@@ -66,6 +69,7 @@ PyJWT==2.8.0
 pyparsing==3.1.0
 pyppeteer==1.0.2
 python-dateutil==2.8.2
+python-dotenv==1.0.0
 pytz==2023.3.post1
 PyYAML==6.0.1
 regex==2023.10.3
@@ -76,6 +80,7 @@ scrapingbee==1.2.0
 six==1.16.0
 soupsieve==2.4.1
 sympy==1.12
+tinycss2==1.2.1
 tokenizers==0.13.3
 torch==2.0.1
 tqdm==4.65.0
@@ -85,6 +90,7 @@ tzdata==2023.3
 uritemplate==4.1.1
 urllib3==1.26.16
 watchdog==3.0.0
+webencodings==0.5.1
 websockets==10.4
 Werkzeug==2.3.6
 yarl==1.9.2
