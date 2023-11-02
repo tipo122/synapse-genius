@@ -1,5 +1,6 @@
 import torch
 import requests
+import json
 import pandas as pd
 import os
 from dotenv import load_dotenv
@@ -13,8 +14,8 @@ from firebase_functions import https_fn
 
 load_dotenv()
 
-def main(req: https_fn.Request) -> str:
-# def main(req: https_fn.Request) -> https_fn.Response:
+# def main(req: https_fn.Request) -> str:
+def main(req: https_fn.Request) -> https_fn.Response:
 
 
     # Set the device
@@ -74,7 +75,8 @@ def main(req: https_fn.Request) -> str:
 
     print(ids)
 
-    return ids
+    # return ids
+    return json.dumps({"data" : ids})
 
 def get_model_info(model_ID, device):
 
