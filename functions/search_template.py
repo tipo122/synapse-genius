@@ -2,6 +2,7 @@ import torch
 import requests
 import pandas as pd
 import os
+from dotenv import load_dotenv
 from PIL import Image
 from io import BytesIO
 import pinecone
@@ -10,7 +11,7 @@ from firebase_admin import initialize_app, firestore
 import google.cloud.firestore
 from firebase_functions import https_fn
 
-
+load_dotenv()
 
 def main(req: https_fn.Request) -> str:
 # def main(req: https_fn.Request) -> https_fn.Response:
@@ -37,7 +38,7 @@ def main(req: https_fn.Request) -> str:
     query_embedding_list = query_embedding.tolist()
 
     # 環境変数からAPIキーを取得
-    pinecone_api_key = os.environ.get("PINECONE_API_KEY")
+    pinecone_api_key = os.getenv('PINCONE_API_KEY')
     # pinecone_api_key = os.environ.get("5fc0462b-b467-4fbb-be3a-ab05bcbbab7b")
     pinecone.init(
         api_key = pinecone_api_key,  # app.pinecone.io
