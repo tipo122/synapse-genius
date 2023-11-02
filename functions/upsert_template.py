@@ -2,15 +2,20 @@ import torch
 import requests
 import pandas as pd
 import os
+from dotenv import load_dotenv
+import cairosvg
 from PIL import Image
-from io import BytesIO
+import io
 import pinecone
 from transformers import CLIPProcessor, CLIPModel, CLIPTokenizer
 import firebase_admin
 from firebase_admin import credentials, firestore
 import google.cloud.firestore
 
-def main() -> str:
+load_dotenv()
+
+
+def notmain() -> str:
     # cred_path = 'path/to/your-service-account-file.json'
     # cred = credentials.Certificate(cred_path)
 
@@ -38,7 +43,7 @@ def main() -> str:
     image_data_df["image"] = image_data_df["image_url"].apply(get_image)
     return 'ok'
 
-def notmain() -> str:
+def main() -> str:
 
     # # Get data from firebase
     # db: google.cloud.firestore.Client = firestore.client()
@@ -59,21 +64,24 @@ def notmain() -> str:
     image_dir = './templates'
 
     # 画像ディレクトリ内のすべての.pngファイルのパスを取得
-    image_files = [f for f in os.listdir(image_dir) if f.endswith('.png')]
+    # image_files = [f for f in os.listdir(image_dir) if f.endswith('.png')]
 
-    # 画像を読み込み、PIL.Imageオブジェクトとしてデータフレームに保存
-    images = []
-    doc_ids = []
+    # # 画像を読み込み、PIL.Imageオブジェクトとしてデータフレームに保存
+    # images = []
+    # doc_ids = []
 
-    for image_file in image_files:
-        image_path = os.path.join(image_dir, image_file)
+    # for image_file in image_files:
+    #     image_path = os.path.join(image_dir, image_file)
         
-        with Image.open(image_path).convert("RGB") as img:
-            images.append(img.copy())  # PIL.Imageオブジェクトをリストに追加
+    #     with Image.open(image_path).convert("RGB") as img:
+    #         images.append(img.copy())  # PIL.Imageオブジェクトをリストに追加
         
-        # ファイル名から拡張子を取り除き、doc_idsリストに追加
-        doc_id = os.path.splitext(image_file)[0]
-        doc_ids.append(doc_id)
+    #     # ファイル名から拡張子を取り除き、doc_idsリストに追加
+    #     doc_id = os.path.splitext(image_file)[0]
+    #     doc_ids.append(doc_id)
+
+    images = convert_all_svg_in_directory_to_pil_images(image_dir)
+    doc_ids = get_svg_filenames_without_extension(image_dir)
 
     # 画像データとdoc_idを含むデータフレームを作成
     image_data_df = pd.DataFrame({'doc_id': doc_ids, 'image': images})
@@ -91,8 +99,8 @@ def notmain() -> str:
     image_data_df["img_embeddings"] = image_data_df["image"].apply(my_get_single_image_embedding)
 
     pinecone.init(
-        api_key = "503e0a23-6540-42f7-aff5-1d81075dd8fa",  # app.pinecone.io
-        environment="us-west1-gcp-free"
+        api_key = os.getenv('PINCONE_API_KEY'),  # app.pinecone.io
+        environment="gcp-starter"
     )
 
     my_index_name = "clip-image-search"
@@ -139,7 +147,7 @@ def notmain() -> str:
 def get_image(image_URL):
 
     response = requests.get(image_URL)
-    image = Image.open(BytesIO(response.content)).convert("RGB")
+    image = Image.open(io.BytesIO(response.content)).convert("RGB")
 
     return image
 
@@ -204,6 +212,49 @@ def get_all_images_embedding(df, img_column):
 
   return df
 
+def convert_all_svgs_in_directory(directory_path):
+    # 指定されたディレクトリ内のすべてのファイルをリストアップ
+    for filename in os.listdir(directory_path):
+        # ファイルがSVGの場合のみ処理を行う
+        if filename.endswith(".svg"):
+            # 入力と出力のファイルパスを生成
+            input_svg_path = os.path.join(directory_path, filename)
+            output_png_path = os.path.join(directory_path, filename[:-4] + ".png")
+            
+            # SVGをPNGに変換
+            cairosvg.svg2png(url=input_svg_path, write_to=output_png_path)
+            print(f"Converted {filename} to PNG")
+
+def svg_to_pil_image(svg_content):
+    # SVGをPNGデータに変換
+    png_data = cairosvg.svg2png(bytestring=svg_content)
+
+    # PNGデータをPIL.Imageオブジェクトとして読み込む
+    image = Image.open(io.BytesIO(png_data))
+    print(image.mode)
+    return image
+
+def convert_all_svg_in_directory_to_pil_images(directory_path):
+    # 指定されたディレクトリ内のすべてのSVGファイルをリストアップ
+    svg_files = sorted([f for f in os.listdir(directory_path) if f.endswith('.svg')])
+
+    images = []
+    for svg_file in svg_files:
+        with open(os.path.join(directory_path, svg_file), 'r') as f:
+            svg_content = f.read()
+            image = svg_to_pil_image(svg_content)
+            images.append(image)
+    
+    return images
+
+def get_svg_filenames_without_extension(directory_path):
+    # 指定されたディレクトリ内のすべてのSVGファイルをリストアップ
+    svg_files = sorted([f for f in os.listdir(directory_path) if f.endswith('.svg')])
+    
+    # ファイル名から拡張子を取り除く
+    doc_ids = [os.path.splitext(f)[0] for f in svg_files]
+    
+    return doc_ids
 
 if __name__ == "__main__":
     main()
