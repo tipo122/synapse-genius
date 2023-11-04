@@ -17,9 +17,17 @@ interface CreateInterface {
   targetUrl: string;
   setTargetUrl: React.Dispatch<React.SetStateAction<string>>;
   handleStart: () => void;
-  creatives: string[];
-  creativeType: string;
-  setCreativeType: React.Dispatch<React.SetStateAction<string>>;
+  templates: string[];
+  setTemplates: React.Dispatch<React.SetStateAction<string[]>>;
+  templateType: string;
+  setTemplateType: React.Dispatch<React.SetStateAction<string>>;
+  searchTemplate: ({
+    text_query,
+    template_type,
+  }: {
+    text_query: string;
+    template_type: string;
+  }) => Promise<{ data: any }>;
 }
 
 export const CreateContext = createContext<CreateInterface>({} as never);
@@ -31,18 +39,20 @@ const Create = () => {
   const [messageApi, contextHolder] = message.useMessage();
   const [targetUrl, setTargetUrl] = useState<string>("" as never);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [creatives, setCreatives] = useState<string[]>([]);
-  const [creativeType, setCreativeType] = useState<string>("");
+  const [templates, setTemplates] = useState<string[]>([]);
+  const [templateType, setTemplateType] = useState<string>("");
   const {
     token: { colorBgContainer },
   } = theme.useToken();
   const urlPattern = /^https?:\/\/[\w/:%#\$&\?\(\)~\.=\+\-]+$/;
 
-  const onAnalyzeProductInsight: (data: any) => Promise<{ data: any }> =
-    httpsCallable(functions, "on_analyze_product_insight");
+  const createTemplateElements: (data: any) => Promise<{ data: any }> =
+    httpsCallable(functions, "on_create_template_elements");
 
-  const onSearchTemplate: ({ text_query, category }) => Promise<{ data: any }> =
-    httpsCallable(functions, "on_search_template");
+  const searchTemplate: ({
+    text_query,
+    template_type,
+  }) => Promise<{ data: any }> = httpsCallable(functions, "on_search_template");
 
   const handleStart = async () => {
     if (!userId) return;
@@ -53,7 +63,7 @@ const Create = () => {
       });
       return;
     }
-    if (!creativeType) {
+    if (!templateType) {
       messageApi.open({
         type: "error",
         content: "作りたいクリエイティブのタイプを指定してください",
@@ -64,15 +74,16 @@ const Create = () => {
     initialCanvasData.user_id = userId;
     const docRef = await addDoc(collection(db, "canvases"), initialCanvasData);
     const canvasId = docRef.id;
-    const result = await onAnalyzeProductInsight({
+    const result = await createTemplateElements({
       target_url: targetUrl,
+      template_type: templateType,
       canvas_id: canvasId,
     });
-    const list = await onSearchTemplate({
-      text_query: "",
-      category: creativeType,
+    const list = await searchTemplate({
+      text_query: `instagram用の、${templateType}をプロモーションするに適切なテンプレート`,
+      template_type: templateType,
     });
-    setCreatives(list.data);
+    setTemplates(list.data);
     setIsLoading(false);
     navigate(`/create/${docRef.id}`);
   };
@@ -83,9 +94,11 @@ const Create = () => {
         targetUrl,
         setTargetUrl,
         handleStart,
-        creatives,
-        creativeType,
-        setCreativeType,
+        templates,
+        setTemplates,
+        templateType,
+        setTemplateType,
+        searchTemplate,
       }}
     >
       <Layout>

@@ -18,6 +18,9 @@ export interface Canvas {
     campaign_name: string;
     campaign_description: string;
   };
+  template_property: {
+    template_type: string;
+  };
   collaborators?: [{ user_id: string }];
   canvas_data: {};
   create_dt?: Date;

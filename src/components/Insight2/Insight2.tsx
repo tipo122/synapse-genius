@@ -21,6 +21,9 @@ const Insight2 = () => {
     data: any;
   }> = httpsCallable(functions, "on_analyze_product_insight2");
 
+  const onSearchTemplate: ({ text_query, category }) => Promise<{ data: any }> =
+    httpsCallable(functions, "on_search_template");
+
   const handleStart = async () => {
     if (!userId) return;
     if (!urlPattern.test(targetUrl)) {
@@ -31,9 +34,11 @@ const Insight2 = () => {
       return;
     }
     setIsLoading(true);
-    const result = await onAnalyzeProductInsight2({
-      target_url: targetUrl,
-    });
+    // const result = await onAnalyzeProductInsight2({
+    //   target_url: targetUrl,
+    // });
+    const result = await onSearchTemplate({ text_query: "", category: "" });
+    console.log(result);
     setIsLoading(false);
     // const result = await
   };

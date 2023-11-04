@@ -40,10 +40,12 @@ def main(req: https_fn.Request) -> https_fn.Response:
 
     # 環境変数からAPIキーを取得
     pinecone_api_key = os.getenv('PINCONE_API_KEY')
-    # pinecone_api_key = os.environ.get("")
+    pinecone_environment = os.getenv('PINECONE_ENVIRONMENT')
+    # pinecone_api_key = os.environ.get("5fc0462b-b467-4fbb-be3a-ab05bcbbab7b")
     pinecone.init(
         api_key = pinecone_api_key,  # app.pinecone.io
-        environment="gcp-starter"
+        # environment="us-west1-gcp-free"
+        environment= pinecone_environment
     )
 
     my_index_name = "clip-image-search"

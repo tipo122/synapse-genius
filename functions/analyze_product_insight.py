@@ -98,6 +98,7 @@ def main(req:https_fn) -> https_fn.Response:
 
         result = {
             "item_property" : {
+                "item_url" : target_url,
                 "item_name" : item_name,
                 "item_category" : item_category,
                 "item_description" : item_description,

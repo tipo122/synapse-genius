@@ -36,6 +36,7 @@ def main(req:https_fn) -> https_fn.Response:
     params = req.get_json()["data"]
     target_url = params["target_url"] if "target_url" in params else None
     canvas_id = params["canvas_id"] if "canvas_id" in params else None
+    template_type = params["template_type"] if "template_type" in params else None
     # target_url = "https://koredake.co.jp/shop/products/1-5-7-1"
     # target_url = "https://onenova.jp/products/nova-wool-r-breezy-plus-flexible-t-shirt-unisex?variant=40225241432166"
     # canvas_id = "Dh6KojNF8kKsDYbjLki9"
@@ -90,15 +91,19 @@ def main(req:https_fn) -> https_fn.Response:
         formatted_string = f"商品名: {item_data['item_name']}\n商品カテゴリー: {item_data['item_category']}\n商品の特徴: {item_data['item_description']}"
         
         # 
-        elements = get_template_elements(ad_type="comparison", context=formatted_string)
+        elements = get_template_elements(ad_type=template_type, context=formatted_string)
 
         result = {
             "item_property" : {
+                "item_url" : target_url,
                 "item_name" : item_name,
                 "item_category" : item_category,
                 "item_description" : item_description,
             },
-            "copy_data" : elements
+            "copy_data" : elements,
+            "template_property" : {
+                "template_type" : template_type,
+            }
         }
 
         print("firestoer set data")
@@ -110,7 +115,8 @@ def main(req:https_fn) -> https_fn.Response:
 
         print(elements)
 
-        return elements
+        return json.dumps({"data" : "ok"})
+        # return elements
         
 
     except:

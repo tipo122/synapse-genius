@@ -56,7 +56,7 @@ def on_search_template(req: https_fn.Request) -> https_fn.Response:
     return https_fn.Response(search_template.main(req))
 
 @https_fn.on_request(
-    timeout_sec=300, 
+    timeout_sec=3000, 
     memory=options.MemoryOption.GB_2,
     cors=options.CorsOptions(cors_origins="*", cors_methods=["get", "post"])
 )

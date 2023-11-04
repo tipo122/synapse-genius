@@ -33,6 +33,9 @@ export const initialCanvasData: Canvas = {
     campaign_name: "",
     campaign_description: "",
   },
+  template_property: {
+    template_type: "",
+  },
   canvas_data: "",
   thumbnail: "",
 };
