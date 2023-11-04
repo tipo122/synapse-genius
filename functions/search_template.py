@@ -26,12 +26,12 @@ def main(req: https_fn.Request) -> https_fn.Response:
     # Extract parameters from the request. In this case, we are expecting a parameter named "text_query".
     request_data = req.get_json()
     text_query = request_data.get('text_query')
-    category = request_data.get('category')
+    ad_type = request_data.get('ad_type')
     if not text_query:
         text_query = "instagram template for product comparison"
     
-    if not category:
-        category = 'comparison'
+    if not ad_type:
+        ad_type = 'comparison'
 
     # Get the caption embedding
     my_get_single_text_embedding = generate_text_embedding_func(tokenizer, device, model)
@@ -40,10 +40,10 @@ def main(req: https_fn.Request) -> https_fn.Response:
 
     # 環境変数からAPIキーを取得
     pinecone_api_key = os.getenv('PINCONE_API_KEY')
-    # pinecone_api_key = os.environ.get("5fc0462b-b467-4fbb-be3a-ab05bcbbab7b")
+    # pinecone_api_key = os.environ.get("")
     pinecone.init(
         api_key = pinecone_api_key,  # app.pinecone.io
-        environment="us-west1-gcp-free"
+        environment="gcp-starter"
     )
 
     my_index_name = "clip-image-search"
@@ -59,13 +59,11 @@ def main(req: https_fn.Request) -> https_fn.Response:
     # Connect to the index
     my_index = pinecone.Index(index_name = my_index_name)
 
-  
-
     # Run the query
     result = my_index.query(
         vector = query_embedding_list,
         filter={
-            "category": {"$eq": category}
+            "ad_type": {"$eq": ad_type}
         },
         top_k=4,
         include_metadata=True
@@ -118,7 +116,7 @@ if __name__ == "__main__":
     # テスト用のダミーリクエストデータを作成
     dummy_data = {
         'text_query': 'Instagram template to introduce new products',  # テスト用のクエリテキスト
-        'category': 'new'     # テスト用のカテゴリ
+        'ad_type': 'new'     # テスト用のカテゴリ
     }
 
     # ダミーリクエストオブジェクトの作成
