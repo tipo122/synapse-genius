@@ -14,23 +14,17 @@ import { db } from "../../firebase";
 const { Text, Title } = Typography;
 
 export const CreateList = () => {
-  const { templates, searchTemplate, setTemplates } = useContext(CreateContext);
+  const size = (i) => (i === 0 ? 2 : 1);
+  const { templates, templateType, searchTemplate, setTemplates } =
+    useContext(CreateContext);
   const { canvasId } = useParams();
   const { canvasData, saveCanvasData, saveCanvasImageData } = useCanvasData(
     canvasId ?? ""
   );
-  // const creatives = ["1", "2", "3"];
   const { selectedObjects, editor, onReady } = useFabricJSEditor();
 
   useEffect(() => {
     (async () => {
-      if (!templates && canvasData.template_property.template_type) {
-        const search_result = await searchTemplate({
-          text_query: "",
-          template_type: canvasData.template_property.template_type,
-        });
-        setTemplates(search_result.data);
-      }
       let template_data = "";
       const snapshot = await getDoc(
         doc(db, "templates", "WgxpZYMkjCVpt52dreXN")
@@ -40,6 +34,21 @@ export const CreateList = () => {
     })();
   }, []);
 
+  useEffect(() => {
+    (async () => {
+      if (
+        templates.length === 0 &&
+        canvasData.template_property.template_type
+      ) {
+        const search_result = await searchTemplate({
+          text_query: "",
+          template_type: canvasData.template_property.template_type,
+        });
+        setTemplates(search_result.data);
+      }
+    })();
+  }, [canvasData]);
+
   return (
     <>
       <div style={{ width: "600px", textAlign: "right" }}>
@@ -47,7 +56,7 @@ export const CreateList = () => {
         <List
           grid={{ gutter: 16, column: 2 }}
           dataSource={templates}
-          renderItem={(item) => (
+          renderItem={(item, i) => (
             <List.Item>
               <Link to={`/canvas/${canvasId}`}>
                 <Card hoverable style={{ width: 240, height: 240 }}>

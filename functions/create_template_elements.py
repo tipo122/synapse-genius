@@ -106,6 +106,8 @@ def main(req:https_fn) -> https_fn.Response:
             }
         }
 
+        print(template_type)
+
         print("firestoer set data")
 
         doc_ref = firestore_client.collection("canvases").document(canvas_id)
