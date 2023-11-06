@@ -128,42 +128,6 @@ Synapse X Genius のプロトタイプのためのレポジトリです。
 
 # FireStore Collections
 
-```mermaid
-erDiagram
-    user ||--|{ item: own
-    user ||--|{ campaign : own
-    user ||--|{ canvasdata : own
-    user {
-      string uid
-      string username
-      string email
-    }
-    item {
-      string name
-      string user_uid FK
-      boolean current
-    }
-    campaign {
-      string uid
-      string user_uid FK
-      string campaign_name
-      string campaign_string
-    }
-    canvasdata ||--|| item: refere
-    canvasdata ||--|| campaign: refere
-    canvasdata {
-      string uid
-      string user_uid FK
-      string template_id
-      object copydata
-      string bg_image_hash
-    }
-   prompts {
-      string prompt_id
-
-   }
-```
-
 ```ts
 canvases: {
    uid: string,
@@ -283,15 +247,24 @@ src/
 
 ```mermaid
 sequenceDiagram
+   participant storage/template
+   participant storage/canvasdata
    participant web
    participant firestore
+   participant firestore
    participant functions
-   web->>firestore: プロパティの書き込み
-   web->>functions: コピー生成のリクエスト
+   web->>firestore: 商品プロパティの書き込み
+   functions->>firestore: コピーテキストの書き出し
    functions->>firestore: プロンプトの書き込み
-   functions->>firestore: コピーの結果をcanvasに書き込み
-   web->>functions: 画像生成のリクエスト
-   functions->>firestore: 画像をstorageに格納後storeにreferernceを書き込む
+   web->>functions: 適切なテンプレートの検索指示
+   functions->>web: マッチするテンプレートIDの一覧を返す
+   web->>functions: ユーザに選択されたテンプレートを読み込む
+   functions->>storage/template: 指定されたテンプレートのデータにcanvasに書かれた文字列を埋め込む
+   web->>firestore: 使用するテンプレートIDを書き込む
+   web->>storage/canvasdata: 使用するテンプレートIDの指示があれば、<br>テンプレートをjsonデータに変換する
+   web->>storage/canvasdata:すでにcanvasesに画像データがあれば、jsonデータに変換する
+   web->storage/canvasdata: クリエイティブのデータの読み書きは、storageを使って行う
    firestore-->>web: onSnapshotの通知
-    Note right of web: canvasから画像とコピーを<br>読み取って表示
+   storage/canvasdata-->>web: onSnapshotの通知(?)
+
 ```

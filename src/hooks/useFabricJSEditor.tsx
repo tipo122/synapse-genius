@@ -148,14 +148,14 @@ const buildEditor = (
           .getActiveObjects()
           .forEach((object) => object.set({ fontStyle: "italic" }));
         canvas.renderAll();
-        onChange && onChange(JSON.stringify(canvas));
+        // onChange && onChange(JSON.stringify(canvas));
         return;
       }
       canvas
         .getActiveObjects()
         .forEach((object) => object.set({ fontStyle: "normal" }));
       canvas.renderAll();
-      onChange && onChange(JSON.stringify(canvas));
+      // onChange && onChange(JSON.stringify(canvas));
     },
     changeUnderLineFont: (apply: boolean) => {
       canvas
@@ -174,19 +174,19 @@ const buildEditor = (
       fabric.Image.fromURL(imageUrl, (img) => {
         canvas.add(img);
       });
-      onChange && onChange(JSON.stringify(canvas));
+      // onChange && onChange(JSON.stringify(canvas));
     },
     deleteAll: () => {
       canvas.getObjects().forEach((object) => canvas.remove(object));
       canvas.discardActiveObject();
       canvas.renderAll();
-      onChange && onChange(JSON.stringify(canvas));
+      // onChange && onChange(JSON.stringify(canvas));
     },
     deleteSelected: () => {
       canvas.getActiveObjects().forEach((object) => canvas.remove(object));
       canvas.discardActiveObject();
       canvas.renderAll();
-      onChange && onChange(JSON.stringify(canvas));
+      // onChange && onChange(JSON.stringify(canvas));
     },
     sendBackwards: () => {
       canvas
@@ -201,7 +201,8 @@ const buildEditor = (
     toSVG: () => {
       return canvas.toSVG();
     },
-    loadSVG: (svgUrl: string) => {
+    loadSVG: async (svgUrl: string) => {
+      console.log(svgUrl);
       fabric.loadSVGFromURL(svgUrl, (objects) => {
         objects.forEach((svg) => {
           canvas.add(svg).renderAll();
@@ -214,7 +215,7 @@ const buildEditor = (
       _setFillColor(fill);
       canvas.getActiveObjects().forEach((object) => object.set({ fill }));
       canvas.renderAll();
-      onChange && onChange(JSON.stringify(canvas));
+      // onChange && onChange(JSON.stringify(canvas));
     },
     setStrokeColor: (stroke: string) => {
       _setStrokeColor(stroke);
@@ -227,7 +228,7 @@ const buildEditor = (
         object.set({ stroke });
       });
       canvas.renderAll();
-      onChange && onChange(JSON.stringify(canvas));
+      // onChange && onChange(JSON.stringify(canvas));
     },
     zoomIn: () => {
       const zoom = canvas.getZoom();
@@ -267,7 +268,7 @@ const useFabricJSEditor = ({
         setSelectedObject(e.selected);
       });
       canvas.on("object:modified", (e: any) => {
-        onChange && onChange(JSON.stringify(canvas));
+        // onChange && onChange(JSON.stringify(canvas));
       });
     };
     if (canvas) {

@@ -12,16 +12,16 @@ import ImageUpload from "@components/ImageUpload/ImageUpload";
 import TextStyle from "@components/TextStyle/TextStyle";
 
 const CanvasPane = () => {
-  let thumbTimer = null as unknown as NodeJS.Timeout;
+  let saveTimer = null as unknown as NodeJS.Timeout;
   const { canvasImageData, saveCanvasImageData, saveThumbnail } =
     useContext(CanvasContext);
   const onChange = (canvas_data: string) => {
-    saveCanvasImageData(canvas_data);
-    if (thumbTimer) {
-      clearTimeout(thumbTimer);
-      thumbTimer = null as unknown as NodeJS.Timeout;
-    }
-    thumbTimer = setTimeout(handleSaveThumbnail, 2000);
+    // saveCanvasImageData(canvas_data);
+    // if (saveTimer) {
+    //   clearTimeout(saveTimer);
+    //   saveTimer = null as unknown as NodeJS.Timeout;
+    // }
+    // saveTimer = setTimeout(handleSaveThumbnail, 2000);
   };
   const { selectedObjects, editor, onReady } = useFabricJSEditor({ onChange });
   const [text, setText] = useState("");
@@ -30,11 +30,20 @@ const CanvasPane = () => {
   const [fillColorPane, setFillColorPane] = useState<boolean>(false);
   const [fillColor, setFillColor] = useState<string>("");
 
-  const handleSaveThumbnail = () => {
-    console.log(`save thumbnail ${editor ? "available" : "not available"}`);
+  const handleSaveData = () => {
+    console.log(`editor ${editor ? "available" : "not available"}`);
     editor && saveThumbnail(editor);
-    thumbTimer = null as unknown as NodeJS.Timeout;
+    editor && saveCanvasImageData(JSON.stringify(editor?.canvas), editor);
+    saveTimer = null as unknown as NodeJS.Timeout;
   };
+
+  useEffect(() => {
+    if (saveTimer) {
+      clearTimeout(saveTimer);
+      saveTimer = null as unknown as NodeJS.Timeout;
+    }
+    saveTimer = setTimeout(handleSaveData, 2000);
+  }, [editor]);
 
   useEffect(() => {
     if (
@@ -46,7 +55,7 @@ const CanvasPane = () => {
   }, [canvasImageData]);
 
   useEffect(() => {
-    return () => clearTimeout(thumbTimer);
+    return () => clearTimeout(saveTimer);
   }, []);
 
   const onAddCircle = () => {

@@ -10,10 +10,12 @@ import {
 import { initialCanvasData, useCanvasData } from "@hooks/useCanvasData";
 import { collection, doc, getDoc, query } from "firebase/firestore";
 import { db } from "../../firebase";
+import { getDownloadURL, getStorage, ref } from "firebase/storage";
 
 const { Text, Title } = Typography;
 
 export const CreateList = () => {
+  const storage = getStorage();
   const navigate = useNavigate();
   const size = (i) => (i === 0 ? 2 : 1);
   const { templates, templateType, searchTemplate, setTemplates } =
@@ -41,6 +43,11 @@ export const CreateList = () => {
 
   const handleClick = (templateId: string) => {
     (async () => {
+      // const templateName = `templates/${templateId}.svg`;
+      // const templateFileRef = ref(storage, templateName);
+      // const jsonurl = await getDownloadURL(templateFileRef);
+      // const result = await fetch(jsonurl);
+
       const templateURL = `https://firebasestorage.googleapis.com/v0/b/${process.env.REACT_APP_FIREBASE_STORAGEBUCKET}/o/templates%2F${templateId}.svg?alt=media`;
       saveCanvasData({ ...canvasData, canvas_data: templateURL });
     })();
