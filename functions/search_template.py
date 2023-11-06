@@ -24,9 +24,9 @@ def main(req: https_fn.Request) -> https_fn.Response:
     model, processor, tokenizer = get_model_info(model_ID, device)
 
     # Extract parameters from the request. In this case, we are expecting a parameter named "text_query".
-    request_data = req.get_json()
+    request_data = req.get_json()["data"]
     text_query = request_data.get('text_query')
-    ad_type = request_data.get('ad_type')
+    ad_type = request_data.get('template_type')
     if not text_query:
         text_query = "instagram template for product comparison"
     
