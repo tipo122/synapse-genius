@@ -37,7 +37,11 @@ const CanvasPane = () => {
   };
 
   useEffect(() => {
-    if (typeof canvasImageData === "string") editor?.setCanvas(canvasImageData);
+    if (
+      typeof canvasImageData === "string" &&
+      !canvasImageData.startsWith("https")
+    )
+      editor?.setCanvas(canvasImageData);
     editor && saveThumbnail(editor);
   }, [canvasImageData]);
 

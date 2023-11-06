@@ -14,6 +14,7 @@ import { db } from "../../firebase";
 const { Text, Title } = Typography;
 
 export const CreateList = () => {
+  const navigate = useNavigate();
   const size = (i) => (i === 0 ? 2 : 1);
   const { templates, templateType, searchTemplate, setTemplates } =
     useContext(CreateContext);
@@ -21,18 +22,7 @@ export const CreateList = () => {
   const { canvasData, saveCanvasData, saveCanvasImageData } = useCanvasData(
     canvasId ?? ""
   );
-  const { selectedObjects, editor, onReady } = useFabricJSEditor();
-
-  useEffect(() => {
-    (async () => {
-      let template_data = "";
-      const snapshot = await getDoc(
-        doc(db, "templates", "WgxpZYMkjCVpt52dreXN")
-      );
-      if (snapshot.exists()) template_data = snapshot.data().canvas_data;
-      saveCanvasImageData(template_data);
-    })();
-  }, []);
+  // const { selectedObjects, editor, onReady } = useFabricJSEditor();
 
   useEffect(() => {
     (async () => {
@@ -49,6 +39,14 @@ export const CreateList = () => {
     })();
   }, [canvasData]);
 
+  const handleClick = (templateId: string) => {
+    (async () => {
+      const templateURL = `https://firebasestorage.googleapis.com/v0/b/${process.env.REACT_APP_FIREBASE_STORAGEBUCKET}/o/templates%2F${templateId}.svg?alt=media`;
+      saveCanvasData({ ...canvasData, canvas_data: templateURL });
+    })();
+    navigate(`/canvas/${canvasId}`);
+  };
+
   return (
     <>
       <div style={{ width: "600px", textAlign: "right" }}>
@@ -58,20 +56,19 @@ export const CreateList = () => {
           dataSource={templates}
           renderItem={(item, i) => (
             <List.Item>
-              <Link to={`/canvas/${canvasId}`}>
-                <Card hoverable style={{ width: 240, height: 240 }}>
-                  <Card.Meta />
-                  <img
-                    src={`https://firebasestorage.googleapis.com/v0/b/${process.env.REACT_APP_FIREBASE_STORAGEBUCKET}/o/templates%2F${item}.svg?alt=media`}
-                    width={190}
-                    height={190}
-                  />
-                  <FabricJSCanvas
-                    className="synapse-canvas"
-                    onReady={onReady}
-                  />
-                </Card>
-              </Link>
+              <Card
+                hoverable
+                style={{ width: 240, height: 240 }}
+                onClick={() => handleClick(item)}
+              >
+                <Card.Meta />
+                <img
+                  src={`https://firebasestorage.googleapis.com/v0/b/${process.env.REACT_APP_FIREBASE_STORAGEBUCKET}/o/templates%2F${item}.svg?alt=media`}
+                  width={190}
+                  height={190}
+                />
+                {/* <FabricJSCanvas className="synapse-canvas" onReady={onReady} /> */}
+              </Card>
             </List.Item>
           )}
         />

@@ -37,6 +37,7 @@ export interface FabricJSEditor {
   bringForward: () => void;
   sendBackwards: () => void;
   toSVG: () => any;
+  loadSVG: (svgURL: string) => void;
   setCanvas: (text: string) => void;
 }
 export interface FabricJSCanvasProps {
@@ -199,6 +200,13 @@ const buildEditor = (
     },
     toSVG: () => {
       return canvas.toSVG();
+    },
+    loadSVG: (svgUrl: string) => {
+      fabric.loadSVGFromURL(svgUrl, (objects) => {
+        objects.forEach((svg) => {
+          canvas.add(svg).renderAll();
+        });
+      });
     },
     fillColor,
     strokeColor,

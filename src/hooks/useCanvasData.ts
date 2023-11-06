@@ -8,7 +8,14 @@ import {
   onSnapshot,
 } from "firebase/firestore";
 import { db, auth } from "../firebase";
-import { getStorage, ref, uploadBytes, uploadString } from "firebase/storage";
+import {
+  getBytes,
+  getDownloadURL,
+  getStorage,
+  ref,
+  uploadBytes,
+  uploadString,
+} from "firebase/storage";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { Canvas } from "@domain-types/canvas";
 import { FabricJSEditor } from "./useFabricJSEditor";
@@ -63,7 +70,9 @@ export const useCanvasData = (canvasIdProp: string): CanvasDataInterface => {
   const canvasDataRef = useRef<Canvas>(initialCanvasData);
   const canvasImageDataRef = useRef<string>("");
   const thumbnailName = `thumbnail/${canvasId}.svg`;
+  const canvasDataName = `creative/${canvasId}.json`;
   const thumbnailRef = canvasId ? ref(storage, thumbnailName) : null;
+  const canvasFileRef = canvasId ? ref(storage, canvasDataName) : null;
 
   const updateCanvasData = (doc) => {
     setCanvasData({ ...doc.data(), uid: canvasDataRef.current.uid });
@@ -90,6 +99,11 @@ export const useCanvasData = (canvasIdProp: string): CanvasDataInterface => {
           unsub.current = onSnapshot(docRef, updateCanvasData);
           setCanvasData(doc);
           setCanvasImageData(doc.canvas_data as string);
+          // if (canvasFileRef) {
+          //   const jsonurl = await getDownloadURL(canvasFileRef);
+          //   const result = await fetch(jsonurl);
+          //   setCanvasImageData(await result.json());
+          // }
         } else {
           setError(true);
         }
@@ -110,7 +124,13 @@ export const useCanvasData = (canvasIdProp: string): CanvasDataInterface => {
   }, [canvasImageData]);
 
   const saveThumbnail = (editor: FabricJSEditor) => {
-    console.log("saving");
+    (async () => {
+      if ((canvasData.canvas_data as string).startsWith("https")) {
+        await editor.loadSVG(canvasData.canvas_data as string);
+        saveCanvasImageData(JSON.stringify(editor.canvas));
+      }
+    })();
+
     const content = new Blob([editor.toSVG()], {
       type: "image/svg+xml",
     });
@@ -121,15 +141,16 @@ export const useCanvasData = (canvasIdProp: string): CanvasDataInterface => {
   };
 
   const saveCanvasData = (canvas: any) => {
-    canvas.canvas_data = canvasImageDataRef.current;
+    // canvas.canvas_data = canvasImageDataRef.current;
     saveCanvasDataMain(canvas);
   };
 
   const saveCanvasImageData = (canvas_data: string) => {
     setCanvasImageData(canvas_data);
-    // saveCanvasDataMain({ ...canvasDataRef.current, canvas_data: canvas_data });
-    canvas_data &&
-      setDoc(doc(db, "canvases", canvasId), { canvas_data }, { merge: true });
+    canvasFileRef && uploadString(canvasFileRef, canvas_data);
+    // // saveCanvasDataMain({ ...canvasDataRef.current, canvas_data: canvas_data });
+    // canvas_data &&
+    //   setDoc(doc(db, "canvases", canvasId), { canvas_data }, { merge: true });
   };
 
   const saveCanvasDataMain = async (canvas: Canvas) => {
