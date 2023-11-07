@@ -8,6 +8,7 @@ import Login from "@pages/Login";
 import Create from "@containers/Create";
 import Insight2 from "@components/Insight2";
 import "./App.css";
+import Canvas from "@pages/Canvas";
 
 const App = () => {
   const [user, loading, error] = useIdToken(auth);
@@ -35,6 +36,7 @@ const App = () => {
             <Route path="*" element={<Dashboard />} />
             <Route path="/login/:url" element={<Login />} />
             <Route path="/create/*" element={<Create />} />
+            <Route path="/canvas/:canvasId" element={<Canvas />} />
             <Route path="/insight2/*" element={<Insight2 />} />
           </Routes>
         </header>

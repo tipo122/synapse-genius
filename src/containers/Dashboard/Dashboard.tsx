@@ -81,7 +81,6 @@ const Dashboard = () => {
           <Routes>
             <Route path="/*" element={<Navigate to="/home" />} />
             <Route path="/home" element={<Home />} />
-            <Route path="/canvas/:canvasId" element={<Canvas />} />
             <Route path="/profile" element={<h1>Profile</h1>} />
           </Routes>
         </Content>
