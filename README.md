@@ -128,42 +128,6 @@ Synapse X Genius のプロトタイプのためのレポジトリです。
 
 # FireStore Collections
 
-```mermaid
-erDiagram
-    user ||--|{ item: own
-    user ||--|{ campaign : own
-    user ||--|{ canvasdata : own
-    user {
-      string uid
-      string username
-      string email
-    }
-    item {
-      string name
-      string user_uid FK
-      boolean current
-    }
-    campaign {
-      string uid
-      string user_uid FK
-      string campaign_name
-      string campaign_string
-    }
-    canvasdata ||--|| item: refere
-    canvasdata ||--|| campaign: refere
-    canvasdata {
-      string uid
-      string user_uid FK
-      string template_id
-      object copydata
-      string bg_image_hash
-    }
-   prompts {
-      string prompt_id
-
-   }
-```
-
 ```ts
 canvases: {
    uid: string,
@@ -283,15 +247,31 @@ src/
 
 ```mermaid
 sequenceDiagram
+   participant storage/template
+   participant storage/canvasdata
+   participant canvas
    participant web
    participant firestore
    participant functions
-   web->>firestore: プロパティの書き込み
-   web->>functions: コピー生成のリクエスト
-   functions->>firestore: プロンプトの書き込み
-   functions->>firestore: コピーの結果をcanvasに書き込み
-   web->>functions: 画像生成のリクエスト
-   functions->>firestore: 画像をstorageに格納後storeにreferernceを書き込む
+   participant ChatGPT
+   participant Pinecone
+   web->>functions: 商品販売URLとAD_TYPEを送る
+   functions->>ChatGPT: 商品名、カテゴリ、商品詳細、商品のキャッチコピーを取得
+   functions->>ChatGPT: AD_TYPEに合う文字列を取得する
+   functions->>firestore: 商品情報やコピーの情報をcanvasesに書き込む
+   web->>functions: 適切なテンプレートの検索指示
+   functions->>Pinecone: マッチするテンプレートの問い合わせ
+   functions->>web: マッチするテンプレートIDの一覧を返す
+   storage/template->>functions: テンプレートの読み込み
+   functions->>web: 文字列が埋め込まれたテンプレート画像を返す
+   web->>firestore: ユーザに選択されたテンプレートIDをcanvasにセット
+   web->>storage/canvasdata: 使用するテンプレートIDを使って<br>テンプレートをjsonデータに変換する
+   web->>storage/canvasdata:すでにcanvasesに画像データがあれば、jsonデータに変換する
+   web->storage/canvasdata: クリエイティブのデータの読み書きは、storageを使って行う
    firestore-->>web: onSnapshotの通知
-    Note right of web: canvasから画像とコピーを<br>読み取って表示
+   storage/canvasdata-->>web: onSnapshotの通知(?)
+   canvas->>web: editorの更新の通知
+   web->>storage/canvasdata: thumbnailとcanvasdataの保存
+   
+
 ```

@@ -19,6 +19,13 @@ export interface FabricJSEditor {
   addLine: () => void;
   addText: (text: string) => void;
   updateText: (text: string) => void;
+  changeTextFont: (fontFamily: string) => void;
+  changeTextSize: (textSize: number) => void;
+  changeBoldFont: (apply: boolean) => void;
+  changeItalicFont: (apply: boolean) => void;
+  changeUnderLineFont: (apply: boolean) => void;
+  changeStrikethroughFont: (apply: boolean) => void;
+  addImage: (imageFile: string) => void;
   deleteAll: () => void;
   deleteSelected: () => void;
   fillColor: string;
@@ -27,6 +34,10 @@ export interface FabricJSEditor {
   setStrokeColor: (color: string) => void;
   zoomIn: () => void;
   zoomOut: () => void;
+  bringForward: () => void;
+  sendBackwards: () => void;
+  toSVG: () => any;
+  loadSVG: (svgURL: string) => void;
   setCanvas: (text: string) => void;
 }
 export interface FabricJSCanvasProps {
@@ -103,17 +114,99 @@ const buildEditor = (
         onChange && onChange(JSON.stringify(canvas));
       }
     },
+    changeTextFont: (fontFamily: string) => {
+      canvas
+        .getActiveObjects()
+        .forEach((object) => object.set({ fontFamily: fontFamily }));
+      canvas.renderAll();
+      onChange && onChange(JSON.stringify(canvas));
+    },
+    changeTextSize: (textSize: number) => {
+      canvas
+        .getActiveObjects()
+        .forEach((object) => object.set({ fontSize: textSize }));
+      canvas.renderAll();
+      // onChange && onChange(JSON.stringify(canvas));
+    },
+    changeBoldFont: (apply: boolean) => {
+      if (apply) {
+        canvas
+          .getActiveObjects()
+          .forEach((object) => object.set({ fontWeight: "bold" }));
+        canvas.renderAll();
+        onChange && onChange(JSON.stringify(canvas));
+        return;
+      }
+      canvas
+        .getActiveObjects()
+        .forEach((object) => object.set({ fontWeight: "normal" }));
+      canvas.renderAll();
+    },
+    changeItalicFont: (apply: boolean) => {
+      if (apply) {
+        canvas
+          .getActiveObjects()
+          .forEach((object) => object.set({ fontStyle: "italic" }));
+        canvas.renderAll();
+        // onChange && onChange(JSON.stringify(canvas));
+        return;
+      }
+      canvas
+        .getActiveObjects()
+        .forEach((object) => object.set({ fontStyle: "normal" }));
+      canvas.renderAll();
+      // onChange && onChange(JSON.stringify(canvas));
+    },
+    changeUnderLineFont: (apply: boolean) => {
+      canvas
+        .getActiveObjects()
+        .forEach((object) => object.set({ underline: apply }));
+      canvas.renderAll();
+      // onChange && onChange(JSON.stringify(canvas));
+    },
+    changeStrikethroughFont: (apply: boolean) => {
+      canvas
+        .getActiveObjects()
+        .forEach((object) => object.set({ linethrough: apply }));
+      canvas.renderAll();
+    },
+    addImage: (imageUrl: string) => {
+      fabric.Image.fromURL(imageUrl, (img) => {
+        canvas.add(img);
+      });
+      // onChange && onChange(JSON.stringify(canvas));
+    },
     deleteAll: () => {
       canvas.getObjects().forEach((object) => canvas.remove(object));
       canvas.discardActiveObject();
       canvas.renderAll();
-      onChange && onChange(JSON.stringify(canvas));
+      // onChange && onChange(JSON.stringify(canvas));
     },
     deleteSelected: () => {
       canvas.getActiveObjects().forEach((object) => canvas.remove(object));
       canvas.discardActiveObject();
       canvas.renderAll();
-      onChange && onChange(JSON.stringify(canvas));
+      // onChange && onChange(JSON.stringify(canvas));
+    },
+    sendBackwards: () => {
+      canvas
+        .getActiveObjects()
+        .forEach((object) => canvas.sendBackwards(object));
+    },
+    bringForward: () => {
+      canvas
+        .getActiveObjects()
+        .forEach((object) => canvas.bringForward(object));
+    },
+    toSVG: () => {
+      return canvas.toSVG();
+    },
+    loadSVG: async (svgUrl: string) => {
+      fabric.loadSVGFromURL(svgUrl, (objects) => {
+        objects.forEach((svg) => {
+          canvas.add(svg).renderAll();
+        });
+      });
     },
     fillColor,
     strokeColor,
@@ -121,7 +214,7 @@ const buildEditor = (
       _setFillColor(fill);
       canvas.getActiveObjects().forEach((object) => object.set({ fill }));
       canvas.renderAll();
-      onChange && onChange(JSON.stringify(canvas));
+      // onChange && onChange(JSON.stringify(canvas));
     },
     setStrokeColor: (stroke: string) => {
       _setStrokeColor(stroke);
@@ -134,7 +227,7 @@ const buildEditor = (
         object.set({ stroke });
       });
       canvas.renderAll();
-      onChange && onChange(JSON.stringify(canvas));
+      // onChange && onChange(JSON.stringify(canvas));
     },
     zoomIn: () => {
       const zoom = canvas.getZoom();
@@ -174,7 +267,7 @@ const useFabricJSEditor = ({
         setSelectedObject(e.selected);
       });
       canvas.on("object:modified", (e: any) => {
-        onChange && onChange(JSON.stringify(canvas));
+        // onChange && onChange(JSON.stringify(canvas));
       });
     };
     if (canvas) {

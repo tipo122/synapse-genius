@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef, useEffect } from "react";
+import React, { useState, useEffect, useContext, useRef } from "react";
 import {
   FabricJSCanvas,
   useFabricJSEditor,
@@ -6,37 +6,71 @@ import {
 import { Button, Input } from "antd";
 import { SketchPicker } from "react-color";
 import "./CanvasPane.css";
-import { useCanvasData, initialCanvasData } from "@hooks/useCanvasData";
-import { useAuthState } from "react-firebase-hooks/auth";
-import { auth } from "../../firebase";
-import { Canvas } from "@domain-types/canvas";
+import { CanvasContext } from "@pages/Canvas/Canvas";
+import { fabric } from "fabric";
+import ImageUpload from "@components/ImageUpload/ImageUpload";
+import TextStyle from "@components/TextStyle/TextStyle";
 
 const CanvasPane = () => {
-  const [user] = useAuthState(auth);
-  const { canvasData, saveCanvasData } = useCanvasData({
-    user_id: user?.uid || "",
-  });
-  const canvasRef = useRef<Canvas>(initialCanvasData);
-  const onChange = useCallback(
-    (string: string) => {
-      saveCanvasData({ ...canvasRef.current, canvas_data: string });
-    },
-    [canvasData]
-  );
-  const { selectedObjects, editor, onReady } = useFabricJSEditor({
-    onChange: onChange,
-  });
+  const alreadyIn = useRef<boolean>(false);
+  const alreadyLoaded = useRef<boolean>(false);
+  const saveTimer = useRef<NodeJS.Timeout | null | undefined>(undefined); // null as unknown as NodeJS.Timeout;
+  const {
+    canvasData,
+    canvasImageData,
+    saveCanvasImageData,
+    saveThumbnail,
+    loadTemplate,
+  } = useContext(CanvasContext);
+  const onChange = (canvas_data: string) => {};
+  const { selectedObjects, editor, onReady } = useFabricJSEditor({ onChange });
   const [text, setText] = useState("");
   const [strokeColorPane, setStrokeColorPane] = useState<boolean>(false);
   const [strokeColor, setStrokeColor] = useState<string>("");
   const [fillColorPane, setFillColorPane] = useState<boolean>(false);
   const [fillColor, setFillColor] = useState<string>("");
 
+  const handleSaveData = () => {
+    saveTimer.current && clearTimeout(saveTimer.current);
+    saveTimer.current = null as unknown as NodeJS.Timeout;
+    editor?.canvas &&
+      saveCanvasImageData(JSON.stringify(editor?.canvas), editor);
+    editor?.canvas && saveThumbnail(editor);
+  };
+
   useEffect(() => {
-    canvasRef.current = canvasData;
-    if (typeof canvasData.canvas_data === "string")
-      editor?.setCanvas(canvasData.canvas_data as string);
-  }, [canvasData]);
+    if (editor?.canvas && alreadyIn.current === false) {
+      alreadyIn.current = true;
+      handleSaveData();
+    }
+    // if (typeof saveTimer.current === "undefined") handleSaveData();
+    if (saveTimer.current) {
+      clearTimeout(saveTimer.current);
+      saveTimer.current = null as unknown as NodeJS.Timeout;
+    }
+    saveTimer.current = setTimeout(handleSaveData, 5000);
+  }, [editor]);
+
+  useEffect(() => {
+    if (!alreadyLoaded.current && editor) {
+      loadTemplate(editor);
+      alreadyLoaded.current = true;
+    }
+    if (
+      typeof canvasImageData === "string" &&
+      !canvasImageData.startsWith("https")
+    ) {
+      editor?.setCanvas(canvasImageData);
+    }
+    // editor && saveThumbnail(editor);
+    // editor?.setCanvas(canvasImageData);
+  }, [canvasImageData]);
+
+  useEffect(() => {
+    return () => {
+      saveTimer.current && clearTimeout(saveTimer.current);
+    };
+  }, []);
 
   const onAddCircle = () => {
     editor?.addCircle();
@@ -64,6 +98,20 @@ const CanvasPane = () => {
   const onDeleteSelected = () => {
     editor?.deleteSelected();
   };
+  const onLoadSVG = (e) => {
+    var url = URL.createObjectURL(e.target.files[0]);
+    fabric.loadSVGFromURL(url, function (objects, options) {
+      objects.forEach(function (svg) {
+        editor?.canvas.add(svg).renderAll();
+      });
+    });
+  };
+  const onSendBackwards = (e) => {
+    editor?.sendBackwards();
+  };
+  const onBringForward = (e) => {
+    editor?.bringForward();
+  };
   return (
     <>
       {editor ? (
@@ -72,6 +120,7 @@ const CanvasPane = () => {
           <Button onClick={onAddRectangle}>Add Rectangle</Button>
           <Button onClick={onDeleteSelected}>Delete Selected</Button>
           <Button onClick={onDeleteAll}>Delete All</Button>
+          <Input type="file" onChange={onLoadSVG} />
           <Input
             type="text"
             value={text}
@@ -98,6 +147,9 @@ const CanvasPane = () => {
           >
             Fill Color
           </Button>
+
+          <TextStyle editor={editor} />
+
           {fillColorPane && (
             <div className="color-popover">
               <SketchPicker
@@ -106,6 +158,10 @@ const CanvasPane = () => {
               />
             </div>
           )}
+          <Button onClick={onSendBackwards}>Send to back</Button>
+          <Button onClick={onBringForward}>Bring to front</Button>
+
+          <ImageUpload editor={editor} />
         </div>
       ) : (
         <>Loading...</>

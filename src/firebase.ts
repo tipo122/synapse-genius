@@ -1,6 +1,7 @@
 import { initializeApp, FirebaseApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
+import { getStorage } from "firebase/storage"
 import { getFunctions, connectFunctionsEmulator } from "firebase/functions";
 import { GoogleAuthProvider } from "firebase/auth";
 
@@ -19,8 +20,9 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const provider = new GoogleAuthProvider();
 const functions = getFunctions(app);
+const storage = getStorage(app);
 
 // ローカルでテストする場合は、以下の行をコメントインしてください
 // connectFunctionsEmulator(functions, "127.0.0.1", 5001);
 
-export { db, auth, provider, functions };
+export { db, auth, provider, functions, storage };

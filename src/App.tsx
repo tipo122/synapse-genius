@@ -5,6 +5,8 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import { auth } from "./firebase";
 import Dashboard from "@containers/Dashboard";
 import Login from "@pages/Login";
+import Create from "@containers/Create";
+import Insight2 from "@components/Insight2";
 import "./App.css";
 
 const App = () => {
@@ -26,12 +28,14 @@ const App = () => {
   }
   return (
     <Router>
-      {!loading && !user && <Navigate to="/login" />}
+      {!loading && !user && <Navigate to={`/login${location.pathname}`} />}
       <div className="App">
         <header className="App-header">
           <Routes>
             <Route path="*" element={<Dashboard />} />
-            <Route path="/login" element={<Login />} />
+            <Route path="/login/:url" element={<Login />} />
+            <Route path="/create/*" element={<Create />} />
+            <Route path="/insight2/*" element={<Insight2 />} />
           </Routes>
         </header>
       </div>

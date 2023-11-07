@@ -1,0 +1,6 @@
+.canvas-body-div {
+  margin-left: 20px;
+  display: flex;
+  height: 100%;
+  flex-direction: column;
+}
