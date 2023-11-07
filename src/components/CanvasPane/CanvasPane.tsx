@@ -48,7 +48,7 @@ const CanvasPane = () => {
       clearTimeout(saveTimer.current);
       saveTimer.current = null as unknown as NodeJS.Timeout;
     }
-    saveTimer.current = setTimeout(handleSaveData, 5000);
+    saveTimer.current = setTimeout(handleSaveData, 2000);
   }, [editor]);
 
   useEffect(() => {
