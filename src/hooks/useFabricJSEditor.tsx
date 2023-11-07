@@ -202,7 +202,6 @@ const buildEditor = (
       return canvas.toSVG();
     },
     loadSVG: async (svgUrl: string) => {
-      console.log(svgUrl);
       fabric.loadSVGFromURL(svgUrl, (objects) => {
         objects.forEach((svg) => {
           canvas.add(svg).renderAll();

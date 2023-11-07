@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useRef } from "react";
 import {
   FabricJSCanvas,
   useFabricJSEditor,
@@ -12,17 +12,17 @@ import ImageUpload from "@components/ImageUpload/ImageUpload";
 import TextStyle from "@components/TextStyle/TextStyle";
 
 const CanvasPane = () => {
-  let saveTimer = null as unknown as NodeJS.Timeout;
-  const { canvasImageData, saveCanvasImageData, saveThumbnail } =
-    useContext(CanvasContext);
-  const onChange = (canvas_data: string) => {
-    // saveCanvasImageData(canvas_data);
-    // if (saveTimer) {
-    //   clearTimeout(saveTimer);
-    //   saveTimer = null as unknown as NodeJS.Timeout;
-    // }
-    // saveTimer = setTimeout(handleSaveThumbnail, 2000);
-  };
+  const alreadyIn = useRef<boolean>(false);
+  const alreadyLoaded = useRef<boolean>(false);
+  const saveTimer = useRef<NodeJS.Timeout | null | undefined>(undefined); // null as unknown as NodeJS.Timeout;
+  const {
+    canvasData,
+    canvasImageData,
+    saveCanvasImageData,
+    saveThumbnail,
+    loadTemplate,
+  } = useContext(CanvasContext);
+  const onChange = (canvas_data: string) => {};
   const { selectedObjects, editor, onReady } = useFabricJSEditor({ onChange });
   const [text, setText] = useState("");
   const [strokeColorPane, setStrokeColorPane] = useState<boolean>(false);
@@ -31,31 +31,45 @@ const CanvasPane = () => {
   const [fillColor, setFillColor] = useState<string>("");
 
   const handleSaveData = () => {
-    console.log(`editor ${editor ? "available" : "not available"}`);
-    editor && saveThumbnail(editor);
-    editor && saveCanvasImageData(JSON.stringify(editor?.canvas), editor);
-    saveTimer = null as unknown as NodeJS.Timeout;
+    saveTimer.current && clearTimeout(saveTimer.current);
+    saveTimer.current = null as unknown as NodeJS.Timeout;
+    editor?.canvas &&
+      saveCanvasImageData(JSON.stringify(editor?.canvas), editor);
+    editor?.canvas && saveThumbnail(editor);
   };
 
   useEffect(() => {
-    if (saveTimer) {
-      clearTimeout(saveTimer);
-      saveTimer = null as unknown as NodeJS.Timeout;
+    if (editor?.canvas && alreadyIn.current === false) {
+      alreadyIn.current = true;
+      handleSaveData();
     }
-    saveTimer = setTimeout(handleSaveData, 2000);
+    // if (typeof saveTimer.current === "undefined") handleSaveData();
+    if (saveTimer.current) {
+      clearTimeout(saveTimer.current);
+      saveTimer.current = null as unknown as NodeJS.Timeout;
+    }
+    saveTimer.current = setTimeout(handleSaveData, 5000);
   }, [editor]);
 
   useEffect(() => {
+    if (!alreadyLoaded.current && editor) {
+      loadTemplate(editor);
+      alreadyLoaded.current = true;
+    }
     if (
       typeof canvasImageData === "string" &&
       !canvasImageData.startsWith("https")
-    )
+    ) {
       editor?.setCanvas(canvasImageData);
-    editor && saveThumbnail(editor);
+    }
+    // editor && saveThumbnail(editor);
+    // editor?.setCanvas(canvasImageData);
   }, [canvasImageData]);
 
   useEffect(() => {
-    return () => clearTimeout(saveTimer);
+    return () => {
+      saveTimer.current && clearTimeout(saveTimer.current);
+    };
   }, []);
 
   const onAddCircle = () => {

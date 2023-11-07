@@ -54,6 +54,7 @@ export interface CanvasDataInterface {
   saveCanvasData: (canvas: any) => void;
   saveCanvasImageData: (canvas_data: string, editor: FabricJSEditor) => void;
   saveThumbnail: (editor: FabricJSEditor) => void;
+  loadTemplate: (editor: FabricJSEditor) => void;
   error: boolean;
 }
 
@@ -66,6 +67,7 @@ export const useCanvasData = (canvasIdProp: string): CanvasDataInterface => {
   const [canvasData, setCanvasData] = useState<Canvas>(initialCanvasData);
   const [canvasImageData, setCanvasImageData] = useState<string>("");
   const loading = useRef<boolean>(false);
+  const loaded = useRef<boolean>(false);
   const unsub = useRef<() => void>(() => {});
   const canvasDataRef = useRef<Canvas>(initialCanvasData);
   const canvasImageDataRef = useRef<string>("");
@@ -98,24 +100,17 @@ export const useCanvasData = (canvasIdProp: string): CanvasDataInterface => {
           const doc = { ...docSnap.data(), uid: docSnap.id } as Canvas;
           unsub.current = onSnapshot(docRef, updateCanvasData);
           setCanvasData(doc);
-
-          // (async () => {
-          //   if ((canvasData.canvas_data as string).startsWith("https")) {
-          //     await editor.loadSVG(canvasData.canvas_data as string);
-          //     saveCanvasImageData(JSON.stringify(editor.canvas));
-          //   }
-          // })();
-          if (!(canvasData.canvas_data as string).startsWith("https")) {
-            setCanvasImageData(doc.canvas_data as string);
-          }
           try {
             if (canvasFileRef) {
               const jsonurl = await getDownloadURL(canvasFileRef);
               const result = await fetch(jsonurl);
-              result && setCanvasImageData(await result.json());
+              const data = await result.json();
+              setCanvasImageData(JSON.stringify(data));
             }
-          } catch {
-            console.log("no canvas data_file");
+          } catch (e) {
+            canvasFileRef && (await uploadString(canvasFileRef, "{}"));
+            setCanvasImageData(JSON.stringify({}));
+            console.log(e);
           }
         } else {
           setError(true);
@@ -137,49 +132,59 @@ export const useCanvasData = (canvasIdProp: string): CanvasDataInterface => {
   }, [canvasImageData]);
 
   const saveThumbnail = (editor: FabricJSEditor) => {
-    const content = new Blob([editor.toSVG()], {
-      type: "image/svg+xml",
-    });
-    const metadata = {
-      contentType: "image/svg+xml",
-    };
-    thumbnailRef && uploadBytes(thumbnailRef, content, metadata);
-    console.log("save thumbnail");
+    if (loaded.current) {
+      const content = new Blob([editor.toSVG()], {
+        type: "image/svg+xml",
+      });
+      const metadata = {
+        contentType: "image/svg+xml",
+      };
+      thumbnailRef && uploadBytes(thumbnailRef, content, metadata);
+      console.log("save thumbnail");
+    }
   };
 
   const saveCanvasData = (canvas: any) => {
-    // canvas.canvas_data = canvasImageDataRef.current;
     saveCanvasDataMain(canvas);
   };
 
-  const saveCanvasImageData = (canvas_data: string, editor: FabricJSEditor) => {
+  const loadTemplate = (editor: FabricJSEditor) => {
+    console.log(canvasData.canvas_data);
     if ((canvasData.canvas_data as string).startsWith("https")) {
       (async () => {
         const result = await fetch(canvasData.canvas_data as string);
-        // console.log(canvasData.canvas_data);
-        // console.log(result.body);
-        // console.log("------------------------");
         result.body && (await editor.loadSVG(canvasData.canvas_data as string));
+        loaded.current = true;
         saveCanvasDataMain({ ...canvasData, canvas_data: "" });
+        saveThumbnail(editor);
+        setCanvasImageData(JSON.stringify(editor?.canvas));
       })();
+    } else {
+      loaded.current = true;
     }
+  };
 
-    setCanvasImageData(canvas_data);
-
-    (async () => {
-      try {
-        canvasFileRef && (await uploadString(canvasFileRef, canvas_data));
-        console.log("save creative data");
-      } catch {
-        console.log("create new creative data");
-      }
-    })();
-    // // saveCanvasDataMain({ ...canvasDataRef.current, canvas_data: canvas_data });
-    // canvas_data &&
-    //   setDoc(doc(db, "canvases", canvasId), { canvas_data }, { merge: true });
+  const saveCanvasImageData = (canvas_data: string, editor: FabricJSEditor) => {
+    if (loaded.current) {
+      setCanvasImageData(canvas_data);
+      (async () => {
+        try {
+          canvasFileRef && (await uploadString(canvasFileRef, canvas_data));
+          console.log("save creative data");
+        } catch {
+          console.log("create new creative data");
+        }
+      })();
+      // // saveCanvasDataMain({ ...canvasDataRef.current, canvas_data: canvas_data });
+      // canvas_data &&
+      //   setDoc(doc(db, "canvases", canvasId), { canvas_data }, { merge: true });
+    }
   };
 
   const saveCanvasDataMain = async (canvas: Canvas) => {
+    if (!(canvas.canvas_data as string).startsWith("https")) {
+      canvas.canvas_data = "";
+    }
     setCanvasData(canvas);
     try {
       canvas &&
@@ -198,6 +203,7 @@ export const useCanvasData = (canvasIdProp: string): CanvasDataInterface => {
     saveCanvasData,
     saveCanvasImageData,
     saveThumbnail,
+    loadTemplate,
     error,
   };
 };

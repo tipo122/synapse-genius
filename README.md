@@ -249,22 +249,29 @@ src/
 sequenceDiagram
    participant storage/template
    participant storage/canvasdata
+   participant canvas
    participant web
    participant firestore
-   participant firestore
    participant functions
-   web->>firestore: 商品プロパティの書き込み
-   functions->>firestore: コピーテキストの書き出し
-   functions->>firestore: プロンプトの書き込み
+   participant ChatGPT
+   participant Pinecone
+   web->>functions: 商品販売URLとAD_TYPEを送る
+   functions->>ChatGPT: 商品名、カテゴリ、商品詳細、商品のキャッチコピーを取得
+   functions->>ChatGPT: AD_TYPEに合う文字列を取得する
+   functions->>firestore: 商品情報やコピーの情報をcanvasesに書き込む
    web->>functions: 適切なテンプレートの検索指示
+   functions->>Pinecone: マッチするテンプレートの問い合わせ
    functions->>web: マッチするテンプレートIDの一覧を返す
-   web->>functions: ユーザに選択されたテンプレートを読み込む
-   functions->>storage/template: 指定されたテンプレートのデータにcanvasに書かれた文字列を埋め込む
-   web->>firestore: 使用するテンプレートIDを書き込む
-   web->>storage/canvasdata: 使用するテンプレートIDの指示があれば、<br>テンプレートをjsonデータに変換する
+   storage/template->>functions: テンプレートの読み込み
+   functions->>web: 文字列が埋め込まれたテンプレート画像を返す
+   web->>firestore: ユーザに選択されたテンプレートIDをcanvasにセット
+   web->>storage/canvasdata: 使用するテンプレートIDを使って<br>テンプレートをjsonデータに変換する
    web->>storage/canvasdata:すでにcanvasesに画像データがあれば、jsonデータに変換する
    web->storage/canvasdata: クリエイティブのデータの読み書きは、storageを使って行う
    firestore-->>web: onSnapshotの通知
    storage/canvasdata-->>web: onSnapshotの通知(?)
+   canvas->>web: editorの更新の通知
+   web->>storage/canvasdata: thumbnailとcanvasdataの保存
+   
 
 ```
