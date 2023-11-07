@@ -49,6 +49,8 @@ export const CreateList = () => {
       // const result = await fetch(jsonurl);
 
       const templateURL = `https://firebasestorage.googleapis.com/v0/b/${process.env.REACT_APP_FIREBASE_STORAGEBUCKET}/o/templates%2F${templateId}.svg?alt=media`;
+      // const templateURL = `http://127.0.0.1:5001/synapse-genius-dev-fbe11/us-central1/on_get_embedded_template?template_id=CZ5BXSCQHtcZxG8eP3br`
+
       saveCanvasData({ ...canvasData, canvas_data: templateURL });
     })();
     navigate(`/canvas/${canvasId}`);

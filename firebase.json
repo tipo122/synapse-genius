@@ -1,11 +1,24 @@
 {
   "hosting": {
     "public": "dist",
-    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
     "rewrites": [
-      { "source": "!/img/**", "destination": "/index.html" },
-      { "source": "/canvas/**", "destination": "/index.html" },
-      { "source": "/create/**", "destination": "/index.html" }
+      {
+        "source": "!/img/**",
+        "destination": "/index.html"
+      },
+      {
+        "source": "/canvas/**",
+        "destination": "/index.html"
+      },
+      {
+        "source": "/create/**",
+        "destination": "/index.html"
+      }
     ]
   },
   "firestore": {
@@ -16,7 +29,12 @@
     {
       "source": "functions",
       "codebase": "default",
-      "ignore": ["venv", ".git", "firebase-debug.log", "firebase-debug.*.log"]
+      "ignore": [
+        "venv",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log"
+      ]
     }
   ]
 }
