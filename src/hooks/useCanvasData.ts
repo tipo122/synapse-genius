@@ -92,6 +92,8 @@ export const useCanvasData = (canvasIdProp: string): CanvasDataInterface => {
             initialCanvasData
           );
           setCanvasId(docRef.id);
+          canvasFileRef && (await uploadString(canvasFileRef, "{}"));
+          setCanvasImageData(JSON.stringify({}));
           return;
         }
         const docRef = doc(db, "canvases", canvasId);
@@ -131,6 +133,22 @@ export const useCanvasData = (canvasIdProp: string): CanvasDataInterface => {
     canvasImageDataRef.current = canvasImageData;
   }, [canvasImageData]);
 
+  const loadTemplate = (editor: FabricJSEditor) => {
+    console.log(canvasData.canvas_data);
+    if ((canvasData.canvas_data as string).startsWith("https")) {
+      (async () => {
+        const result = await fetch(canvasData.canvas_data as string);
+        result.body && (await editor.loadSVG(canvasData.canvas_data as string));
+        loaded.current = true;
+        saveCanvasDataMain({ ...canvasData, canvas_data: "" });
+        saveThumbnail(editor);
+        setCanvasImageData(JSON.stringify(editor?.canvas));
+      })();
+    } else {
+      loaded.current = true;
+    }
+  };
+
   const saveThumbnail = (editor: FabricJSEditor) => {
     if (loaded.current) {
       const content = new Blob([editor.toSVG()], {
@@ -148,22 +166,6 @@ export const useCanvasData = (canvasIdProp: string): CanvasDataInterface => {
     saveCanvasDataMain(canvas);
   };
 
-  const loadTemplate = (editor: FabricJSEditor) => {
-    console.log(canvasData.canvas_data);
-    if ((canvasData.canvas_data as string).startsWith("https")) {
-      (async () => {
-        const result = await fetch(canvasData.canvas_data as string);
-        result.body && (await editor.loadSVG(canvasData.canvas_data as string));
-        loaded.current = true;
-        saveCanvasDataMain({ ...canvasData, canvas_data: "" });
-        saveThumbnail(editor);
-        setCanvasImageData(JSON.stringify(editor?.canvas));
-      })();
-    } else {
-      loaded.current = true;
-    }
-  };
-
   const saveCanvasImageData = (canvas_data: string, editor: FabricJSEditor) => {
     if (loaded.current) {
       setCanvasImageData(canvas_data);
@@ -171,7 +173,8 @@ export const useCanvasData = (canvasIdProp: string): CanvasDataInterface => {
         try {
           canvasFileRef && (await uploadString(canvasFileRef, canvas_data));
           console.log("save creative data");
-        } catch {
+        } catch (e) {
+          console.log(e);
           console.log("create new creative data");
         }
       })();
