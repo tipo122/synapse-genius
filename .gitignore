@@ -40,3 +40,7 @@ next-env.d.ts
 # etc
 /lib
 /dist
+.env*
+.flaskenv*
+!.env.project
+!.env.vault

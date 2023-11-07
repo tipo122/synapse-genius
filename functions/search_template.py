@@ -24,9 +24,9 @@ def main(req: https_fn.Request) -> https_fn.Response:
     model, processor, tokenizer = get_model_info(model_ID, device)
 
     # Extract parameters from the request. In this case, we are expecting a parameter named "text_query".
-    request_data = req.get_json()
+    request_data = req.get_json()["data"]
     text_query = request_data.get('text_query')
-    ad_type = request_data.get('ad_type')
+    ad_type = request_data.get('template_type')
     if not text_query:
         text_query = "instagram template for product comparison"
     
@@ -40,10 +40,12 @@ def main(req: https_fn.Request) -> https_fn.Response:
 
     # 環境変数からAPIキーを取得
     pinecone_api_key = os.getenv('PINCONE_API_KEY')
-    # pinecone_api_key = os.environ.get("")
+    pinecone_environment = os.getenv('PINECONE_ENVIRONMENT')
+    # pinecone_api_key = os.environ.get("5fc0462b-b467-4fbb-be3a-ab05bcbbab7b")
     pinecone.init(
         api_key = pinecone_api_key,  # app.pinecone.io
-        environment="gcp-starter"
+        # environment="us-west1-gcp-free"
+        environment= pinecone_environment
     )
 
     my_index_name = "clip-image-search"

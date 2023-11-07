@@ -51,7 +51,7 @@ def get_template_elements(ad_type, context) -> str:
 
     try:
         res = openai.ChatCompletion.create(
-            messages=prompts,
+            messages=prompts.encode('unicode-escape'),
             model="gpt-3.5-turbo"
         )
 

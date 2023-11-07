@@ -16,8 +16,8 @@ const { Text, Title, Link } = Typography;
 
 export const CreateStart = () => {
   const {
-    creativeType,
-    setCreativeType,
+    templateType,
+    setTemplateType,
     targetUrl,
     setTargetUrl,
     handleStart,
@@ -34,14 +34,14 @@ export const CreateStart = () => {
           size="large"
           buttonStyle="solid"
           className="large-icons"
-          value={creativeType}
+          value={templateType}
           onChange={(e) => {
-            setCreativeType(e.target.value);
+            setTemplateType(e.target.value);
           }}
         >
           <Row gutter={16}>
             <Col span={6}>
-              <Radio value="New">
+              <Radio value="new">
                 <Card>
                   <img width={120} height={120} />
                   New Item
@@ -49,7 +49,7 @@ export const CreateStart = () => {
               </Radio>
             </Col>
             <Col span={6}>
-              <Radio value="Comparison">
+              <Radio value="comparison">
                 <Card>
                   <img width={120} height={120} />
                   Comparison
@@ -57,7 +57,7 @@ export const CreateStart = () => {
               </Radio>
             </Col>
             <Col span={6}>
-              <Radio value="Feature">
+              <Radio value="feature">
                 <Card>
                   {" "}
                   <img width={120} height={120} />
@@ -66,7 +66,7 @@ export const CreateStart = () => {
               </Radio>
             </Col>
             <Col span={6}>
-              <Radio value="Sale">
+              <Radio value="sale">
                 <Card>
                   {" "}
                   <img width={120} height={120} />
