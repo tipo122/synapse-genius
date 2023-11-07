@@ -9,7 +9,7 @@ import {
 } from "../../hooks/useFabricJSEditor";
 import { initialCanvasData, useCanvasData } from "@hooks/useCanvasData";
 import { collection, doc, getDoc, query } from "firebase/firestore";
-import { db } from "../../firebase";
+import { app, db, functions } from "../../firebase";
 import { getDownloadURL, getStorage, ref } from "firebase/storage";
 
 const { Text, Title } = Typography;
@@ -40,6 +40,21 @@ export const CreateList = () => {
       }
     })();
   }, [canvasData]);
+
+  const getFunctionPath = () => {
+    const { projectId } = app.options;
+    const { region } = functions;
+    // @ts-ignore
+    const emulator = functions.emulatorOrigin;
+    let url: string = "";
+
+    if (emulator) {
+      url = `${emulator}/${projectId}/${region}/on_get_embedded_template`;
+    } else {
+      url = `https://${region}-${projectId}.cloudfunctions.net/on_get_embedded_template`;
+    }
+    return url;
+  };
 
   const handleClick = (templateId: string) => {
     (async () => {
@@ -72,7 +87,8 @@ export const CreateList = () => {
               >
                 <Card.Meta />
                 <img
-                  src={`https://firebasestorage.googleapis.com/v0/b/${process.env.REACT_APP_FIREBASE_STORAGEBUCKET}/o/templates%2F${item}.svg?alt=media`}
+                  // src={`https://firebasestorage.googleapis.com/v0/b/${process.env.REACT_APP_FIREBASE_STORAGEBUCKET}/o/templates%2F${item}.svg?alt=media`}
+                  src={`${getFunctionPath()}?template_id=${item}`}
                   width={190}
                   height={190}
                 />
