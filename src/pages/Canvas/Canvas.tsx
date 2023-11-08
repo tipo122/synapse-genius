@@ -6,7 +6,7 @@ import ItemProperty from "@components/ItemProperty";
 import "./Canvas.css";
 import { fabric } from "fabric";
 import { CanvasDataInterface, useCanvasData } from "@hooks/useCanvasData";
-import { useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import { FabricJSEditor, useFabricJSEditor } from "@hooks/useFabricJSEditor";
 import TextStyle from "@components/TextStyle/TextStyle";
 import ImageUpload from "@components/ImageUpload/ImageUpload";
@@ -63,6 +63,7 @@ const Canvas = () => {
   const [strokeColor, setStrokeColor] = useState<string>("");
   const [fillColorPane, setFillColorPane] = useState<boolean>(false);
   const [fillColor, setFillColor] = useState<string>("");
+  const navigate = useNavigate();
 
   const onAddCircle = () => {
     editor?.addCircle();
@@ -126,7 +127,11 @@ const Canvas = () => {
     >
       <Layout>
         <Header style={{ padding: 0, background: colorBgContainer }}>
-          <img src="/img/genius.png" height={50} />
+          <img
+            onClick={() => navigate("/home")}
+            src="/img/genius.png"
+            height={50}
+          />
 
           <Radio.Group
             size="large"
