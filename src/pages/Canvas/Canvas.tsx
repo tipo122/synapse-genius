@@ -15,10 +15,13 @@ import NorthWestIcon from "@mui/icons-material/NorthWest";
 import DevicesOtherIcon from "@mui/icons-material/DevicesOther";
 import InterestsIcon from "@mui/icons-material/Interests";
 import { SketchPicker } from "react-color";
+import type { MenuProps } from "antd";
+import { Menu } from "antd";
 
 import type { RadioChangeEvent } from "antd";
 import { Radio } from "antd";
 import { SvgIcon } from "@mui/material";
+import { Height } from "@mui/icons-material";
 
 const { Header, Content, Footer, Sider } = Layout;
 
@@ -57,7 +60,7 @@ const Canvas = () => {
   } = theme.useToken();
   const { selectedObjects, editor, onReady } = useFabricJSEditor();
 
-  const [openDrawer, setOpenDrawer] = useState<DRAWER>(DRAWER.NONE);
+  const [openDrawer, setOpenDrawer] = useState<number>(DRAWER.NONE);
   const [text, setText] = useState("");
   const [strokeColorPane, setStrokeColorPane] = useState<boolean>(false);
   const [strokeColor, setStrokeColor] = useState<string>("");
@@ -108,7 +111,35 @@ const Canvas = () => {
   const onBringForward = (e) => {
     editor?.bringForward();
   };
+  const size = "large";
 
+  const items: MenuProps["items"] = [
+    {
+      label: "矢印",
+      key: DRAWER.NONE,
+      icon: <NorthWestIcon />,
+    },
+    {
+      label: "TEXT",
+      key: DRAWER.TEXT,
+      icon: <FormatSizeIcon />,
+    },
+    {
+      label: "図形の挿入",
+      key: DRAWER.OBJECT,
+      icon: <InterestsIcon />,
+    },
+    {
+      label: "その他",
+      key: DRAWER.OTHER,
+      icon: <InterestsIcon />,
+    },
+  ];
+
+  const onSwitchDrawer = (e) => {
+    console.log(e);
+    // setState
+  };
   return (
     <CanvasContext.Provider
       value={{
@@ -126,36 +157,36 @@ const Canvas = () => {
       }}
     >
       <Layout>
-        <Header style={{ padding: 0, background: colorBgContainer }}>
+        <Header
+          style={{
+            display: "flex",
+            alignItems: "center",
+            padding: 0,
+            background: colorBgContainer,
+          }}
+        >
           <img
             onClick={() => navigate("/home")}
             src="/img/genius.png"
             height={50}
           />
 
-          <Radio.Group
-            size="large"
-            value={openDrawer}
-            onChange={(e) => {
-              setOpenDrawer(e.target?.value);
+          <Menu
+            onClick={(value) => {
+              parseInt(value.key) === openDrawer && setOpenDrawer(DRAWER.NONE);
             }}
-          >
-            <Radio.Button value={DRAWER.NONE}>
-              <SvgIcon component={NorthWestIcon} />
-            </Radio.Button>
-            <Radio.Button value={DRAWER.TEXT}>
-              <SvgIcon component={FormatSizeIcon} />
-            </Radio.Button>
-            <Radio.Button value={DRAWER.OBJECT}>
-              <SvgIcon component={InterestsIcon} />
-            </Radio.Button>
-            <Radio.Button value={DRAWER.OTHER}>
-              <SvgIcon component={DevicesOtherIcon} />
-            </Radio.Button>
-          </Radio.Group>
-
+            selectedKeys={[`${openDrawer}`]}
+            mode="horizontal"
+            items={items}
+            onSelect={(value) =>
+              setOpenDrawer(
+                parseInt(value.key) === openDrawer
+                  ? DRAWER.NONE
+                  : parseInt(value.key)
+              )
+            }
+          />
           <Button onClick={onDeleteSelected}>Delete Selected</Button>
-          <Button onClick={onDeleteAll}>Delete All</Button>
           <Button
             style={{ backgroundColor: strokeColor }}
             onClick={() => setStrokeColorPane(!strokeColorPane)}
@@ -250,12 +281,12 @@ const Canvas = () => {
             <Drawer title="Other Drawer" placement="right" />
             <CanvasPane />
           </Content>
-          {/* <Sider theme="light" width={"40%"}>
+          <Sider theme="light" width={"20%"}>
             <div className="canvas-body-div">
               <ItemProperty />
               <ChatArea />
             </div>
-          </Sider> */}
+          </Sider>
         </Layout>
       </Layout>
     </CanvasContext.Provider>
