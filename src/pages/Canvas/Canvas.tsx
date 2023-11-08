@@ -4,24 +4,20 @@ import ChatArea from "@components/ChatArea";
 import CanvasPane from "@components/CanvasPane";
 import ItemProperty from "@components/ItemProperty";
 import "./Canvas.css";
-import { fabric } from "fabric";
 import { CanvasDataInterface, useCanvasData } from "@hooks/useCanvasData";
 import { useNavigate, useParams } from "react-router";
 import { FabricJSEditor, useFabricJSEditor } from "@hooks/useFabricJSEditor";
-import TextStyle from "@components/TextStyle/TextStyle";
-import ImageUpload from "@components/ImageUpload/ImageUpload";
 import FormatSizeIcon from "@mui/icons-material/FormatSize";
 import NorthWestIcon from "@mui/icons-material/NorthWest";
-import DevicesOtherIcon from "@mui/icons-material/DevicesOther";
 import InterestsIcon from "@mui/icons-material/Interests";
 import { SketchPicker } from "react-color";
 import type { MenuProps } from "antd";
 import { Menu } from "antd";
 
-import type { RadioChangeEvent } from "antd";
-import { Radio } from "antd";
-import { SvgIcon } from "@mui/material";
-import { Height } from "@mui/icons-material";
+import TextDrawer from "@components/TextDrawer";
+import OtherDrawer from "@components/OtherDrawer";
+import ObjectDrawer from "@components/ObjectDrawer";
+import ImageDrawer from "@components/ImageDrawer";
 
 const { Header, Content, Footer, Sider } = Layout;
 
@@ -61,35 +57,11 @@ const Canvas = () => {
   const { selectedObjects, editor, onReady } = useFabricJSEditor();
 
   const [openDrawer, setOpenDrawer] = useState<number>(DRAWER.NONE);
-  const [text, setText] = useState("");
   const [strokeColorPane, setStrokeColorPane] = useState<boolean>(false);
   const [strokeColor, setStrokeColor] = useState<string>("");
   const [fillColorPane, setFillColorPane] = useState<boolean>(false);
   const [fillColor, setFillColor] = useState<string>("");
   const navigate = useNavigate();
-
-  const onAddCircle = () => {
-    editor?.addCircle();
-  };
-  const onAddRectangle = () => {
-    editor?.addRectangle();
-  };
-
-  const onLoadSVG = (e) => {
-    var url = URL.createObjectURL(e.target.files[0]);
-    fabric.loadSVGFromURL(url, function (objects, options) {
-      objects.forEach(function (svg) {
-        editor?.canvas.add(svg).renderAll();
-      });
-    });
-  };
-
-  const onAddText = () => {
-    if (selectedObjects?.length) {
-      return editor?.updateText(text);
-    }
-    editor?.addText(text);
-  };
 
   const onSetStrokeColor = (color) => {
     setStrokeColor(color.hex);
@@ -136,10 +108,6 @@ const Canvas = () => {
     },
   ];
 
-  const onSwitchDrawer = (e) => {
-    console.log(e);
-    // setState
-  };
   return (
     <CanvasContext.Provider
       value={{
@@ -186,6 +154,7 @@ const Canvas = () => {
               )
             }
           />
+
           <Button onClick={onDeleteSelected}>Delete Selected</Button>
           <Button
             style={{ backgroundColor: strokeColor }}
@@ -228,10 +197,7 @@ const Canvas = () => {
             title="Object Drawer"
             width={"25%"}
           >
-            <div className="canvas-body-div">
-              <Button onClick={onAddCircle}>Add circle</Button>
-              <Button onClick={onAddRectangle}>Add Rectangle</Button>
-            </div>
+            <ObjectDrawer />
           </Sider>
           <Sider
             collapsed={openDrawer !== DRAWER.OTHER}
@@ -241,9 +207,7 @@ const Canvas = () => {
             title="Other Drawer"
             width={"25%"}
           >
-            <div className="canvas-body-div">
-              <Input type="file" onChange={onLoadSVG} />\{" "}
-            </div>
+            <OtherDrawer />
           </Sider>
           <Sider
             collapsed={openDrawer !== DRAWER.TEXT}
@@ -253,15 +217,7 @@ const Canvas = () => {
             title="Text Drawer"
             width={"25%"}
           >
-            <div className="canvas-body-div">
-              <Button onClick={onAddText}>Add Text</Button>
-              <Input
-                type="text"
-                value={text}
-                onChange={(e) => setText(e.target.value)}
-              />
-              {editor && <TextStyle editor={editor} />}
-            </div>
+            <TextDrawer />
           </Sider>
           <Sider
             collapsed={openDrawer !== DRAWER.IMAGE}
@@ -271,9 +227,7 @@ const Canvas = () => {
             title="Image Drawer"
             width={"25%"}
           >
-            <div className="canvas-body-div">
-              {editor && <ImageUpload editor={editor} />}
-            </div>
+            <ImageDrawer />
           </Sider>
           <Content style={{ padding: "0 50px" }}>
             <Drawer title="Text Drawer" />
