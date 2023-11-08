@@ -1,11 +1,7 @@
 {
   "hosting": {
     "public": "dist",
-    "ignore": [
-      "firebase.json",
-      "**/.*",
-      "**/node_modules/**"
-    ],
+    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
     "rewrites": [
       {
         "source": "!/img/**",
@@ -29,11 +25,21 @@
     {
       "source": "functions",
       "codebase": "default",
+      "ignore": ["venv", ".git", "firebase-debug.log", "firebase-debug.*.log"]
+    },
+    {
+      "source": "tsfunctions",
+      "codebase": "tsfunctions",
       "ignore": [
-        "venv",
+        "node_modules",
         ".git",
         "firebase-debug.log",
-        "firebase-debug.*.log"
+        "firebase-debug.*.log",
+        ".cache"
+      ],
+      "predeploy": [
+        "npm --prefix \"$RESOURCE_DIR\" run lint",
+        "npm --prefix \"$RESOURCE_DIR\" run build"
       ]
     }
   ]
