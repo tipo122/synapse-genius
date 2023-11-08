@@ -266,9 +266,9 @@ const useFabricJSEditor = ({
       canvas.on("selection:updated", (e: any) => {
         setSelectedObject(e.selected);
       });
-      canvas.on("object:modified", (e: any) => {
-        // onChange && onChange(JSON.stringify(canvas));
-      });
+      // canvas.on("object:modified", (e: any) => {
+      //   // onChange && onChange(JSON.stringify(canvas));
+      // });
     };
     if (canvas) {
       bindEvents(canvas);
