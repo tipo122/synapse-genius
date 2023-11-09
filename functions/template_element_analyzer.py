@@ -148,48 +148,34 @@ def create_sample_json_string(ad_type):
         # 比較広告用のフィールドを追加/更新
         sample_json = """
             {
-                "our_product": {
-                    "name": "シェイクパック",
-                    "features": [
-                    "シェーカーなしで飲める",
-                    "個包装タイプだから持ち運びも簡単",
-                    "女性が1食に必要な33種類の栄養素がたっぷり"
-                    ]
-                },
-                "competitor_product": {
-                    "name": "プロテインA",
-                    "features": [
-                    "シェーカーが必要",
-                    "大袋で持ち運びが難しい",
-                    "男性向け"
-                    ]
-                }
+                "ourProductName": "シェイクパック",
+                "ourProductFeature1": "シェーカーなしで飲める",
+                "ourProductFeature2": "個包装タイプだから持ち運びも簡単",
+                "ourProductFeature3": "女性が1食に必要な33種類の栄養素がたっぷり", 
+                "otherProductName": "プロテインA",
+                "otherProductFeature1": "シェーカーが必要",
+                "otherProductFeature2": "大袋で持ち運びが難しい",
+                "otherProductFeature3": "男性向け"
             }
         """
     elif ad_type == "features":
         sample_json = """
             {
-            "product_info": {
-                "name": "シェイクパック",
-                "features": [
-                "シェーカーなしで飲める",
-                "個包装タイプだから持ち運びも簡単",
-                "女性が1食に必要な33種類の栄養素がたっぷり",
-                "大豆由来の植物性ウェルネスプロテイン",
-                "砂糖と人工甘味料は不使用"
-                ],
-                "features_summary": "“シェーカーなし”でおいしく飲むことができる個包装タイプのプロテイン『シェイクパック』。女性が1食に必要な33種類の栄養素がたっぷり入った大豆由来の植物性ウェルネスプロテインを、いつでもどこでも手軽に飲むことができます。"
+                "ourProductName": "シェイクパック",
+                "ourProductFeature1": "シェーカーなしで飲める",
+                "ourProductFeature2": "個包装タイプだから持ち運びも簡単",
+                "ourProductFeature3": "女性が1食に必要な33種類の栄養素がたっぷり",
+                "ourProductFeature4": "大豆由来の植物性ウェルネスプロテイン",
+                "ourProductFeature5": "砂糖と人工甘味料は不使用",
+                "ourProductFeaturesSummary": "“シェーカーなし”でおいしく飲むことができる個包装タイプのプロテイン『シェイクパック』。女性が1食に必要な33種類の栄養素がたっぷり入った大豆由来の植物性ウェルネスプロテインを、いつでもどこでも手軽に飲むことができます。"
             }
-}
         """
     elif ad_type == "sale":
         sample_json = """
             {
-            "campaign_info": {
-                "main_titile": "冬のフラッシュセール2023",
-                "main_message": "超ホットな最新アイテム",
-                "sale_period": "2023-12-24～2023-12-31"
-            }
+                "title": "冬のフラッシュセール",
+                "message": "超ホットな最新アイテム",
+                "salePeriod": "2021-12-24～2021-12-31",
             }
         """
     else:
