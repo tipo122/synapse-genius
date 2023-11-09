@@ -24,6 +24,7 @@ firebase-admin==6.2.0
 firebase-functions==0.1.1
 Flask==2.3.2
 Flask-Cors==4.0.0
+flatten-json==0.1.14
 frozenlist==1.4.0
 fsspec==2023.10.0
 functions-framework==3.4.0

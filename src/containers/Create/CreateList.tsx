@@ -88,7 +88,7 @@ export const CreateList = () => {
                 <Card.Meta />
                 <img
                   // src={`https://firebasestorage.googleapis.com/v0/b/${process.env.REACT_APP_FIREBASE_STORAGEBUCKET}/o/templates%2F${item}.svg?alt=media`}
-                  src={`${getFunctionPath()}?template_id=${item}`}
+                  src={`${getFunctionPath()}?template_id=${item}&canvas_id=${canvasId}`}
                   width={190}
                   height={190}
                 />
