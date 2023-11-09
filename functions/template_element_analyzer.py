@@ -29,7 +29,7 @@ def get_template_elements(ad_type, context) -> str:
     #     商品カテゴリー: 男性用下着
     #     商品の特徴:素肌に直接触れる下着のために独自に開発した素材「nova wool® melty plus」を使用。汗蒸れ・汗冷え・汗臭を解消する消臭・抗菌機能に加え、素肌を清潔かつ快適に保つ調温・調湿機能に長けています。素肌へのストレスをクリアにし、第二の肌となってあなたの活動を支えます。食い込まないを追求した設計がストレスゼロな着用感を実現。
     #     """
-    context_info = context
+    context_info = context.encode('unicode-escape')
     
     prompt = create_advertisement_prompt(ad_type, context_info)
 
@@ -51,7 +51,7 @@ def get_template_elements(ad_type, context) -> str:
 
     try:
         res = openai.ChatCompletion.create(
-            messages=prompts,
+            messages=prompts,#.encode('unicode-escape'), なぜなのなんなの
             model="gpt-3.5-turbo"
         )
 
