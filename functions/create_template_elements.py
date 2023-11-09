@@ -21,17 +21,6 @@ logging.basicConfig(level=logging.DEBUG)
 load_dotenv()
 
 def main(req:https_fn) -> https_fn.Response:
-#def main():
-    # print(' '.join(Launcher().cmd))
-    # return json.dumps({"data": "target_url is not in req.data"})
-    try:
-        out = check_output('apt-get -y install libx11-xcb1 libxcb1 libxcursor1 libxss1 libxtst6 libgtk-3-0 libgdk-pixbuf2.0-0')
-        print(out)
-        out = check_output("ldd /root/.local/share/pyppeteer/local-chromium/588429/chrome-linux/chrome  | grep 'not found'", shell = True)
-        print(out)
-    except Exception as err:
-        print(err)
-
     openai.api_key = os.getenv('OPENAI_API_KEY')
     params = req.get_json()["data"]
     target_url = params["target_url"] if "target_url" in params else None
