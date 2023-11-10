@@ -65,19 +65,13 @@ def main(req:https_fn) -> https_fn.Response:
         max_tokens=1000
     )
     
-    
-
     try:
-        result = json.loads(response["choices"][0]["message"]["content"])
-        # result = json.loads(response)["choices"][0]["message"]["content"]
-
-        item_name = result["item_property"]["item_name"]
-        item_category = result["item_property"]["item_category"]
-        item_description = result["item_property"]["item_description"]
-        copy_data = result["copy_data"]
-        
-        item_data = result['item_property']
-        formatted_string = f"商品名: {item_data['item_name']}\n商品カテゴリー: {item_data['item_category']}\n商品の特徴: {item_data['item_description']}"
+        content = response["choices"][0]["message"]["content"]
+        item_property = json.loads(content)["item_property"]
+        item_name = item_property["item_name"]
+        item_category = item_property["item_category"]
+        item_description = item_property["item_description"]
+        formatted_string = f"商品名: {item_property['item_name']}\n商品カテゴリー: {item_property['item_category']}\n商品の特徴: {item_property['item_description']}"
         
         # 
         elements = get_template_elements(ad_type=template_type, context=formatted_string)
@@ -102,21 +96,22 @@ def main(req:https_fn) -> https_fn.Response:
         doc_ref = firestore_client.collection("canvases").document(canvas_id)
         doc_ref.set(result, merge=True)
 
-        print(result)
-
-        print(elements)
-
         return json.dumps({"data" : "ok"})
         # return elements
         
 
-    except:
-        import traceback
-        traceback.print_exc()
+    except Exception:
+        print(content.encode().decode('unicode-escape'))
+        print(response)
+        print(traceback.format_exc())
+        print(sys.exc_info()[2])
         return json.dumps({"data" : "error"})
     
 
 async def fetch_webpage_text(url):
+
+
+
     # browser = await launch(
     #     headless=True,
     #     handleSIGINT=False,
@@ -160,13 +155,32 @@ def generate_openai_message(count, response, context):
         copy_dataの中に配列として返してください。
         item_descriptionは、100文字以内にしてください。
     """
-    print("$#$#$#$#$")
-    print (json.dumps(response))
+    # print("$#$#$#$#$")
+    # print (json.dumps(response))
     return [
         {"role": "system", "content": system_message},
         {"role": "assistant", "content": json.dumps(response)},
         {"role": "user", "content": f"以下の情報を参考にして、コピーを {count}個作成してください。参考情報:{context[0:1000]}"}
     ]
+
+def getFunctionPath():
+
+
+
+    # const { projectId } = app.options;
+    # const { region } = functions;
+    # // @ts-ignore
+    # const emulator = functions.emulatorOrigin;
+    # let url: string = "";
+
+    # if (emulator) {
+    #   url = `${emulator}/${projectId}/${region}/on_get_embedded_template`;
+    # } else {
+    #   url = `https://${region}-${projectId}.cloudfunctions.net/on_get_embedded_template`;
+    # }
+    # return url;
+    return ""
+
 
 if __name__ == "__main__":
     main()
