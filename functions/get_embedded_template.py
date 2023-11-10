@@ -12,17 +12,21 @@ from template_element_analyzer import get_template_elements
 
 from firebase_admin import credentials, initialize_app, storage
 import google.cloud.firestore
-
+import base64
+import base64
+import json
+from lxml import etree
 from flatten_json import flatten
+
 
 log = logging.getLogger(__name__)
 logging.basicConfig(level=logging.DEBUG)
 
 def main(req:https_fn.Request) -> https_fn.Response:
-  template_id = req.args["template_id"]
-  canvas_id = req.args["canvas_id"]
+  params = req.get_json()["data"]
+  template_id = params["template_id"]
+  canvas_id = params["canvas_id"]
   values = get_creative_copies(canvas_id)
-
   source_blob_name = "templates/" + template_id + ".svg"
   bucket = storage.bucket()
   blob = bucket.blob(source_blob_name)
@@ -34,9 +38,10 @@ def main(req:https_fn.Request) -> https_fn.Response:
       text_tag = root.xpath(f"//*[@id='{id}']")
       if text_tag:
           text_tag[0].text = values[id]
-  updated_xml_string = etree.tostring(root, encoding='unicode', pretty_print=True)
-
-  return(updated_xml_string)
+  updated_xml_byte = etree.tostring(root, encoding='unicode', pretty_print=True)
+  xml_string_encoded = updated_xml_byte.decode()
+  encoded_xml = base64.b64encode(xml_string_encoded).decode()
+  return json.dump({"data": encoded_xml})
 
 def get_creative_copies(canvas_id):
   firestore_client: google.cloud.firestore.Client = firestore.client()

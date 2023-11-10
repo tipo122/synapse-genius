@@ -1,5 +1,5 @@
 {
-  "name": "functions",
+  "name": "tsfunctions",
   "scripts": {
     "lint": "eslint --ext .js,.ts .",
     "build": "tsc",

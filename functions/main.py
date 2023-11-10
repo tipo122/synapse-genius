@@ -71,4 +71,4 @@ def on_create_template_elements(req: https_fn.Request) -> https_fn.Response:
 )
 def on_get_embedded_template(req: https_fn.Request) -> https_fn.Response:
     import get_embedded_template
-    return https_fn.Response(get_embedded_template.main(req), mimetype='image/svg+xml')
+    return https_fn.Response(get_embedded_template.main(req))# mimetype='image/svg+xml')
