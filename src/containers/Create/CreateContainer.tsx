@@ -70,22 +70,39 @@ const Create = () => {
       });
       return;
     }
-    setIsLoading(true);
-    initialCanvasData.user_id = userId;
-    const docRef = await addDoc(collection(db, "canvases"), initialCanvasData);
-    const canvasId = docRef.id;
-    const result = await createTemplateElements({
-      target_url: targetUrl,
-      template_type: templateType,
-      canvas_id: canvasId,
-    });
-    const list = await searchTemplate({
-      text_query: `instagram用の、${templateType}をプロモーションするに適切なテンプレート`,
-      template_type: templateType,
-    });
-    setTemplates(list.data);
-    setIsLoading(false);
-    navigate(`/create/${docRef.id}`);
+    try {
+      setIsLoading(true);
+      initialCanvasData.user_id = userId;
+      const docRef = await addDoc(
+        collection(db, "canvases"),
+        initialCanvasData
+      );
+      const canvasId = docRef.id;
+      const result = await createTemplateElements({
+        target_url: targetUrl,
+        template_type: templateType,
+        canvas_id: canvasId,
+      });
+      const list = await searchTemplate({
+        text_query: `instagram用の、${templateType}をプロモーションするに適切なテンプレート`,
+        template_type: templateType,
+      });
+
+      if (result["data"] === "error" || list["data"] === "error") {
+        messageApi.open({
+          type: "error",
+          content: "エラーが発生",
+        });
+        return;
+      }
+
+      setTemplates(list.data);
+      setIsLoading(false);
+      navigate(`/create/${docRef.id}`);
+    } catch (e) {
+      setIsLoading(false);
+      console.log(e);
+    }
   };
 
   return (
