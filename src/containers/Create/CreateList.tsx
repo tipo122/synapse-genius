@@ -3,6 +3,7 @@ import { List, Card, Col, Row } from "antd";
 import { Button, Input, Layout, Typography, theme } from "antd";
 import { CreateContext } from "./CreateContainer";
 import { Link, useNavigate, useParams } from "react-router-dom";
+import { fabric } from "fabric";
 import {
   FabricJSCanvas,
   useFabricJSEditor,
@@ -10,7 +11,12 @@ import {
 import { initialCanvasData, useCanvasData } from "@hooks/useCanvasData";
 import { collection, doc, getDoc, query } from "firebase/firestore";
 import { app, db, functions } from "../../firebase";
-import { getDownloadURL, getStorage, ref } from "firebase/storage";
+import {
+  getDownloadURL,
+  getStorage,
+  ref,
+  uploadString,
+} from "firebase/storage";
 import { httpsCallable } from "firebase/functions";
 
 const { Text, Title } = Typography;
@@ -25,8 +31,10 @@ export const CreateList = () => {
   const { canvasData, saveCanvasData, saveCanvasImageData } = useCanvasData(
     canvasId ?? ""
   );
-  const ImageStore = useRef<string[]>([]);
-  const [ImageList, setImageList] = useState<string[]>([]);
+  const ImageStore = useRef<{ image: string; id: string }[]>([]);
+  const [ImageList, setImageList] = useState<{ image: string; id: string }[]>(
+    []
+  );
 
   const getEmbeddedTemplate: ({
     template_id,
@@ -37,53 +45,61 @@ export const CreateList = () => {
   );
 
   useEffect(() => {
-    (async () => {
-      if (
-        templates.length === 0 &&
-        canvasData.template_property.template_type
-      ) {
-        const search_result = await searchTemplate({
-          text_query: "",
-          template_type: canvasData.template_property.template_type,
-        });
-        setTemplates(search_result.data);
-        search_result.data.forEach(async (templateId, i) => {
-          ({ data: ImageStore.current[i] } = await getEmbeddedTemplate({
-            template_id: templateId,
-            canvas_id: canvasId,
-          }));
-        });
-      }
-      setImageList(ImageStore.current);
-    })();
+    if (ImageStore.current.length === 0) {
+      (async () => {
+        if (
+          templates.length === 0 &&
+          canvasData.template_property.template_type
+        ) {
+          const search_result = await searchTemplate({
+            text_query: "",
+            template_type: canvasData.template_property.template_type,
+          });
+          setTemplates(search_result.data);
+
+          const imagePromises = search_result.data.map((templateId) => {
+            return getEmbeddedTemplate({
+              template_id: templateId,
+              canvas_id: canvasId,
+            }).then((response) => {
+              // ImageStore.current.push({ image: response.data, id: templateId });
+              return { image: response.data, id: templateId };
+            });
+          });
+          // ImageStore.current = await Promise.all(imagePromises);
+          setImageList(await Promise.all(imagePromises));
+        }
+      })();
+    }
   }, [canvasData]);
 
-  const getFunctionPath = () => {
-    const { projectId } = app.options;
-    const { region } = functions;
-    // @ts-ignore
-    const emulator = functions.emulatorOrigin;
-    let url: string = "";
-
-    if (emulator) {
-      url = `${emulator}/${projectId}/${region}/on_get_embedded_template`;
-    } else {
-      url = `https://${region}-${projectId}.cloudfunctions.net/on_get_embedded_template`;
-    }
-    return url;
-  };
+  // useEffect(() => {
+  //   setImageList(ImageStore.current);
+  // }, [ImageStore.current.length]);
 
   const handleClick = (templateId: string) => {
-    (async () => {
-      const templateURL = `https://firebasestorage.googleapis.com/v0/b/${process.env.REACT_APP_FIREBASE_STORAGEBUCKET}/o/templates%2F${templateId}.svg?alt=media`;
-      saveCanvasData({ ...canvasData, canvas_data: templateURL });
-    })();
-    navigate(`/canvas/${canvasId}`);
-  };
+    const canvasFileRef = canvasId
+      ? ref(storage, `creative/${templateId}.json`)
+      : null;
 
-  useEffect(() => {
-    console.log(ImageList);
-  }, [ImageList]);
+    (async () => {
+      const selectedTemplate = ImageList.find((item) => item.id === templateId);
+      var canvas = new fabric.Canvas("canvas");
+      selectedTemplate &&
+        fabric.loadSVGFromString(
+          selectedTemplate.image,
+          function (objects, options) {
+            var obj = fabric.util.groupSVGElements(objects, options);
+            canvas.add(obj).renderAll();
+          }
+        );
+      selectedTemplate && console.log(selectedTemplate.image);
+      canvasFileRef &&
+        selectedTemplate &&
+        (await uploadString(canvasFileRef, selectedTemplate.image));
+      navigate(`/canvas/${canvasId}`);
+    })();
+  };
 
   return (
     <>
@@ -91,17 +107,17 @@ export const CreateList = () => {
         <br />
         <List
           grid={{ gutter: 16, column: 2 }}
-          dataSource={templates}
+          dataSource={ImageList}
           renderItem={(item, i) => (
             <List.Item>
               <Card
                 hoverable
                 style={{ width: 240, height: 240 }}
-                onClick={() => handleClick(item)}
+                onClick={() => handleClick(item.id)}
               >
                 <Card.Meta />
                 <img
-                  src={`data:image/svg+xml;base64,${ImageList[i]}`}
+                  src={`data:image/svg+xml;base64,${item.image}`}
                   width={190}
                   height={190}
                 />

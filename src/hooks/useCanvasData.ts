@@ -135,18 +135,18 @@ export const useCanvasData = (canvasIdProp: string): CanvasDataInterface => {
 
   const loadTemplate = (editor: FabricJSEditor) => {
     console.log(canvasData.canvas_data);
-    if ((canvasData.canvas_data as string).startsWith("https")) {
-      (async () => {
-        const result = await fetch(canvasData.canvas_data as string);
-        result.body && (await editor.loadSVG(canvasData.canvas_data as string));
-        loaded.current = true;
-        saveCanvasDataMain({ ...canvasData, canvas_data: "" });
-        saveThumbnail(editor);
-        setCanvasImageData(JSON.stringify(editor?.canvas));
-      })();
-    } else {
-      loaded.current = true;
-    }
+    // if ((canvasData.canvas_data as string).startsWith("https")) {
+    //   (async () => {
+    //     const result = await fetch(canvasData.canvas_data as string);
+    //     result.body && (await editor.loadSVG(canvasData.canvas_data as string));
+    //     loaded.current = true;
+    //     saveCanvasDataMain({ ...canvasData, canvas_data: "" });
+    //     saveThumbnail(editor);
+    //     setCanvasImageData(JSON.stringify(editor?.canvas));
+    //   })();
+    // } else {
+    //   loaded.current = true;
+    // }
   };
 
   const saveThumbnail = (editor: FabricJSEditor) => {
