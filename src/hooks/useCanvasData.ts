@@ -135,7 +135,7 @@ export const useCanvasData = (canvasIdProp: string): CanvasDataInterface => {
 
   const loadTemplate = (editor: FabricJSEditor) => {
     console.log(canvasData.canvas_data);
-    if ((canvasData.canvas_data as string).startsWith("https")) {
+    if ((canvasData.canvas_data as string).startsWith("http")) {
       (async () => {
         const result = await fetch(canvasData.canvas_data as string);
         result.body && (await editor.loadSVG(canvasData.canvas_data as string));
@@ -185,9 +185,9 @@ export const useCanvasData = (canvasIdProp: string): CanvasDataInterface => {
   };
 
   const saveCanvasDataMain = async (canvas: Canvas) => {
-    if (!(canvas.canvas_data as string).startsWith("https")) {
-      canvas.canvas_data = "";
-    }
+    // if (!(canvas.canvas_data as string).startsWith("https")) {
+    //   canvas.canvas_data = "";
+    // }
     setCanvasData(canvas);
     try {
       canvas &&
