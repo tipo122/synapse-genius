@@ -13,12 +13,9 @@ import { app, db, functions } from "../../firebase";
 import { getDownloadURL, getStorage, ref } from "firebase/storage";
 import { httpsCallable } from "firebase/functions";
 
-const { Text, Title } = Typography;
-
 export const CreateList = () => {
   const storage = getStorage();
   const navigate = useNavigate();
-  const size = (i) => (i === 0 ? 2 : 1);
   const { templates, templateType, searchTemplate, setTemplates } =
     useContext(CreateContext);
   const { canvasId } = useParams();

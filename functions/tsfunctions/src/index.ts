@@ -24,6 +24,7 @@ functions.setGlobalOptions({
 
 export const helloWorld = onRequest(async (request, response) => {
   logger.info("Hello logs!", { structuredData: true });
+  logger.debug(request);
 
   const reqUrl = "https://www.anime-chiikawa.jp/";
 
