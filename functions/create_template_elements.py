@@ -64,6 +64,7 @@ def main(req:https_fn) -> https_fn.Response:
         model="gpt-3.5-turbo",
         max_tokens=1000
     )
+
     
     try:
         content = response["choices"][0]["message"]["content"]
