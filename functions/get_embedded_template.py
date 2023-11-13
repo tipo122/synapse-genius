@@ -38,10 +38,9 @@ def main(req:https_fn.Request) -> https_fn.Response:
       text_tag = root.xpath(f"//*[@id='{id}']")
       if text_tag:
           text_tag[0].text = values[id]
-  updated_xml_byte = etree.tostring(root, encoding='unicode', pretty_print=True)
-  xml_string_encoded = updated_xml_byte.decode()
-  encoded_xml = base64.b64encode(xml_string_encoded).decode()
-  return json.dump({"data": encoded_xml})
+  updated_xml_string = etree.tostring(root, encoding='unicode', pretty_print=True)
+  encoded_xml = base64.b64encode(updated_xml_string.encode()).decode()
+  return json.dumps({"data": encoded_xml})
 
 def get_creative_copies(canvas_id):
   firestore_client: google.cloud.firestore.Client = firestore.client()
