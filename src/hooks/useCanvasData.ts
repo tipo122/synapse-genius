@@ -52,7 +52,7 @@ export interface CanvasDataInterface {
   canvasData: Canvas;
   canvasImageData: string;
   saveCanvasData: (canvas: any) => void;
-  saveCanvasImageData: (canvas_data: string, editor: FabricJSEditor) => void;
+  saveCanvasImageData: (canvas_data: string) => void;
   saveThumbnail: (editor: FabricJSEditor) => void;
   loadTemplate: (editor: FabricJSEditor) => void;
   error: boolean;
@@ -106,12 +106,12 @@ export const useCanvasData = (canvasIdProp: string): CanvasDataInterface => {
             if (canvasFileRef) {
               const jsonurl = await getDownloadURL(canvasFileRef);
               const result = await fetch(jsonurl);
-              const data = await result.json();
+              const data = await JSON.stringify(result);
               setCanvasImageData(JSON.stringify(data));
             }
           } catch (e) {
-            canvasFileRef && (await uploadString(canvasFileRef, "{}"));
-            setCanvasImageData(JSON.stringify({}));
+            // canvasFileRef && (await uploadString(canvasFileRef, "{}"));
+            // setCanvasImageData(JSON.stringify({}));
             console.log(e);
           }
         } else {
@@ -166,13 +166,17 @@ export const useCanvasData = (canvasIdProp: string): CanvasDataInterface => {
     saveCanvasDataMain(canvas);
   };
 
-  const saveCanvasImageData = (canvas_data: string, editor: FabricJSEditor) => {
+  const saveCanvasImageData = (
+    canvas_data: string,
+    editor?: FabricJSEditor
+  ) => {
     if (loaded.current) {
       setCanvasImageData(canvas_data);
       (async () => {
         try {
           canvasFileRef && (await uploadString(canvasFileRef, canvas_data));
-          console.log("save creative data");
+          console.log(canvas_data);
+          console.log("save canvas image data");
         } catch (e) {
           console.log(e);
           console.log("create new creative data");

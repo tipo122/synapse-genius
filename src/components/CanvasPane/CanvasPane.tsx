@@ -27,8 +27,7 @@ const CanvasPane = () => {
   const handleSaveData = () => {
     saveTimer.current && clearTimeout(saveTimer.current);
     saveTimer.current = null as unknown as NodeJS.Timeout;
-    editor?.canvas &&
-      saveCanvasImageData(JSON.stringify(editor?.canvas), editor);
+    editor?.canvas && saveCanvasImageData(JSON.stringify(editor?.canvas));
     editor?.canvas && saveThumbnail(editor);
   };
 

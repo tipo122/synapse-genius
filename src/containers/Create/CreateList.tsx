@@ -1,3 +1,4 @@
+import { fabric } from "fabric";
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { List, Card, Col, Row } from "antd";
 import { Button, Input, Layout, Typography, theme } from "antd";
@@ -10,10 +11,19 @@ import {
 import { initialCanvasData, useCanvasData } from "@hooks/useCanvasData";
 import { collection, doc, getDoc, query } from "firebase/firestore";
 import { app, db, functions } from "../../firebase";
-import { getDownloadURL, getStorage, ref } from "firebase/storage";
+import {
+  getDownloadURL,
+  getStorage,
+  ref,
+  uploadString,
+} from "firebase/storage";
 import { httpsCallable } from "firebase/functions";
 
 export const CreateList = () => {
+  interface templateImage {
+    id: string;
+    image: string;
+  }
   const storage = getStorage();
   const navigate = useNavigate();
   const { templates, templateType, searchTemplate, setTemplates } =
@@ -22,11 +32,11 @@ export const CreateList = () => {
   const { canvasData, saveCanvasData, saveCanvasImageData } = useCanvasData(
     canvasId ?? ""
   );
+  const [ImageList, setImageList] = useState<templateImage[]>([]);
+  const canvasDataName = `creative/${canvasId}.json`;
+  const canvasFileRef = canvasId ? ref(storage, canvasDataName) : null;
   const alreadyReading = useRef<boolean>(false);
-  const ImageStore = useRef<{ id: string; image: string }[]>([]);
-  const [ImageList, setImageList] = useState<{ id: string; image: string }[]>(
-    []
-  );
+  const ImageStore = useRef<templateImage[]>([]);
 
   const getEmbeddedTemplate: ({
     template_id,
@@ -67,15 +77,28 @@ export const CreateList = () => {
     alreadyReading.current = true;
   };
 
-  const handleClick = (templateId: string) => {
-    ImageStore.current.push({ id: "test", image: "tets" });
-    // (async () => {
-    //   const templateURL = `https://firebasestorage.googleapis.com/v0/b/${process.env.REACT_APP_FIREBASE_STORAGEBUCKET}/o/templates%2F${templateId}.svg?alt=media`;
-    //   saveCanvasData({ ...canvasData, canvas_data: templateURL });
-    // })();
-    // navigate(`/canvas/${canvasId}`);
+  const handleClick = async (templateImage: string) => {
+    var canvas = new fabric.Canvas("cx");
+
+    fabric.loadSVGFromString(templateImage, function (objects, options) {
+      var svg = fabric.util.groupSVGElements(objects, options);
+      canvas.add(svg);
+      canvas.renderAll();
+    });
+    // JSON 形式で出力
+    var canvas_data = canvas.toJSON();
+    console.log(canvas_data);
+    canvasFileRef && (await uploadString(canvasFileRef, canvas_data));
+    navigate(`/canvas/${canvasId}`);
+    // JSON をさらに操作するコードをここに追加
+
+    try {
+      // canvasFileRef && (await uploadString(canvasFileRef, canvas_data));
+    } catch (e) {
+      console.log(e);
+    }
   };
-  console.log(`ImageStore.current is ${ImageStore}`);
+
   return (
     <>
       <div style={{ width: "600px", textAlign: "right" }}>
@@ -88,7 +111,7 @@ export const CreateList = () => {
               <Card
                 hoverable
                 style={{ width: 240, height: 240 }}
-                onClick={() => handleClick(item.id)}
+                onClick={() => handleClick(item.image)}
               >
                 <Card.Meta />
                 <img
