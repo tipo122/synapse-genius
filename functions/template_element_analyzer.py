@@ -161,13 +161,13 @@ def create_sample_json_string(ad_type):
     elif ad_type == "features":
         sample_json = """
             {
-                "ourProductName": "シェイクパック",
-                "ourProductFeature1": "シェーカーなしで飲める",
-                "ourProductFeature2": "個包装タイプだから持ち運びも簡単",
-                "ourProductFeature3": "女性が1食に必要な33種類の栄養素がたっぷり",
-                "ourProductFeature4": "大豆由来の植物性ウェルネスプロテイン",
-                "ourProductFeature5": "砂糖と人工甘味料は不使用",
-                "ourProductFeaturesSummary": "“シェーカーなし”でおいしく飲むことができる個包装タイプのプロテイン『シェイクパック』。女性が1食に必要な33種類の栄養素がたっぷり入った大豆由来の植物性ウェルネスプロテインを、いつでもどこでも手軽に飲むことができます。"
+                "productName": "シェイクパック",
+                "feature1": "シェーカーなしで飲める",
+                "feature2": "個包装タイプだから持ち運びも簡単",
+                "feature3": "女性が1食に必要な33種類の栄養素がたっぷり",
+                "feature4": "大豆由来の植物性ウェルネスプロテイン",
+                "feature5": "砂糖と人工甘味料は不使用",
+                "featuresSummary": "“シェーカーなし”でおいしく飲むことができる個包装タイプのプロテイン『シェイクパック』。女性が1食に必要な33種類の栄養素がたっぷり入った大豆由来の植物性ウェルネスプロテインを、いつでもどこでも手軽に飲むことができます。"
             }
         """
     elif ad_type == "sale":
@@ -175,7 +175,7 @@ def create_sample_json_string(ad_type):
             {
                 "title": "冬のフラッシュセール",
                 "message": "超ホットな最新アイテム",
-                "salePeriod": "2021-12-24～2021-12-31",
+                "period": "2021-12-24～2021-12-31",
             }
         """
     else:
