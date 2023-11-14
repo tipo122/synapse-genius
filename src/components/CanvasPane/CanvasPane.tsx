@@ -17,7 +17,6 @@ const CanvasPane = () => {
     canvasImageData,
     saveCanvasImageData,
     saveThumbnail,
-    loadTemplate,
     editor,
     selectedObjects,
     onReady,
@@ -45,18 +44,18 @@ const CanvasPane = () => {
   }, [editor]);
 
   useEffect(() => {
-    if (!alreadyLoaded.current && editor) {
-      loadTemplate(editor);
-      alreadyLoaded.current = true;
-    }
-    if (
-      typeof canvasImageData === "string" &&
-      !canvasImageData.startsWith("https")
-    ) {
-      editor?.setCanvas(canvasImageData);
-    }
+    // if (!alreadyLoaded.current && editor) {
+    //   loadTemplate(editor);
+    //   alreadyLoaded.current = true;
+    // }
+    // if (
+    //   typeof canvasImageData === "string" &&
+    //   !canvasImageData.startsWith("https")
+    // ) {
+    // editor?.setCanvas(JSON.stringify(canvasImageData));
+    // }
     // editor && saveThumbnail(editor);
-    // editor?.setCanvas(canvasImageData);
+    editor?.setCanvas(canvasImageData);
   }, [canvasImageData]);
 
   useEffect(() => {
