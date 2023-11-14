@@ -80,23 +80,16 @@ export const CreateList = () => {
   const handleClick = async (templateImage: string) => {
     var canvas = new fabric.Canvas("cx");
 
-    fabric.loadSVGFromString(templateImage, function (objects, options) {
+    fabric.loadSVGFromString(atob(templateImage), function (objects, options) {
       var svg = fabric.util.groupSVGElements(objects, options);
       canvas.add(svg);
       canvas.renderAll();
     });
-    // JSON 形式で出力
     var canvas_data = canvas.toJSON();
-    console.log(canvas_data);
-    canvasFileRef && (await uploadString(canvasFileRef, canvas_data));
+    console.log(JSON.stringify(canvas_data));
+    canvasFileRef &&
+      (await uploadString(canvasFileRef, JSON.stringify(canvas_data)));
     navigate(`/canvas/${canvasId}`);
-    // JSON をさらに操作するコードをここに追加
-
-    try {
-      // canvasFileRef && (await uploadString(canvasFileRef, canvas_data));
-    } catch (e) {
-      console.log(e);
-    }
   };
 
   return (

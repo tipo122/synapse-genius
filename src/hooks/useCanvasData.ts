@@ -54,7 +54,6 @@ export interface CanvasDataInterface {
   saveCanvasData: (canvas: any) => void;
   saveCanvasImageData: (canvas_data: string) => void;
   saveThumbnail: (editor: FabricJSEditor) => void;
-  loadTemplate: (editor: FabricJSEditor) => void;
   error: boolean;
 }
 
@@ -67,7 +66,7 @@ export const useCanvasData = (canvasIdProp: string): CanvasDataInterface => {
   const [canvasData, setCanvasData] = useState<Canvas>(initialCanvasData);
   const [canvasImageData, setCanvasImageData] = useState<string>("");
   const loading = useRef<boolean>(false);
-  const loaded = useRef<boolean>(false);
+  const loaded = useRef<boolean>(true);
   const unsub = useRef<() => void>(() => {});
   const canvasDataRef = useRef<Canvas>(initialCanvasData);
   const canvasImageDataRef = useRef<string>("");
@@ -102,12 +101,13 @@ export const useCanvasData = (canvasIdProp: string): CanvasDataInterface => {
           const doc = { ...docSnap.data(), uid: docSnap.id } as Canvas;
           unsub.current = onSnapshot(docRef, updateCanvasData);
           setCanvasData(doc);
+
           try {
             if (canvasFileRef) {
               const jsonurl = await getDownloadURL(canvasFileRef);
               const result = await fetch(jsonurl);
-              const data = await JSON.stringify(result);
-              setCanvasImageData(JSON.stringify(data));
+              const data = await result.text();
+              setCanvasImageData(data);
             }
           } catch (e) {
             // canvasFileRef && (await uploadString(canvasFileRef, "{}"));
@@ -133,22 +133,6 @@ export const useCanvasData = (canvasIdProp: string): CanvasDataInterface => {
     canvasImageDataRef.current = canvasImageData;
   }, [canvasImageData]);
 
-  const loadTemplate = (editor: FabricJSEditor) => {
-    console.log(canvasData.canvas_data);
-    if ((canvasData.canvas_data as string).startsWith("http")) {
-      (async () => {
-        const result = await fetch(canvasData.canvas_data as string);
-        result.body && (await editor.loadSVG(canvasData.canvas_data as string));
-        loaded.current = true;
-        saveCanvasDataMain({ ...canvasData, canvas_data: "" });
-        saveThumbnail(editor);
-        setCanvasImageData(JSON.stringify(editor?.canvas));
-      })();
-    } else {
-      loaded.current = true;
-    }
-  };
-
   const saveThumbnail = (editor: FabricJSEditor) => {
     if (loaded.current) {
       const content = new Blob([editor.toSVG()], {
@@ -157,7 +141,7 @@ export const useCanvasData = (canvasIdProp: string): CanvasDataInterface => {
       const metadata = {
         contentType: "image/svg+xml",
       };
-      thumbnailRef && uploadBytes(thumbnailRef, content, metadata);
+      // thumbnailRef && uploadBytes(thumbnailRef, content, metadata);
       console.log("save thumbnail");
     }
   };
@@ -174,7 +158,7 @@ export const useCanvasData = (canvasIdProp: string): CanvasDataInterface => {
       setCanvasImageData(canvas_data);
       (async () => {
         try {
-          canvasFileRef && (await uploadString(canvasFileRef, canvas_data));
+          // canvasFileRef && (await uploadString(canvasFileRef, canvas_data));
           console.log(canvas_data);
           console.log("save canvas image data");
         } catch (e) {
@@ -210,7 +194,6 @@ export const useCanvasData = (canvasIdProp: string): CanvasDataInterface => {
     saveCanvasData,
     saveCanvasImageData,
     saveThumbnail,
-    loadTemplate,
     error,
   };
 };
