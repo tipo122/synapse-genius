@@ -145,6 +145,8 @@ async def fetch_webpage_text(url):
     
     return text
 
+
+
 def generate_openai_message(count, response, context):
     system_message = """
         あなたは優秀なコピーライターです。
@@ -160,7 +162,7 @@ def generate_openai_message(count, response, context):
     # print (json.dumps(response))
     return [
         {"role": "system", "content": system_message},
-        {"role": "assistant", "content": json.dumps(response)},
+        # {"role": "assistant", "content": json.dumps(response)},
         {"role": "user", "content": f"以下の情報を参考にして、コピーを {count}個作成してください。参考情報:{context[0:1000]}"}
     ]
 
