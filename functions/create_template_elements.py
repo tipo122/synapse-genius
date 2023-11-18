@@ -36,36 +36,26 @@ def main(req:https_fn) -> https_fn.Response:
     firestore_client: google.cloud.firestore.Client = firestore.client()
 
     # return json.dumps({"data": "end"})
-    item_name = ""
-    item_category = ""
-    item_description = ""
-
-    result = {
-        "item_property" : {
-            "item_name" : item_name,
-            "item_category" : item_category,
-            "item_description" : item_description,
-        },
-        "copy_data"  :  [
-          {"text": "Everybody Hurts"},
-          {"text": "Nothing Compares 2 U"},
-          {"text": "Tears in Heaven"},
-          {"text": "Hurt"},
-          {"text": "Yesterday"}
-        ]
-    }
- 
     text = asyncio.run(fetch_webpage_text(target_url))
 
-    messages = generate_openai_message(count=5, response=result, context=text)
+    messages = generate_openai_message(count=5, context=text)
 
     response = openai.ChatCompletion.create(
         messages=messages,
+        functions=function_data(),
         model="gpt-3.5-turbo",
         max_tokens=1000
     )
 
-    
+    # TODO: generate result
+    answer = response["choices"][0]["message"]
+    arguments = get_argument(answer)
+
+    if arguments:
+        item_property = arguments.get("item_property")
+        copy_data = arguments.get("copy_data")
+    # end of TODO
+        
     try:
         content = response["choices"][0]["message"]["content"]
         item_property = json.loads(content)["item_property"]
@@ -146,8 +136,50 @@ async def fetch_webpage_text(url):
     return text
 
 
+def function_data():
+    return [{
+        "name": "create_template",
+        "description": "",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "item_property": {
+                    "type": "object",
+                    "properties": {
+                        "item_name": {
+                            "type": "string"
+                        },
+                        "item_category": {"type": "string"},
+                        "item_description": {"type": "string"}
+                    }
+                },
+                "copy_data": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "text": {"type": "string"}
+                        }
+                    }
+                }
+            }
+        }
+    }]
 
-def generate_openai_message(count, response, context):
+
+
+def get_argument(answer):
+    function_call = answer.get("function_call")
+    arguments = function_call.get("arguments")
+    if arguments:
+        try:
+            return json.loads(arguments)
+        except Exception:
+             print("ERRO")
+    return None
+
+
+def generate_openai_message(count, context):
     system_message = """
         あなたは優秀なコピーライターです。
         あなたはユーザーから、商品販売ページのコンテンツをテキストとして受け取ります。
