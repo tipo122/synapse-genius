@@ -38,14 +38,7 @@ def main(req:https_fn) -> https_fn.Response:
     # return json.dumps({"data": "end"})
     text = asyncio.run(fetch_webpage_text(target_url))
 
-    messages = generate_openai_message(count=5, context=text)
-
-    response = openai.ChatCompletion.create(
-        messages=messages,
-        functions=function_data(),
-        model="gpt-3.5-turbo",
-        max_tokens=1000
-    )
+    response = call_llm(text)
 
     # TODO: generate result
     answer = response["choices"][0]["message"]
@@ -134,6 +127,16 @@ async def fetch_webpage_text(url):
     text = " ".join(text_parts)
     
     return text
+
+def call_llm(text):
+    messages = generate_openai_message(count=5, context=text)
+
+    return openai.ChatCompletion.create(
+        messages=messages,
+        functions=function_data(),
+        model="gpt-3.5-turbo",
+        max_tokens=1000
+    )
 
 
 def function_data():
