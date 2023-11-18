@@ -40,15 +40,21 @@ def main(req:https_fn) -> https_fn.Response:
 
     response = call_llm(text)
 
-    # TODO: generate result
     answer = response["choices"][0]["message"]
     arguments = get_argument(answer)
 
     if arguments:
-        item_property = arguments.get("item_property")
-        copy_data = arguments.get("copy_data")
-    # end of TODO
-        
+        try:
+            result = argument_to_result(arguments, target_url, template_type)
+            doc_ref = firestore_client.collection("canvases").document(canvas_id)
+            doc_ref.set(result, merge=True)
+            
+            return json.dumps({"data" : "ok"})
+        except Exception:
+            print("error")
+    return json.dumps({"data" : "error"})
+
+"""        
     try:
         content = response["choices"][0]["message"]["content"]
         item_property = json.loads(content)["item_property"]
@@ -90,7 +96,7 @@ def main(req:https_fn) -> https_fn.Response:
         print(traceback.format_exc())
         print(sys.exc_info()[2])
         return json.dumps({"data" : "error"})
-    
+"""    
 
 async def fetch_webpage_text(url):
 
@@ -181,6 +187,21 @@ def get_argument(answer):
              print("ERRO")
     return None
 
+
+def argument_to_result(arguments, target_url, template_type):
+    item_property = arguments.get("item_property")
+    item_property["url"] = target_url
+
+    copy_data = arguments.get("copy_data")
+
+    result = {
+        "item_property": item_property,
+        "copy_data": copy_data,
+        "template_property" : {
+            "template_type" : template_type,
+        }
+    }
+    return result
 
 def generate_openai_message(count, context):
     system_message = """
