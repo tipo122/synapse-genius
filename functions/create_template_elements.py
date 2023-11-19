@@ -129,6 +129,17 @@ async def fetch_webpage_text(url):
     # client = ScrapingBeeClient(api_key=sb_api_key)
     # response = client.get(url)
     # soup = BeautifulSoup(source, 'html.parser')
+    
+    requestUrl = "http://localhost:5000/synapse-genius-dev-fbe11/us-central1/helloWorld"
+    payload = {'url': url}
+    res = requests.get(url=requestUrl, data=payload)
+    
+    if res.status_code == 200:
+        print("success")
+    else:
+        print("Failed:", res.status_code)
+    
+    
     text_parts = soup.stripped_strings
     text = " ".join(text_parts)
     
