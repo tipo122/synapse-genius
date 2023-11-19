@@ -94,23 +94,38 @@ export const CreateList = () => {
 
   return (
     <>
-      <div style={{ width: "600px", textAlign: "right" }}>
+      <div style={{ width: "500px", textAlign: "right" }}>
         <br />
+        {ImageStore.current.length >= 1 ? (
+          <Card
+            hoverable
+            style={{ width: 500, height: 500, marginBottom: "8px" }}
+            onClick={() => handleClick(ImageStore.current[0].image)}
+          >
+            <Card.Meta />
+            <img
+              src={`data:image/svg+xml;base64,${ImageStore.current[0].image}`}
+              width={450}
+              height={450}
+            />
+          </Card>
+        ) : null}
+
         <List
-          grid={{ gutter: 16, column: 2 }}
-          dataSource={[...ImageStore.current]}
+          grid={{ column: 2 }}
+          dataSource={[...ImageStore.current.slice(1)]}
           renderItem={(item) => (
             <List.Item>
               <Card
                 hoverable
-                style={{ width: 240, height: 240 }}
+                style={{ width: 250, height: 250 }}
                 onClick={() => handleClick(item.image)}
               >
                 <Card.Meta />
                 <img
                   src={`data:image/svg+xml;base64,${item.image}`}
-                  width={190}
-                  height={190}
+                  width={200}
+                  height={200}
                 />
               </Card>
             </List.Item>
