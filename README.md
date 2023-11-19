@@ -84,10 +84,6 @@ Synapse X Genius のプロトタイプのためのレポジトリです。
    $ python3 -m venv venv
 
    $ source ./venv/bin/activate && python3 -m pip install -r requirements.txt
-
-   $ npm i --prefix ./tsfunctions
-
-   $ npm run build --prefix ./tsfunctions
    ```
 
 1. **Funtions Node の環境設定**
