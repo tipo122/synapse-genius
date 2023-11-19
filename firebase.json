@@ -28,7 +28,7 @@
       "ignore": ["venv", ".git", "firebase-debug.log", "firebase-debug.*.log"]
     },
     {
-      "source": "tsfunctions",
+      "source": "functions/tsfunctions",
       "codebase": "tsfunctions",
       "ignore": [
         "node_modules",
