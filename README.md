@@ -275,3 +275,12 @@ sequenceDiagram
    
 
 ```
+
+
+## Pythonのlocalでの単体動作
+
+py_test以下のファイルを参考に、functionsのファイルの機能をlocalで動かして検証する
+
+```
+python -m py_test.hello
+```

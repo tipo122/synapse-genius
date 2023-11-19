@@ -36,36 +36,25 @@ def main(req:https_fn) -> https_fn.Response:
     firestore_client: google.cloud.firestore.Client = firestore.client()
 
     # return json.dumps({"data": "end"})
-    item_name = ""
-    item_category = ""
-    item_description = ""
-
-    result = {
-        "item_property" : {
-            "item_name" : item_name,
-            "item_category" : item_category,
-            "item_description" : item_description,
-        },
-        "copy_data"  :  [
-          {"text": "Everybody Hurts"},
-          {"text": "Nothing Compares 2 U"},
-          {"text": "Tears in Heaven"},
-          {"text": "Hurt"},
-          {"text": "Yesterday"}
-        ]
-    }
- 
     text = asyncio.run(fetch_webpage_text(target_url))
 
-    messages = generate_openai_message(count=5, response=result, context=text)
+    response = call_llm(text)
 
-    response = openai.ChatCompletion.create(
-        messages=messages,
-        model="gpt-3.5-turbo",
-        max_tokens=1000
-    )
+    answer = response["choices"][0]["message"]
+    arguments = get_argument(answer)
 
-    
+    if arguments:
+        try:
+            result = argument_to_result(arguments, target_url, template_type)
+            doc_ref = firestore_client.collection("canvases").document(canvas_id)
+            doc_ref.set(result, merge=True)
+            
+            return json.dumps({"data" : "ok"})
+        except Exception:
+            print("error")
+    return json.dumps({"data" : "error"})
+
+"""        
     try:
         content = response["choices"][0]["message"]["content"]
         item_property = json.loads(content)["item_property"]
@@ -107,7 +96,7 @@ def main(req:https_fn) -> https_fn.Response:
         print(traceback.format_exc())
         print(sys.exc_info()[2])
         return json.dumps({"data" : "error"})
-    
+"""    
 
 async def fetch_webpage_text(url):
 
@@ -145,7 +134,76 @@ async def fetch_webpage_text(url):
     
     return text
 
-def generate_openai_message(count, response, context):
+def call_llm(text):
+    messages = generate_openai_message(count=5, context=text)
+
+    return openai.ChatCompletion.create(
+        messages=messages,
+        functions=function_data(),
+        model="gpt-3.5-turbo",
+        max_tokens=1000
+    )
+
+
+def function_data():
+    return [{
+        "name": "create_template",
+        "description": "",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "item_property": {
+                    "type": "object",
+                    "properties": {
+                        "item_name": {
+                            "type": "string"
+                        },
+                        "item_category": {"type": "string"},
+                        "item_description": {"type": "string"}
+                    }
+                },
+                "copy_data": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "text": {"type": "string"}
+                        }
+                    }
+                }
+            }
+        }
+    }]
+
+
+
+def get_argument(answer):
+    function_call = answer.get("function_call")
+    arguments = function_call.get("arguments")
+    if arguments:
+        try:
+            return json.loads(arguments)
+        except Exception:
+             print("ERRO")
+    return None
+
+
+def argument_to_result(arguments, target_url, template_type):
+    item_property = arguments.get("item_property")
+    item_property["url"] = target_url
+
+    copy_data = arguments.get("copy_data")
+
+    result = {
+        "item_property": item_property,
+        "copy_data": copy_data,
+        "template_property" : {
+            "template_type" : template_type,
+        }
+    }
+    return result
+
+def generate_openai_message(count, context):
     system_message = """
         あなたは優秀なコピーライターです。
         あなたはユーザーから、商品販売ページのコンテンツをテキストとして受け取ります。
@@ -160,7 +218,7 @@ def generate_openai_message(count, response, context):
     # print (json.dumps(response))
     return [
         {"role": "system", "content": system_message},
-        {"role": "assistant", "content": json.dumps(response)},
+        # {"role": "assistant", "content": json.dumps(response)},
         {"role": "user", "content": f"以下の情報を参考にして、コピーを {count}個作成してください。参考情報:{context[0:1000]}"}
     ]
 
