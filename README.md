@@ -84,6 +84,27 @@ Synapse X Genius のプロトタイプのためのレポジトリです。
    $ python3 -m venv venv
 
    $ source ./venv/bin/activate && python3 -m pip install -r requirements.txt
+
+   $ npm i --prefix ./tsfunctions
+
+   $ npm run build --prefix ./tsfunctions
+   ```
+
+1. **Funtions Node の環境設定**
+   functions フォルダに移って、以下のコマンドを実行します
+
+   ```bash
+   $ cd functions
+
+   $ npm i --prefix ./tsfunctions
+
+   $ npm run build --prefix ./tsfunctions
+   ```
+
+1. **ローカル実行(全ての functions を実行)**
+
+   ```bash
+   $ firebase emulators:start --only functions
    ```
 
 1. **デプロイ**
@@ -272,14 +293,13 @@ sequenceDiagram
    storage/canvasdata-->>web: onSnapshotの通知(?)
    canvas->>web: editorの更新の通知
    web->>storage/canvasdata: thumbnailとcanvasdataの保存
-   
+
 
 ```
 
+## Python の local での単体動作
 
-## Pythonのlocalでの単体動作
-
-py_test以下のファイルを参考に、functionsのファイルの機能をlocalで動かして検証する
+py_test 以下のファイルを参考に、functions のファイルの機能を local で動かして検証する
 
 ```
 python -m py_test.hello
