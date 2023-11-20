@@ -100,4 +100,5 @@ black[jupyter]
 isort
 flake8
 mypy
-
+lxml==4.8.0
+matplotlib==3.5.1
