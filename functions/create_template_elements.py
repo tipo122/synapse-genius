@@ -46,12 +46,13 @@ def main(req:https_fn) -> https_fn.Response:
     if arguments:
         try:
             result = argument_to_result(arguments, target_url, template_type)
-            formatted_string = f"商品名: {result['item_property']['item_name']}\n商品カテゴリー: {result['item_property']['item_category']}\n商品の特徴: {result['item_property']['item_description']}"
-            elements = get_template_elements(ad_type=template_type, context=formatted_string)
-            result['copy_data'] = elements
+            # result['copy_data'] = elements
             doc_ref = firestore_client.collection("canvases").document(canvas_id)
             doc_ref.set(result, merge=True)
-            
+
+            formatted_string = f"商品名: {result['item_property']['item_name']}\n商品カテゴリー: {result['item_property']['item_category']}\n商品の特徴: {result['item_property']['item_description']}"
+            elements = get_template_elements(ad_type=template_type, context=formatted_string, canvas_id=canvas_id)
+
             return json.dumps({"data" : "ok"})
         except Exception:
             print("error")
@@ -199,6 +200,10 @@ def get_argument(answer):
             return json.loads(arguments)
         except Exception:
              print("ERRO")
+             print(arguments.encode().decode('unicode-escape'))
+            #  print(traceback.format_exc())
+            #  print(sys.exc_info()[2])
+
     return None
 
 

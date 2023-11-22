@@ -34,7 +34,11 @@ def main(req:https_fn.Request) -> https_fn.Response:
   source_svg = blob.download_as_string()
   root = etree.fromstring(source_svg)
 
+  print(values)
+
   for id in values:
+      # print(id)
+      # print(values[id])
       text_tag = root.xpath(f"//*[@id='{id}']")
       if text_tag:
           text_tag[0].text = values[id]
@@ -45,4 +49,9 @@ def main(req:https_fn.Request) -> https_fn.Response:
 def get_creative_copies(canvas_id):
   firestore_client: google.cloud.firestore.Client = firestore.client()
   doc_ref = firestore_client.collection("canvases").document(canvas_id)
-  return(flatten(doc_ref.get().to_dict()["copy_data"]))
+  # return(flatten(doc_ref.get().to_dict()["embed_data"]))
+  try:
+    return(doc_ref.get().to_dict()["embed_data"])
+  except:
+    return({})
+  # return(doc_ref.get().to_dict()["embed_data"])

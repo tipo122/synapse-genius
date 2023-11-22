@@ -88,13 +88,13 @@ const Create = () => {
         template_type: templateType,
       });
 
-      if (result["data"] === "error" || list["data"] === "error") {
-        messageApi.open({
-          type: "error",
-          content: "エラーが発生",
-        });
-        return;
-      }
+      // if (result["data"] === "error" || list["data"] === "error") {
+      //   messageApi.open({
+      //     type: "error",
+      //     content: "エラーが発生",
+      //   });
+      //   return;
+      // }
 
       setTemplates(list.data);
       setIsLoading(false);

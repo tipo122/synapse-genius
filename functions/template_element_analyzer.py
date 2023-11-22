@@ -5,6 +5,7 @@ import os
 from dotenv import load_dotenv
 from firebase_functions import firestore_fn, https_fn
 from firebase_admin import initialize_app, firestore
+import google.cloud.firestore
 
 
 load_dotenv()
@@ -16,11 +17,13 @@ def main():
         商品カテゴリー: 男性用下着
         商品の特徴:素肌に直接触れる下着のために独自に開発した素材「nova wool® melty plus」を使用。汗蒸れ・汗冷え・汗臭を解消する消臭・抗菌機能に加え、素肌を清潔かつ快適に保つ調温・調湿機能に長けています。素肌へのストレスをクリアにし、第二の肌となってあなたの活動を支えます。食い込まないを追求した設計がストレスゼロな着用感を実現。
         """
-    get_template_elements("features", context=context)
+    get_template_elements("feature", context=context)
 
-def get_template_elements(ad_type, context) -> str:
+def get_template_elements(ad_type, context, canvas_id) -> str:
 
     openai.api_key = os.getenv('OPENAI_API_KEY')
+
+    firestore_client: google.cloud.firestore.Client = firestore.client()
    
     context_info = context.encode('unicode-escape')
     
@@ -45,6 +48,9 @@ def get_template_elements(ad_type, context) -> str:
             result = argument_to_result(arguments, ad_type)
             print(json.dumps(result))
 
+            doc_ref = firestore_client.collection("canvases").document(canvas_id)
+            doc_ref.set(result, merge=True)
+
             return json.dumps(result)
         except Exception:
             print("error")
@@ -54,7 +60,7 @@ def create_advertisement_prompt(ad_type, context_info):
     """
     指定された広告タイプに基づいて、広告メッセージを作成します。
 
-    :param ad_type: 広告のタイプ（例：'comparison', 'features', 'sale'など）。
+    :param ad_type: 広告のタイプ（例：'comparison', 'feature', 'sale'など）。
     :param context_info: 広告内容を作成するためのコンテキスト情報。
     :return: 広告メッセージのリスト。
     """
@@ -88,7 +94,7 @@ def create_advertisement_prompt(ad_type, context_info):
 
         参考情報:{context_info}
         """  
-    elif ad_type == "features":
+    elif ad_type == "feature":
         # 特徴広告のテンプレート
         template = """\
         以下の情報を参考にして、自社の商品を紹介する広告を作成してください。
@@ -132,7 +138,7 @@ def create_sample_json_string(ad_type):
     """
     指定された広告タイプに基づいて、広告内容のJSONを作成します。
 
-    :param ad_type: 広告のタイプ（例：'comparison', 'features', 'sale'など）。
+    :param ad_type: 広告のタイプ（例：'comparison', 'feature', 'sale'など）。
     :return: 広告内容のJSON。
     """
 
@@ -151,7 +157,7 @@ def create_sample_json_string(ad_type):
                 "otherProductFeature3": "男性向け"
             }
         """
-    elif ad_type == "features":
+    elif ad_type == "feature":
         sample_json = """
             {
                 "productName": "シェイクパック",
@@ -181,7 +187,7 @@ def create_advertisement_json(ad_type, product_info):
     """
     指定された広告タイプに基づいて、広告内容のJSONを作成します。
 
-    :param ad_type: 広告のタイプ（例：'comparison', 'features', 'sale'など）。
+    :param ad_type: 広告のタイプ（例：'comparison', 'feature', 'sale'など）。
     :param product_info: 商品に関する情報や広告内容に必要なその他の情報。
     :return: 広告内容のJSON。
     """
@@ -202,10 +208,10 @@ def create_advertisement_json(ad_type, product_info):
                 # 比較に必要なフィールド...
             }
         })
-    elif ad_type == "features":
+    elif ad_type == "feature":
         # 特徴広告用のフィールドを追加/更新
         ad_json_structure.update({
-            "features": {
+            "feature": {
                 # 特徴に関するフィールド...
             }
         })
@@ -253,7 +259,7 @@ def function_data(ad_type):
             }
         }]
 
-    if ad_type == "features":
+    if ad_type == "feature":
         return [{
             "name": "get_template_elements",
             "description": "",
@@ -310,18 +316,20 @@ def argument_to_result(arguments, ad_type):
         otherProductFeature3 = arguments.get("otherProductFeature3")
 
         result = {
-            "ourProductName": ourProductName,
-            "ourProductFeature1": ourProductFeature1,
-            "ourProductFeature2": ourProductFeature2,
-            "ourProductFeature3": ourProductFeature3,
-            "otherProductName": otherProductName,
-            "otherProductFeature1": otherProductFeature1,
-            "otherProductFeature2": otherProductFeature2,
-            "otherProductFeature3": otherProductFeature3
+            "embed_data": {
+                "ourProductName": ourProductName,
+                "ourProductFeature1": ourProductFeature1,
+                "ourProductFeature2": ourProductFeature2,
+                "ourProductFeature3": ourProductFeature3,
+                "otherProductName": otherProductName,
+                "otherProductFeature1": otherProductFeature1,
+                "otherProductFeature2": otherProductFeature2,
+                "otherProductFeature3": otherProductFeature3
+            }
         }
         return result
 
-    if ad_type == "features":
+    if ad_type == "feature":
         productName = arguments.get("productName")
         feature1 = arguments.get("feature1")
         feature2 = arguments.get("feature2")
@@ -331,13 +339,15 @@ def argument_to_result(arguments, ad_type):
         featuresSummary = arguments.get("featuresSummary")
 
         result = {
-            "productName": productName,
-            "feature1": feature1,
-            "feature2": feature2,
-            "feature3": feature3,
-            "feature4": feature4,
-            "feature5": feature5,
-            "featuresSummary": featuresSummary
+            "embed_data": {
+                "productName": productName,
+                "feature1": feature1,
+                "feature2": feature2,
+                "feature3": feature3,
+                "feature4": feature4,
+                "feature5": feature5,
+                "featuresSummary": featuresSummary
+            }
         }
         return result
     
@@ -347,9 +357,11 @@ def argument_to_result(arguments, ad_type):
         period = arguments.get("period")
 
         result = {
-            "title": title,
-            "message": message,
-            "period": period,
+            "embed_data": {
+                "title": title,
+                "message": message,
+                "period": period,
+            }
         }
         return result
 
