@@ -72,3 +72,12 @@ def on_create_template_elements(req: https_fn.Request) -> https_fn.Response:
 def on_get_embedded_template(req: https_fn.Request) -> https_fn.Response:
     import get_embedded_template
     return https_fn.Response(get_embedded_template.main(req))# mimetype='image/svg+xml')
+
+@https_fn.on_request(
+    timeout_sec=3000, 
+    memory=options.MemoryOption.GB_2,
+    cors=options.CorsOptions(cors_origins="*", cors_methods=["get", "post"])
+)
+def on_template_element_analyzer(req: https_fn.Request) -> https_fn.Response:
+    import template_element_analyzer
+    return https_fn.Response(template_element_analyzer.main(req))

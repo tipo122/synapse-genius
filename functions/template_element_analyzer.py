@@ -3,11 +3,13 @@ import sys
 import json
 import os
 from dotenv import load_dotenv
+from firebase_functions import firestore_fn, https_fn
+from firebase_admin import initialize_app, firestore
 
 
-dotenv_path = os.path.join(os.path.dirname(__file__), '.env.local')
-load_dotenv(dotenv_path)
+load_dotenv()
 
+# def main(req:https_fn) -> https_fn.Response:
 def main():
     context =  """\
         商品名: Full Cover Bikini
