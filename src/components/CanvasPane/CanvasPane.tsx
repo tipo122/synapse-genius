@@ -26,8 +26,10 @@ const CanvasPane = () => {
   const handleSaveData = () => {
     saveTimer.current && clearTimeout(saveTimer.current);
     saveTimer.current = null as unknown as NodeJS.Timeout;
-    editor?.canvas && saveCanvasImageData(JSON.stringify(editor?.canvas));
-    editor?.canvas && saveThumbnail(editor);
+    if (JSON.stringify(editor?.canvas) !== '{"version":"5.3.0","objects":[]}') {
+      editor?.canvas && saveCanvasImageData(JSON.stringify(editor?.canvas));
+      editor?.canvas && saveThumbnail(editor);
+    }
   };
 
   useEffect(() => {

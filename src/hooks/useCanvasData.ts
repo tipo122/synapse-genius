@@ -141,7 +141,7 @@ export const useCanvasData = (canvasIdProp: string): CanvasDataInterface => {
       const metadata = {
         contentType: "image/svg+xml",
       };
-      // thumbnailRef && uploadBytes(thumbnailRef, content, metadata);
+      thumbnailRef && uploadBytes(thumbnailRef, content, metadata);
       console.log("save thumbnail");
     }
   };
@@ -158,7 +158,7 @@ export const useCanvasData = (canvasIdProp: string): CanvasDataInterface => {
       setCanvasImageData(canvas_data);
       (async () => {
         try {
-          // canvasFileRef && (await uploadString(canvasFileRef, canvas_data));
+          canvasFileRef && (await uploadString(canvasFileRef, canvas_data));
           console.log(canvas_data);
           console.log("save canvas image data");
         } catch (e) {

@@ -36,6 +36,11 @@ const Dashboard = () => {
               label: <Link to="/home">ホーム</Link>,
             },
             {
+              key: "/create",
+              icon: <HomeOutlined />,
+              label: <Link to="/create">クリエイト</Link>,
+            },
+            {
               key: "/logout",
               icon: <UserOutlined />,
               label: "ログアウト",
