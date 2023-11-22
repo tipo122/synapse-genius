@@ -43,7 +43,7 @@ export const CreateStart = () => {
             <Col span={6}>
               <Radio value="new">
                 <Card>
-                  <img width={120} height={120} />
+                  <img width={120} height={120} src="/img/TA.png" />
                   New Item
                 </Card>
               </Radio>
@@ -51,7 +51,7 @@ export const CreateStart = () => {
             <Col span={6}>
               <Radio value="comparison">
                 <Card>
-                  <img width={120} height={120} />
+                  <img width={120} height={120} src="/img/TB.png" />
                   Comparison
                 </Card>
               </Radio>
@@ -60,7 +60,7 @@ export const CreateStart = () => {
               <Radio value="feature">
                 <Card>
                   {" "}
-                  <img width={120} height={120} />
+                  <img width={120} height={120} src="/img/TC.png" />
                   Feature
                 </Card>
               </Radio>
@@ -69,7 +69,7 @@ export const CreateStart = () => {
               <Radio value="sale">
                 <Card>
                   {" "}
-                  <img width={120} height={120} />
+                  <img width={120} height={120} src="/img/TD.png" />
                   Sale
                 </Card>
               </Radio>
