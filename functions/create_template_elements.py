@@ -56,6 +56,11 @@ def main(req:https_fn) -> https_fn.Response:
             return json.dumps({"data" : "ok"})
         except Exception:
             print("error")
+            print(result.encode().decode('unicode-escape'))
+            print(response)
+            print(traceback.format_exc())
+            print(sys.exc_info()[2])
+
     return json.dumps({"data" : "error"})
 
 """        
@@ -140,6 +145,7 @@ async def fetch_webpage_text(url):
     
     if res.status_code == 200:
         print("success")
+        print("success:", res.status_code)
     else:
         print("Failed:", res.status_code)
     
@@ -201,8 +207,6 @@ def get_argument(answer):
         except Exception:
              print("ERRO")
              print(arguments.encode().decode('unicode-escape'))
-            #  print(traceback.format_exc())
-            #  print(sys.exc_info()[2])
 
     return None
 
