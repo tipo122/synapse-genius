@@ -8,32 +8,21 @@ from dotenv import load_dotenv
 dotenv_path = os.path.join(os.path.dirname(__file__), '.env.local')
 load_dotenv(dotenv_path)
 
+def main():
+    context =  """\
+        商品名: Full Cover Bikini
+        商品カテゴリー: 男性用下着
+        商品の特徴:素肌に直接触れる下着のために独自に開発した素材「nova wool® melty plus」を使用。汗蒸れ・汗冷え・汗臭を解消する消臭・抗菌機能に加え、素肌を清潔かつ快適に保つ調温・調湿機能に長けています。素肌へのストレスをクリアにし、第二の肌となってあなたの活動を支えます。食い込まないを追求した設計がストレスゼロな着用感を実現。
+        """
+    get_template_elements("features", context=context)
+
 def get_template_elements(ad_type, context) -> str:
 
     openai.api_key = os.getenv('OPENAI_API_KEY')
-
-    # ad_type = "comparison"
-    ad_type = ad_type
-    
-    sample_context = """\
-        商品名: シェイクパック
-        商品カテゴリー: プロテイン
-        商品の特徴:「わたしは、わたしらしく。」をコンセプトとした、“シェーカーなし”でおいしく飲むことができる個包装タイプのプロテイン『シェイクパック』。
-        女性が1食に必要な33種類の栄養素がたっぷり入った大豆由来の植物性ウェルネスプロテインを、いつでもどこでも手軽に飲むことができます。
-        """
-    sample_prompt = create_advertisement_prompt(ad_type, sample_context)
-
-    # contextは実際にはrequestから取得する
-    # context_info = """\
-    #     商品名: Full Cover Bikini
-    #     商品カテゴリー: 男性用下着
-    #     商品の特徴:素肌に直接触れる下着のために独自に開発した素材「nova wool® melty plus」を使用。汗蒸れ・汗冷え・汗臭を解消する消臭・抗菌機能に加え、素肌を清潔かつ快適に保つ調温・調湿機能に長けています。素肌へのストレスをクリアにし、第二の肌となってあなたの活動を支えます。食い込まないを追求した設計がストレスゼロな着用感を実現。
-    #     """
+   
     context_info = context.encode('unicode-escape')
     
     prompt = create_advertisement_prompt(ad_type, context_info)
-
-    response_json_string = create_sample_json_string(ad_type)
 
     prompts = [
         {"role": "system", "content": """\
@@ -42,29 +31,22 @@ def get_template_elements(ad_type, context) -> str:
          あなたはユーザーから、広告を作成するためのいくつかの情報受け取ります。
          その情報からinstagramの広告を作成して、その要素をJSONの形式で返却してください。
          """},
-        {"role": "user", "content": sample_prompt},
-        {"role": "assistant", "content": response_json_string},
         {"role": "user", "content": prompt}
     ]
 
-    
+    response = call_llm(prompts, ad_type)
+    answer = response["choices"][0]["message"]
+    arguments = get_argument(answer)
 
-    try:
-        res = openai.ChatCompletion.create(
-            messages=prompts,#.encode('unicode-escape'), なぜなのなんなの
-            model="gpt-3.5-turbo"
-        )
+    if arguments:
+        try:
+            result = argument_to_result(arguments, ad_type)
+            print(json.dumps(result))
 
-        # APIからの戻り値のチェック
-        if not res.get("choices"):
-            raise ValueError("Unexpected response format from OpenAI API.")
-    except Exception as e:
-        print(f"Error occurred while making API call: {e}", file=sys.stderr)
-        return "error"
-
-    # return json.loads(res["choices"][0]["message"]["content"])
-    return json.loads(res["choices"][0]["message"]["content"])
-
+            return json.dumps(result)
+        except Exception:
+            print("error")
+    return json.dumps({"data" : "error"})
 
 def create_advertisement_prompt(ad_type, context_info):
     """
@@ -79,58 +61,67 @@ def create_advertisement_prompt(ad_type, context_info):
         # 比較広告のテンプレート
         template = """\
         以下の情報を参考にして、自社商品と他社商品の比較広告を作成してください。
-        広告には以下の項目を含みます。
-        参考情報には他社製品の特徴は含まれないので、自社製品に対して劣っていることを表現する文言を適当に作成してください。
-        作成した内容を返却値例の形でJSONで返却してください。
+        
+        参考情報としてあるのは自社商品の情報のみです。
 
-        ・自社製品名
-        ・自社製品の特徴1
-        ・自社製品の特徴2
-        ・自社製品の特徴3
-        ・他社製品名
-        ・（自社製品の特徴1に対応する）他社製品の特徴1
-        ・（自社製品の特徴2に対応する）他社製品の特徴2
-        ・（自社製品の特徴2に対応する）他社製品の特徴2
+        自社製品名、自社製品の特徴1〜3は参考情報を参考に作成してください。
+        簡潔にまとめることを心がけてください。
 
-        返却値例:{sample_sale_json}
+        他社製品名、他社製品の特徴1〜3は、自社製品の情報から類推して作成してください。
+        自社製品に対して劣っている表現や、自社製品に対してネガティブな表現が好ましいです。
+        簡潔にまとめることを心がけてください。
+
+         広告には以下の項目を含みます。
+
+        ・自社製品名（ourProductName）
+        ・自社製品の特徴1（ourProductFeature1）
+        ・自社製品の特徴2（ourProductFeature2）
+        ・自社製品の特徴3（ourProductFeature3）
+        ・他社製品名（otherProductName）
+        ・（自社製品の特徴1の対義語となる）他社製品の特徴1（otherProductFeature1）
+        ・（自社製品の特徴1の対義語となる）他社製品の特徴2（otherProductFeature2）
+        ・（自社製品の特徴1の対義語となる）他社製品の特徴3（otherProductFeature3）
+
+        自社製品の特徴1、自社製品の特徴2、自社製品の特徴3、他社製品の特徴1、他社製品の特徴2、他社製品の特徴3はそれぞれ12文字以内で作成してください。
+
         参考情報:{context_info}
         """  
     elif ad_type == "features":
         # 特徴広告のテンプレート
         template = """\
         以下の情報を参考にして、自社の商品を紹介する広告を作成してください。
+        簡潔にまとめることを心がけてください。
         広告には以下の項目を含みます。
 
-        ・商品名
-        ・商品の特徴1
-        ・商品の特徴2
-        ・商品の特徴3
-        ・商品の特徴4
-        ・商品の特徴5
-        ・商品の特徴1～5の要約
+        ・商品名（ourProductName）
+        ・商品の特徴1（ourProductFeature1）
+        ・商品の特徴2（ourProductFeature2）
+        ・商品の特徴3（ourProductFeature3）
+        ・商品の特徴4（ourProductFeature4）
+        ・商品の特徴5（ourProductFeature5）
+        ・商品の特徴の要約（ourProductFeaturesSummary） 
 
-        返却値例:{sample_sale_json}
-        参考情報:{context}
+        商品の特徴1、商品の特徴2、商品の特徴3、商品の特徴4、商品の特徴5はそれぞれ12文字以内で作成してください。
+
+        参考情報:{context_info}
         """  
     elif ad_type == "sale":
         # セール広告のテンプレート
         template = """\
         以下の情報を参考にして、セール広告を作成してください。
         セール広告には以下の項目を含みます。季節感や時期を考慮して作成してください。
-        作成した内容を返却値例の形でJSONで返却してください。返却値例以外のkeyは含まないでください。
 
-        ・メインのタイトル
-        ・メインのメッセージ
-        ・セール期間
+        ・メインのタイトル（title）
+        ・メインのメッセージ(message)
+        ・セール期間(period)
 
-        返却値例:{sample_sale_json}
         参考情報:{context_info}
         """  
     else:
         return ""  # 不明な広告タイプの場合は空のリストを返す
 
     # テンプレートにコンテキスト情報を注入
-    prompt = template.format(sample_sale_json=create_sample_json_string(ad_type), context_info=context_info)
+    prompt = template.format(context_info=context_info)
 
     # 作成されたメッセージを含むリストを返す
     return prompt
@@ -228,6 +219,141 @@ def create_advertisement_json(ad_type, product_info):
         return {}
 
     return ad_json_structure
+
+def call_llm(messages, ad_type):
+  
+
+    return openai.ChatCompletion.create(
+        messages=messages,
+        functions=function_data(ad_type),
+        model="gpt-3.5-turbo",
+        max_tokens=1000
+    )
+
+def function_data(ad_type):
+
+    if ad_type == "comparison":
+        return [{
+            "name": "get_template_elements",
+            "description": "",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "ourProductName": {"type": "string", "description": "自社製品名"},
+                    "ourProductFeature1": {"type": "string", "description": "自社製品の特徴1"},
+                    "ourProductFeature2": {"type": "string", "description": "自社製品の特徴2"},
+                    "ourProductFeature3": {"type": "string", "description": "自社製品の特徴3"},
+                    "otherProductName": {"type": "string", "description": "他社製品名"},
+                    "otherProductFeature1": {"type": "string", "description": "他社製品の特徴1"},
+                    "otherProductFeature2": {"type": "string", "description": "他社製品の特徴2"},
+                    "otherProductFeature3": {"type": "string", "description": "他社製品の特徴3"},
+                }
+            }
+        }]
+
+    if ad_type == "features":
+        return [{
+            "name": "get_template_elements",
+            "description": "",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "productName": {"type": "string", "description": "商品名"},
+                    "feature1": {"type": "string", "description": "商品の特徴1"},
+                    "feature2": {"type": "string", "description": "商品の特徴2"},
+                    "feature3": {"type": "string", "description": "商品の特徴3"},
+                    "feature4": {"type": "string", "description": "商品の特徴4"},
+                    "feature5": {"type": "string", "description": "商品の特徴5"},
+                    "featuresSummary": {"type": "string", "description": "商品の特徴1〜5の要約"},
+                }
+            }
+        }]
+    
+    else:
+        return [{
+            "name": "get_template_elements",
+            "description": "",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "title": {"type": "string", "description": "メインのタイトル"},
+                    "message": {"type": "string", "description": "メインのメッセージ"},
+                    "period": {"type": "string", "description": "セール期間"},
+                }
+            }
+        }]
+    
+ 
+def get_argument(answer):
+    function_call = answer.get("function_call")
+    arguments = function_call.get("arguments")
+    if arguments:
+        try:
+            return json.loads(arguments)
+        except Exception:
+             print("ERRO")
+    return None
+
+
+def argument_to_result(arguments, ad_type):
+
+    if ad_type == "comparison":
+        ourProductName = arguments.get("ourProductName")
+        ourProductFeature1 = arguments.get("ourProductFeature1")
+        ourProductFeature2 = arguments.get("ourProductFeature2")
+        ourProductFeature3 = arguments.get("ourProductFeature3")
+        otherProductName = arguments.get("otherProductName")
+        otherProductFeature1 = arguments.get("otherProductFeature1")
+        otherProductFeature2 = arguments.get("otherProductFeature2")
+        otherProductFeature3 = arguments.get("otherProductFeature3")
+
+        result = {
+            "ourProductName": ourProductName,
+            "ourProductFeature1": ourProductFeature1,
+            "ourProductFeature2": ourProductFeature2,
+            "ourProductFeature3": ourProductFeature3,
+            "otherProductName": otherProductName,
+            "otherProductFeature1": otherProductFeature1,
+            "otherProductFeature2": otherProductFeature2,
+            "otherProductFeature3": otherProductFeature3
+        }
+        return result
+
+    if ad_type == "features":
+        productName = arguments.get("productName")
+        feature1 = arguments.get("feature1")
+        feature2 = arguments.get("feature2")
+        feature3 = arguments.get("feature3")
+        feature4 = arguments.get("feature4")
+        feature5 = arguments.get("feature5")
+        featuresSummary = arguments.get("featuresSummary")
+
+        result = {
+            "productName": productName,
+            "feature1": feature1,
+            "feature2": feature2,
+            "feature3": feature3,
+            "feature4": feature4,
+            "feature5": feature5,
+            "featuresSummary": featuresSummary
+        }
+        return result
+    
+    else:
+        title = arguments.get("title")
+        message = arguments.get("message")
+        period = arguments.get("period")
+
+        result = {
+            "title": title,
+            "message": message,
+            "period": period,
+        }
+        return result
+
+
+
+
 
 
 if __name__ == "__main__":
