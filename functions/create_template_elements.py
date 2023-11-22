@@ -139,7 +139,8 @@ async def fetch_webpage_text(url):
     # response = client.get(url)
     # soup = BeautifulSoup(source, 'html.parser')
     
-    requestUrl = "http://localhost:5000/synapse-genius-dev-fbe11/us-central1/helloWorld"
+    # requestUrl = "http://localhost:5000/synapse-genius-dev-fbe11/us-central1/helloWorld"
+    requestUrl = os.getenv('CRAWLER_URL')
     payload = {'url': url}
     res = requests.get(url=requestUrl, data=payload)
     
