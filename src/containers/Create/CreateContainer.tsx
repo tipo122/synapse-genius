@@ -120,7 +120,12 @@ const Create = () => {
     >
       <Layout>
         <Header style={{ padding: 0, background: colorBgContainer }}>
-          <img src="/img/genius.png" height={50} />
+          <img
+            onClick={() => navigate("/home")}
+            src="/img/genius.png"
+            height={50}
+            style={{ cursor: "pointer" }}
+          />
         </Header>
         <Content>
           <center>
