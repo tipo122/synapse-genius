@@ -272,6 +272,7 @@ const useFabricJSEditor = ({
     };
     if (canvas) {
       bindEvents(canvas);
+      canvas.setZoom(0.8);
     }
   }, [canvas]);
 

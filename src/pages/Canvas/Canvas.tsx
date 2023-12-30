@@ -122,7 +122,7 @@ const Canvas = () => {
         onReady,
       }}
     >
-      <Layout>
+      <Layout style={{ height: "100vh" }}>
         <Header
           style={{
             display: "flex",
