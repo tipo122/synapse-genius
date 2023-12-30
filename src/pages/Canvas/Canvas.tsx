@@ -135,6 +135,7 @@ const Canvas = () => {
             onClick={() => navigate("/home")}
             src="/img/genius.png"
             height={50}
+            style={{ cursor: "pointer" }}
           />
 
           <Menu
