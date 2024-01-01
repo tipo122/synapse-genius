@@ -162,15 +162,6 @@ import { CanvasContext } from "@pages/Canvas/Canvas";
 const { canvasData, saveCanvasData } = useContext(CanvasContext);
 ```
 
-使用しないでください:
-
-```tsx
-import { useCanvasData } from "@hooks/useCanvasData";
-const { canvasData, saveCanvasData } = useCanvasData(canvasId ?? "");
-```
-
-これにより、Canvasに関連するデータの取得と更新がより効率的かつ一貫性のある方法で行われます。また、コンテキストを通じてデータを管理することで、将来的な変更や拡張が容易になります。
-
 # FireStore Collections
 
 ```ts
