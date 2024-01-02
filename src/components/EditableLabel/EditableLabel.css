@@ -1,0 +1,17 @@
+.editable-label-main-div {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+}
+
+.not-editable-label-div {
+  display: flex;
+  align-items: center;
+}
+
+.not-editable-label-div .MuiSvgIcon-root {
+  font-size: min(2.5vh, 2.5vw);
+  margin-left: 0.5rem;
+}
