@@ -149,6 +149,19 @@ Synapse X Genius のプロトタイプのためのレポジトリです。
 
     https://synapse-genius.web.app/
 
+## テクニカルガイドライン
+
+1. **Canvas 関連データの取得方法について**
+
+Canvasに関連するデータを取得する際には、`useContext` フックを用いて `CanvasContext` から直接データを取得するようにしてください。このアプローチは、`useCanvasData` カスタムフックを使用するよりも安全で効率的です。
+
+使用方法:
+
+```tsx
+import { CanvasContext } from "@pages/Canvas/Canvas";
+const { canvasData, saveCanvasData } = useContext(CanvasContext);
+```
+
 # FireStore Collections
 
 ```ts
