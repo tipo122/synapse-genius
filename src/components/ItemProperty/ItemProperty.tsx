@@ -7,6 +7,7 @@ import { Canvas } from "@domain-types/canvas";
 import { initialCanvasData } from "@hooks/useCanvasData";
 import { useParams } from "react-router";
 import { CanvasContext } from "@pages/Canvas/Canvas";
+import { EditableCanvasTitle } from "./EditableCanvasTitle";
 interface ProductUrlFormProps {
   children?: React.ReactElement;
 }
@@ -42,6 +43,12 @@ const ItemProperty = () => {
   };
   return (
     <div>
+      <div className="item-property-body-div">
+        <p>ファイル名</p>
+        <div>
+          <EditableCanvasTitle />
+        </div>
+      </div>
       <div className="item-property-body-div">
         <p>商品のURL</p>
         <div className="item-property-input-div">
