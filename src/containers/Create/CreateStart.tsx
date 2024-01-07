@@ -51,13 +51,7 @@ export const CreateStart = () => {
           <Row gutter={16}>
             <Col span={6}>
               <Radio value={CARD_TYPES.NEW}>
-                <Card
-                  className={
-                    templateType === CARD_TYPES.NEW
-                      ? "create-start-card-selected"
-                      : "create-start-card"
-                  }
-                >
+                <Card style={{ border: "none" }}>
                   <img width={120} height={120} src="/img/TA.png" />
                   New Item
                 </Card>
@@ -65,13 +59,7 @@ export const CreateStart = () => {
             </Col>
             <Col span={6}>
               <Radio value={CARD_TYPES.COMPARISON}>
-                <Card
-                  className={
-                    templateType === CARD_TYPES.COMPARISON
-                      ? "create-start-card-selected"
-                      : "create-start-card"
-                  }
-                >
+                <Card style={{ border: "none" }}>
                   <img width={120} height={120} src="/img/TB.png" />
                   Comparison
                 </Card>
@@ -79,13 +67,7 @@ export const CreateStart = () => {
             </Col>
             <Col span={6}>
               <Radio value={CARD_TYPES.FEATURE}>
-                <Card
-                  className={
-                    templateType === CARD_TYPES.FEATURE
-                      ? "create-start-card-selected"
-                      : "create-start-card"
-                  }
-                >
+                <Card style={{ border: "none" }}>
                   <img width={120} height={120} src="/img/TC.png" />
                   Feature
                 </Card>
@@ -93,13 +75,7 @@ export const CreateStart = () => {
             </Col>
             <Col span={6}>
               <Radio value={CARD_TYPES.SALE}>
-                <Card
-                  className={
-                    templateType === CARD_TYPES.SALE
-                      ? "create-start-card-selected"
-                      : "create-start-card"
-                  }
-                >
+                <Card style={{ border: "none" }}>
                   <img width={120} height={120} src="/img/TD.png" />
                   Sale
                 </Card>
