@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { ReactEventHandler, useContext } from "react";
 import {
   Button,
   Card,
@@ -11,8 +11,16 @@ import {
   theme,
 } from "antd";
 import { CreateContext } from "./CreateContainer";
+import "./Create.css";
 
 const { Text, Title, Link } = Typography;
+
+const CARD_TYPES = {
+  NEW: "new",
+  COMPARISON: "comparison",
+  FEATURE: "feature",
+  SALE: "sale",
+};
 
 export const CreateStart = () => {
   const {
@@ -22,53 +30,52 @@ export const CreateStart = () => {
     setTargetUrl,
     handleStart,
   } = useContext(CreateContext);
+
+  const handleTemplateTypeChange = (e: any) => {
+    setTemplateType(e.target.value);
+  };
+
   return (
     <>
       {/* <Text style={{ fontSize: "80px" }}>ECのProduct Imageを</Text>
       <br />
-      <Text style={{ fontSize: "80px" }}>一瞬で創作</Text>
-      <p></p> */}
-      <p></p>
-      <Card style={{ width: "70%" }} title="Creative Type">
+      <Text style={{ fontSize: "80px" }}>一瞬で創作</Text>*/}
+      <Card className="create-start-entire-card" title="Creative Type">
         <Radio.Group
           size="large"
-          buttonStyle="solid"
+          optionType="button"
           className="large-icons"
           value={templateType}
-          onChange={(e) => {
-            setTemplateType(e.target.value);
-          }}
+          onChange={handleTemplateTypeChange}
         >
           <Row gutter={16}>
             <Col span={6}>
-              <Radio value="new">
-                <Card>
+              <Radio value={CARD_TYPES.NEW}>
+                <Card style={{ border: "none" }}>
                   <img width={120} height={120} src="/img/TA.png" />
                   New Item
                 </Card>
               </Radio>
             </Col>
             <Col span={6}>
-              <Radio value="comparison">
-                <Card>
+              <Radio value={CARD_TYPES.COMPARISON}>
+                <Card style={{ border: "none" }}>
                   <img width={120} height={120} src="/img/TB.png" />
                   Comparison
                 </Card>
               </Radio>
             </Col>
             <Col span={6}>
-              <Radio value="feature">
-                <Card>
-                  {" "}
+              <Radio value={CARD_TYPES.FEATURE}>
+                <Card style={{ border: "none" }}>
                   <img width={120} height={120} src="/img/TC.png" />
                   Feature
                 </Card>
               </Radio>
             </Col>
             <Col span={6}>
-              <Radio value="sale">
-                <Card>
-                  {" "}
+              <Radio value={CARD_TYPES.SALE}>
+                <Card style={{ border: "none" }}>
                   <img width={120} height={120} src="/img/TD.png" />
                   Sale
                 </Card>
