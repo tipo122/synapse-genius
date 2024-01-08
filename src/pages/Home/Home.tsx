@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { List, Card } from "antd";
+import { List, Card, Modal } from "antd";
 import { useNavigate } from "react-router-dom";
 import {
   addDoc,
@@ -26,6 +26,8 @@ const Home = () => {
   const [user] = useAuthState(auth);
   const user_id = user ? user.uid : "";
   const [canvases, setCanvases] = useState<Canvas[]>([]);
+  const [modal, contextHolder] = Modal.useModal();
+
   let loading = false;
 
   useEffect(() => {
@@ -98,13 +100,22 @@ const Home = () => {
                     e.stopPropagation();
                   }}
                 >
-                  <DeleteIcon onClick={() => handleDeleteCanvas(canvas.uid)} />
+                  <DeleteIcon
+                    onClick={() =>
+                      modal.confirm({
+                        content: `${canvas.title} を削除します。`,
+                        title: "削除",
+                        onOk: () => handleDeleteCanvas(canvas.uid),
+                      })
+                    }
+                  />
                 </div>
               </Card>
             </List.Item>
           )
         }
       />
+      {contextHolder}
     </>
   );
 };
