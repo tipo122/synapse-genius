@@ -27,29 +27,34 @@ const Home = () => {
   const user_id = user ? user.uid : "";
   const [canvases, setCanvases] = useState<Canvas[]>([]);
   const [modal, contextHolder] = Modal.useModal();
-
-  let loading = false;
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     loadCanvases();
   }, []);
 
-  const loadCanvases = () => {
+  const loadCanvases = async () => {
     if (!loading && user_id !== "") {
-      (async () => {
-        loading = true;
-        const q = query(
-          collection(db, "canvases"),
-          where("user_id", "==", user_id)
-        );
-        const result: Canvas[] = [];
+      setLoading(true);
+      const q = query(
+        collection(db, "canvases"),
+        where("user_id", "==", user_id)
+      );
+      try {
         const querySnapshot = await getDocs(q);
-        querySnapshot.forEach((doc) => {
-          result.push({ ...doc.data(), uid: doc.id } as Canvas);
-        });
+        const result: Canvas[] = querySnapshot.docs.map(
+          (doc) =>
+            ({
+              ...doc.data(),
+              uid: doc.id,
+            }) as Canvas
+        );
         setCanvases([{ uid: "new" } as Canvas, ...result]);
-        loading = false;
-      })();
+      } catch (error) {
+        console.error("Error loading canvases: ", error);
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
