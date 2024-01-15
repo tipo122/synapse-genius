@@ -36,48 +36,41 @@ def main(req:https_fn) -> https_fn.Response:
     firestore_client: google.cloud.firestore.Client = firestore.client()
 
     # return json.dumps({"data": "end"})
-    item_name = ""
-    item_category = ""
-    item_description = ""
-
-    result = {
-        "item_property" : {
-            "item_name" : item_name,
-            "item_category" : item_category,
-            "item_description" : item_description,
-        },
-        "copy_data"  :  [
-          {"text": "Everybody Hurts"},
-          {"text": "Nothing Compares 2 U"},
-          {"text": "Tears in Heaven"},
-          {"text": "Hurt"},
-          {"text": "Yesterday"}
-        ]
-    }
- 
     text = asyncio.run(fetch_webpage_text(target_url))
 
-    messages = generate_openai_message(count=5, response=result, context=text)
+    response = call_llm(text)
 
-    response = openai.ChatCompletion.create(
-        messages=messages,
-        model="gpt-3.5-turbo",
-        max_tokens=1000
-    )
-    
-    
+    answer = response["choices"][0]["message"]
+    arguments = get_argument(answer)
 
+    if arguments:
+        try:
+            result = argument_to_result(arguments, target_url, template_type)
+            # result['copy_data'] = elements
+            doc_ref = firestore_client.collection("canvases").document(canvas_id)
+            doc_ref.set(result, merge=True)
+
+            formatted_string = f"商品名: {result['item_property']['item_name']}\n商品カテゴリー: {result['item_property']['item_category']}\n商品の特徴: {result['item_property']['item_description']}"
+            elements = get_template_elements(ad_type=template_type, context=formatted_string, canvas_id=canvas_id)
+
+            return json.dumps({"data" : "ok"})
+        except Exception:
+            print("error")
+            print(result.encode().decode('unicode-escape'))
+            print(response)
+            print(traceback.format_exc())
+            print(sys.exc_info()[2])
+
+    return json.dumps({"data" : "error"})
+
+"""        
     try:
-        result = json.loads(response["choices"][0]["message"]["content"])
-        # result = json.loads(response)["choices"][0]["message"]["content"]
-
-        item_name = result["item_property"]["item_name"]
-        item_category = result["item_property"]["item_category"]
-        item_description = result["item_property"]["item_description"]
-        copy_data = result["copy_data"]
-        
-        item_data = result['item_property']
-        formatted_string = f"商品名: {item_data['item_name']}\n商品カテゴリー: {item_data['item_category']}\n商品の特徴: {item_data['item_description']}"
+        content = response["choices"][0]["message"]["content"]
+        item_property = json.loads(content)["item_property"]
+        item_name = item_property["item_name"]
+        item_category = item_property["item_category"]
+        item_description = item_property["item_description"]
+        formatted_string = f"商品名: {item_property['item_name']}\n商品カテゴリー: {item_property['item_category']}\n商品の特徴: {item_property['item_description']}"
         
         # 
         elements = get_template_elements(ad_type=template_type, context=formatted_string)
@@ -102,21 +95,22 @@ def main(req:https_fn) -> https_fn.Response:
         doc_ref = firestore_client.collection("canvases").document(canvas_id)
         doc_ref.set(result, merge=True)
 
-        print(result)
-
-        print(elements)
-
         return json.dumps({"data" : "ok"})
         # return elements
         
 
-    except:
-        import traceback
-        traceback.print_exc()
+    except Exception:
+        print(content.encode().decode('unicode-escape'))
+        print(response)
+        print(traceback.format_exc())
+        print(sys.exc_info()[2])
         return json.dumps({"data" : "error"})
-    
+"""    
 
 async def fetch_webpage_text(url):
+
+
+
     # browser = await launch(
     #     headless=True,
     #     handleSIGINT=False,
@@ -144,12 +138,96 @@ async def fetch_webpage_text(url):
     # client = ScrapingBeeClient(api_key=sb_api_key)
     # response = client.get(url)
     # soup = BeautifulSoup(source, 'html.parser')
+    
+    # requestUrl = "http://localhost:5000/synapse-genius-dev-fbe11/us-central1/helloWorld"
+    requestUrl = os.getenv('CRAWLER_URL')
+    payload = {'url': url}
+    res = requests.get(url=requestUrl, data=payload)
+    
+    if res.status_code == 200:
+        print("success")
+        print("success:", res.status_code)
+    else:
+        print("Failed:", res.status_code)
+    
+    
     text_parts = soup.stripped_strings
     text = " ".join(text_parts)
     
     return text
 
-def generate_openai_message(count, response, context):
+def call_llm(text):
+    messages = generate_openai_message(count=5, context=text)
+
+    return openai.ChatCompletion.create(
+        messages=messages,
+        functions=function_data(),
+        model="gpt-3.5-turbo",
+        max_tokens=1000
+    )
+
+
+def function_data():
+    return [{
+        "name": "create_template",
+        "description": "",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "item_property": {
+                    "type": "object",
+                    "properties": {
+                        "item_name": {
+                            "type": "string"
+                        },
+                        "item_category": {"type": "string"},
+                        "item_description": {"type": "string"}
+                    }
+                },
+                "copy_data": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "text": {"type": "string"}
+                        }
+                    }
+                }
+            }
+        }
+    }]
+
+
+
+def get_argument(answer):
+    function_call = answer.get("function_call")
+    arguments = function_call.get("arguments")
+    if arguments:
+        try:
+            return json.loads(arguments)
+        except Exception:
+             print("ERRO")
+             print(arguments.encode().decode('unicode-escape'))
+
+    return None
+
+
+def argument_to_result(arguments, target_url, template_type):
+    item_property = arguments.get("item_property")
+    item_property["url"] = target_url
+
+    copy_data = arguments.get("copy_data")
+
+    result = {
+        "item_property": item_property,
+        "copy_data": copy_data,
+        "template_property" : {
+            "template_type" : template_type,
+        }
+    }
+    return result
+
+def generate_openai_message(count, context):
     system_message = """
         あなたは優秀なコピーライターです。
         あなたはユーザーから、商品販売ページのコンテンツをテキストとして受け取ります。
@@ -160,13 +238,32 @@ def generate_openai_message(count, response, context):
         copy_dataの中に配列として返してください。
         item_descriptionは、100文字以内にしてください。
     """
-    print("$#$#$#$#$")
-    print (json.dumps(response))
+    # print("$#$#$#$#$")
+    # print (json.dumps(response))
     return [
         {"role": "system", "content": system_message},
-        {"role": "assistant", "content": json.dumps(response)},
+        # {"role": "assistant", "content": json.dumps(response)},
         {"role": "user", "content": f"以下の情報を参考にして、コピーを {count}個作成してください。参考情報:{context[0:1000]}"}
     ]
+
+def getFunctionPath():
+
+
+
+    # const { projectId } = app.options;
+    # const { region } = functions;
+    # // @ts-ignore
+    # const emulator = functions.emulatorOrigin;
+    # let url: string = "";
+
+    # if (emulator) {
+    #   url = `${emulator}/${projectId}/${region}/on_get_embedded_template`;
+    # } else {
+    #   url = `https://${region}-${projectId}.cloudfunctions.net/on_get_embedded_template`;
+    # }
+    # return url;
+    return ""
+
 
 if __name__ == "__main__":
     main()

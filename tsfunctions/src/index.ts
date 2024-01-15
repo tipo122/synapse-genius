@@ -20,14 +20,12 @@ functions.setGlobalOptions({
   memory: "1GiB",
   concurrency: 1000,
   invoker: "public",
-  timeoutSeconds: 6000,
 });
 
 export const helloWorld = onRequest(async (request, response) => {
   logger.info("Hello logs!", { structuredData: true });
-  console.log(request.body.url);
 
-  const reqUrl = request.body.url;
+  const reqUrl = "https://www.anime-chiikawa.jp/";
 
   console.log(reqUrl);
   const browser = await puppeteer.launch({
@@ -43,13 +41,21 @@ export const helloWorld = onRequest(async (request, response) => {
   });
 
   const source = await page.content();
+  console.log(source);
 
-  // const srcAll = await page.$$eval("img", (list) => list.map((el) => el.src));
-  // console.log(srcAll);
+  // await writeToGcs(
+  //   "synapse-genius-dev-fbe11.appspot.com",
+  //   "websiteHtml/chiikawa.html",
+  //   source,
+  //   page.url()
+  // );
+
+  const srcAll = await page.$$eval("img", (list) => list.map((el) => el.src));
+  console.log(srcAll);
 
   await browser.close();
   console.log("complete puppeteer requests");
-  response.send(source);
+  response.send("hellow crawler");
 });
 
 // async function writeToGcs(

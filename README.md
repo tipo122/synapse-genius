@@ -6,6 +6,8 @@ Synapse X Genius のプロトタイプのためのレポジトリです。
 
 以下の手順でアプリケーションをセットアップします。
 
+**必要な環境:** Node.js v18.0.0 以上。Node.jsのバージョン18をインストールするには、`nvm install 18` を実行してください。
+
 1. **プロジェクトのクローンを作成します：**
 
    ```bash
@@ -86,6 +88,23 @@ Synapse X Genius のプロトタイプのためのレポジトリです。
    $ source ./venv/bin/activate && python3 -m pip install -r requirements.txt
    ```
 
+1. **Funtions Node の環境設定**
+   functions フォルダに移って、以下のコマンドを実行します
+
+   ```bash
+   $ cd functions
+
+   $ npm i --prefix ./tsfunctions
+
+   $ npm run build --prefix ./tsfunctions
+   ```
+
+1. **ローカル実行(全ての functions を実行)**
+
+   ```bash
+   $ firebase emulators:start --only functions
+   ```
+
 1. **デプロイ**
 
    ```bash
@@ -94,37 +113,54 @@ Synapse X Genius のプロトタイプのためのレポジトリです。
 
 ## 開発ワークフロー
 
-1.  ブランチ作成
-    `development`ブランチから新しいブランチを作成し、`feature/<機能名>`の命名規則に従います。
+1.  **ブランチ作成** `development`ブランチから新しいブランチを作成し、`feature/<機能名>`の命名規則に従います。
 
     ```bash
     git checkout -b feature/xxxx development
     ```
 
-1.  機能開発
-    新しいブランチで必要な変更を行い、それをコミットします。
+1.  **機能開発** 新しいブランチで必要な変更を行い、それをコミットします。
 
     ```bash
     git add .
     git commit -m "新機能 xxxx の実装"
     ```
 
-1.  プルリクエスト作成
-    ブランチをリモートリポジトリにプッシュし、development ブランチへのプルリクエストを作成します。
+1.  **テンプレート生成** `scaffdog` を使用して、新しいコンポーネントやページのテンプレートを生成することができます。これを行うには、ターミナルで以下のコマンドを実行してください：
 
-1.  コードレビューとマージ
-    チームメイトがコードをレビューします。修正が必要な場合は、それを行い、再度プッシュします。
+    ```bash
+    npx scaffdog generate
+    ```
+
+    実行すると、`component` または `page` のテンプレートを選択するプロンプトが表示されます。
+
+1.  **プルリクエスト作成** ブランチをリモートリポジトリにプッシュし、development ブランチへのプルリクエストを作成します。
+
+1.  **コードレビューとマージ** チームメイトがコードをレビューします。修正が必要な場合は、それを行い、再度プッシュします。
     承認されたら、プルリクエストを development ブランチにマージします。
 
-    development ブランチにマージされると、開発環境にコードがデプロイされます。
+        development ブランチにマージされると、開発環境にコードがデプロイされます。
+
     デプロイされたコードは以下の url からアクセスできます。
 
-    https://synapse-genius-dev-fbe11.web.app/
+        https://synapse-genius-dev-fbe11.web.app/
 
-1.  デプロイ
-    準備が整ったら、development ブランチから main ブランチへのプルリクエストを作成します。適切なレビューとテストの後、このプルリクエストをマージして新機能を本番環境にデプロイします。
+1.  **デプロイ** 準備が整ったら、development ブランチから main ブランチへのプルリクエストを作成します。適切なレビューとテストの後、このプルリクエストをマージして新機能を本番環境にデプロイします。
 
     https://synapse-genius.web.app/
+
+## テクニカルガイドライン
+
+1. **Canvas 関連データの取得方法について**
+
+Canvasに関連するデータを取得する際には、`useContext` フックを用いて `CanvasContext` から直接データを取得するようにしてください。このアプローチは、`useCanvasData` カスタムフックを使用するよりも安全で効率的です。
+
+使用方法:
+
+```tsx
+import { CanvasContext } from "@pages/Canvas/Canvas";
+const { canvasData, saveCanvasData } = useContext(CanvasContext);
+```
 
 # FireStore Collections
 
@@ -178,67 +214,44 @@ prompts: {
 
 ```
 src/
-  |- components/ (UIの一部を構成する再利用可能な部品)
-  |   |- Header/
-  |   |   |- Header.tsx
-  |   |   |- Header.css
-  |   |
-  |   |- Footer/
-  |   |   |- Footer.tsx
-  |   |   |- Footer.css
-  |   |
-  |   |- Button/
-  |   |   |- Button.tsx
-  |   |   |- Button.css
-  |
-  |- containers/ (ビジネスロジックやデータの処理など、コンポーネントよりも上位の階層に位置する要素、複数のコンポーネントをまとめる役割を果た)
-  |   |- Main/
-  |   |   |- TopKV/
-  |   |   |   |- TopKV.tsx
-  |   |   |   |- TopKV.css
-  |   |   |
-  |   |   |- TopFeature/
-  |   |   |   |- TopFeature.tsx
-  |   |   |   |- TopFeature.css
-  |   |   |
-  |   |   |- TopFunction/
-  |   |   |   |- TopFunction.tsx
-  |   |   |   |- TopFunction.css
-  |   |- Container1/
-  |   |   |- Container1.tsx
-  |   |   |- Container1.css
-  |   |- Container2/
-  |   |   |- Container2.tsx
-  |   |   |- Container2.css
-  |
-  |- hooks/
-  |   |- useCustomHook1.ts
-  |   |- useCustomHook2.ts
-  |
-  |- models/
-  |   |- Model1.ts
-  |   |- Model2.ts
-  |
-  |- pages/
-  |   |- Page1/
-  |   |   |- Page1.tsx
-  |   |   |- Page1.css
-  |   |
-  |   |- Page2/
-  |   |   |- Page2.tsx
-  |   |   |- Page2.css
-  |
-  |- styles/
-  |   |- variables.css (カスタムプロパティ)
-  |   |- reset.css (リセットCSS)
-  |   |- global.css (全体共通のスタイル)
-  |   |- utils/
-  |   |   |- l-container.css (コンポーネント間で共有するスタイル)
-  |
-  |- index.tsx
-  |- index.css
-  |- App.tsx
-  |- App.css
+├── index.tsx
+├── App.tsx
+├── components/ (UIの一部を構成する再利用可能な部品)
+│   ├── CanvasPane/
+│   ├── ChatArea/
+│   ├── ImageDrawer/
+│   ├── ImageUpload/
+│   ├── Insight2/
+│   ├── ItemProperty/
+│   ├── ObjectDrawer/
+│   ├── OtherDrawer/
+│   ├── TextDrawer/
+│   └── TextStyle/
+├── containers/ (ビジネスロジックやデータの処理など、コンポーネントよりも上位の階層に位置し、複数のコンポーネントをまとめる)
+│   ├── Dashboard/
+│   └── Create/
+│       ├── CreateStart.tsx
+│       ├── CreateList.tsx
+│       └── CreateContainer.tsx
+├── firebase.ts
+├── hooks/
+│   ├── useCanvasData.ts
+│   ├── useChatCompletion.ts
+│   └── useFabricJSEditor.tsx
+├── pages/
+│   ├── Canvas/
+│   ├── Home/
+│   ├── Login/
+│   └── Page1/
+├── types/
+|   ├── canvas.ts
+|   ├── defaultShapes.ts
+|   └── user.ts
+└── styles/ (not yet)
+    |- variables.css (カスタムプロパティ)
+    |- reset.css (リセットCSS)
+    |- global.css (全体共通のスタイル)
+    └── utils/ (コンポーネント間で共有するスタイル)
 ```
 
 ## シーケンス図
@@ -272,6 +285,14 @@ sequenceDiagram
    storage/canvasdata-->>web: onSnapshotの通知(?)
    canvas->>web: editorの更新の通知
    web->>storage/canvasdata: thumbnailとcanvasdataの保存
-   
 
+
+```
+
+## Python の local での単体動作
+
+py_test 以下のファイルを参考に、functions のファイルの機能を local で動かして検証する
+
+```
+python -m py_test.hello
 ```

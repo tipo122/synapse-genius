@@ -1,0 +1,20 @@
+.create-start-entire-card {
+  width: 70%;
+  margin: 1rem;
+  padding-bottom: 1.5rem;
+  text-align: left;
+}
+
+.create-start-entire-card .ant-radio-button-wrapper-checked .ant-card-body {
+  background-color: #b6b6b6;
+  border-radius: 8px;
+  border: 0 solid #1890ff;
+  box-shadow: 0 0 10px rgba(24, 144, 255, 0.5);
+}
+
+.create-start-entire-card .ant-radio-button-wrapper-checked {
+  border: none;
+}
+.create-start-entire-card .ant-radio-button-wrapper {
+  border: none;
+}

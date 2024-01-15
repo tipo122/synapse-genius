@@ -1,79 +1,131 @@
-import React, { useContext, useEffect } from "react";
-import { List, Card } from "antd";
-import { Typography } from "antd";
+import { fabric } from "fabric";
+import React, { useContext, useEffect, useRef, useState } from "react";
+import { List, Card, Col, Row } from "antd";
+import { Button, Input, Layout, Typography, theme } from "antd";
 import { CreateContext } from "./CreateContainer";
-import { useNavigate, useParams } from "react-router-dom";
-
-import { useCanvasData } from "@hooks/useCanvasData";
-import { app, functions } from "../../firebase";
-import { getStorage } from "firebase/storage";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import {
+  FabricJSCanvas,
+  useFabricJSEditor,
+} from "../../hooks/useFabricJSEditor";
+import { initialCanvasData, useCanvasData } from "@hooks/useCanvasData";
+import { collection, doc, getDoc, query } from "firebase/firestore";
+import { app, db, functions } from "../../firebase";
+import {
+  getDownloadURL,
+  getStorage,
+  ref,
+  uploadString,
+} from "firebase/storage";
+import { httpsCallable } from "firebase/functions";
 
 export const CreateList = () => {
+  interface templateImage {
+    id: string;
+    image: string;
+  }
   const storage = getStorage();
   const navigate = useNavigate();
   const { templates, templateType, searchTemplate, setTemplates } =
     useContext(CreateContext);
   const { canvasId } = useParams();
-  const { canvasData, saveCanvasData } = useCanvasData(canvasId ?? "");
+  const { canvasData, saveCanvasData, saveCanvasImageData } = useCanvasData(
+    canvasId ?? ""
+  );
+  const [ImageList, setImageList] = useState<templateImage[]>([]);
+  const canvasDataName = `creative/${canvasId}.json`;
+  const canvasFileRef = canvasId ? ref(storage, canvasDataName) : null;
+  const alreadyReading = useRef<boolean>(false);
+  const ImageStore = useRef<templateImage[]>([]);
+
+  const getEmbeddedTemplate: ({
+    template_id,
+    canvas_id,
+  }) => Promise<{ data: any }> = httpsCallable(
+    functions,
+    "on_get_embedded_template"
+  );
 
   useEffect(() => {
-    (async () => {
-      if (
-        templates.length === 0 &&
-        canvasData.template_property.template_type
-      ) {
-        const search_result = await searchTemplate({
-          text_query: "",
-          template_type: canvasData.template_property.template_type,
-        });
-        setTemplates(search_result.data);
+    if (!alreadyReading.current) {
+      alreadyReading.current = true;
+      if (templates.length > 0) {
+        setTemplateData(templates);
+      } else {
+        (async () => {
+          const resultData = await searchTemplate({
+            text_query: "",
+            template_type: canvasData.template_property.template_type,
+          });
+          setTemplateData(resultData.data);
+        })();
       }
-    })();
+    }
   }, [canvasData]);
 
-  const getFunctionPath = () => {
-    const { projectId } = app.options;
-    const { region } = functions;
-    // @ts-ignore
-    const emulator = functions.emulatorOrigin;
-    let url: string = "";
-
-    if (emulator) {
-      url = `${emulator}/${projectId}/${region}/on_get_embedded_template`;
-    } else {
-      url = `https://${region}-${projectId}.cloudfunctions.net/on_get_embedded_template`;
+  const setTemplateData = async (idList) => {
+    // console.log(`settemplatedata: ${idList}`);
+    for (const templateId of idList) {
+      const { data: image } = await getEmbeddedTemplate({
+        template_id: templateId,
+        canvas_id: canvasId,
+      });
+      ImageStore.current.push({ id: templateId, image: image });
+      setImageList([...ImageStore.current]);
+      console.log([...ImageStore.current]);
     }
-    return url;
+    alreadyReading.current = true;
   };
 
-  const handleClick = (templateId: string) => {
-    (async () => {
-      const templateURL = `${getFunctionPath()}?template_id=${templateId}&canvas_id=${canvasId}`;
-      console.log(templateURL);
-      saveCanvasData({ ...canvasData, canvas_data: templateURL });
-    })();
+  const handleClick = async (templateImage: string) => {
+    var canvas = new fabric.Canvas("cx");
+
+    fabric.loadSVGFromString(atob(templateImage), function (objects, options) {
+      var svg = fabric.util.groupSVGElements(objects, options);
+      canvas.add(svg);
+      canvas.renderAll();
+    });
+    var canvas_data = canvas.toJSON();
+    console.log(JSON.stringify(canvas_data));
+    canvasFileRef &&
+      (await uploadString(canvasFileRef, JSON.stringify(canvas_data)));
     navigate(`/canvas/${canvasId}`);
   };
 
   return (
     <>
-      <div style={{ width: "600px", textAlign: "right" }}>
+      <div style={{ width: "500px", textAlign: "right" }}>
         <br />
+        {ImageStore.current.length >= 1 ? (
+          <Card
+            hoverable
+            style={{ width: 500, height: 500, marginBottom: "8px" }}
+            onClick={() => handleClick(ImageStore.current[0].image)}
+          >
+            <Card.Meta />
+            <img
+              src={`data:image/svg+xml;base64,${ImageStore.current[0].image}`}
+              width={450}
+              height={450}
+            />
+          </Card>
+        ) : null}
+
         <List
-          grid={{ gutter: 16, column: 2 }}
-          dataSource={templates}
-          renderItem={(item, i) => (
+          grid={{ column: 2 }}
+          dataSource={[...ImageStore.current.slice(1)]}
+          renderItem={(item) => (
             <List.Item>
               <Card
                 hoverable
-                style={{ width: 240, height: 240 }}
-                onClick={() => handleClick(item)}
+                style={{ width: 250, height: 250 }}
+                onClick={() => handleClick(item.image)}
               >
                 <Card.Meta />
                 <img
-                  src={`${getFunctionPath()}?template_id=${item}&canvas_id=${canvasId}`}
-                  width={190}
-                  height={190}
+                  src={`data:image/svg+xml;base64,${item.image}`}
+                  width={200}
+                  height={200}
                 />
               </Card>
             </List.Item>

@@ -48,7 +48,6 @@ const Canvas = () => {
     saveCanvasData,
     saveCanvasImageData,
     saveThumbnail,
-    loadTemplate,
     error,
   } = useCanvasData(canvasIdParam ?? "");
   const {
@@ -117,14 +116,13 @@ const Canvas = () => {
         saveCanvasData,
         saveCanvasImageData,
         saveThumbnail,
-        loadTemplate,
         error,
         selectedObjects,
         editor,
         onReady,
       }}
     >
-      <Layout>
+      <Layout style={{ height: "100vh" }}>
         <Header
           style={{
             display: "flex",
@@ -137,6 +135,7 @@ const Canvas = () => {
             onClick={() => navigate("/home")}
             src="/img/genius.png"
             height={50}
+            style={{ cursor: "pointer" }}
           />
 
           <Menu

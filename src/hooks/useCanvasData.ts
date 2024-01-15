@@ -52,9 +52,8 @@ export interface CanvasDataInterface {
   canvasData: Canvas;
   canvasImageData: string;
   saveCanvasData: (canvas: any) => void;
-  saveCanvasImageData: (canvas_data: string, editor: FabricJSEditor) => void;
+  saveCanvasImageData: (canvas_data: string) => void;
   saveThumbnail: (editor: FabricJSEditor) => void;
-  loadTemplate: (editor: FabricJSEditor) => void;
   error: boolean;
 }
 
@@ -67,7 +66,7 @@ export const useCanvasData = (canvasIdProp: string): CanvasDataInterface => {
   const [canvasData, setCanvasData] = useState<Canvas>(initialCanvasData);
   const [canvasImageData, setCanvasImageData] = useState<string>("");
   const loading = useRef<boolean>(false);
-  const loaded = useRef<boolean>(false);
+  const loaded = useRef<boolean>(true);
   const unsub = useRef<() => void>(() => {});
   const canvasDataRef = useRef<Canvas>(initialCanvasData);
   const canvasImageDataRef = useRef<string>("");
@@ -102,16 +101,17 @@ export const useCanvasData = (canvasIdProp: string): CanvasDataInterface => {
           const doc = { ...docSnap.data(), uid: docSnap.id } as Canvas;
           unsub.current = onSnapshot(docRef, updateCanvasData);
           setCanvasData(doc);
+
           try {
             if (canvasFileRef) {
               const jsonurl = await getDownloadURL(canvasFileRef);
               const result = await fetch(jsonurl);
-              const data = await result.json();
-              setCanvasImageData(JSON.stringify(data));
+              const data = await result.text();
+              setCanvasImageData(data);
             }
           } catch (e) {
-            canvasFileRef && (await uploadString(canvasFileRef, "{}"));
-            setCanvasImageData(JSON.stringify({}));
+            // canvasFileRef && (await uploadString(canvasFileRef, "{}"));
+            // setCanvasImageData(JSON.stringify({}));
             console.log(e);
           }
         } else {
@@ -133,22 +133,6 @@ export const useCanvasData = (canvasIdProp: string): CanvasDataInterface => {
     canvasImageDataRef.current = canvasImageData;
   }, [canvasImageData]);
 
-  const loadTemplate = (editor: FabricJSEditor) => {
-    console.log(canvasData.canvas_data);
-    if ((canvasData.canvas_data as string).startsWith("https")) {
-      (async () => {
-        const result = await fetch(canvasData.canvas_data as string);
-        result.body && (await editor.loadSVG(canvasData.canvas_data as string));
-        loaded.current = true;
-        saveCanvasDataMain({ ...canvasData, canvas_data: "" });
-        saveThumbnail(editor);
-        setCanvasImageData(JSON.stringify(editor?.canvas));
-      })();
-    } else {
-      loaded.current = true;
-    }
-  };
-
   const saveThumbnail = (editor: FabricJSEditor) => {
     if (loaded.current) {
       const content = new Blob([editor.toSVG()], {
@@ -166,13 +150,17 @@ export const useCanvasData = (canvasIdProp: string): CanvasDataInterface => {
     saveCanvasDataMain(canvas);
   };
 
-  const saveCanvasImageData = (canvas_data: string, editor: FabricJSEditor) => {
+  const saveCanvasImageData = (
+    canvas_data: string,
+    editor?: FabricJSEditor
+  ) => {
     if (loaded.current) {
       setCanvasImageData(canvas_data);
       (async () => {
         try {
           canvasFileRef && (await uploadString(canvasFileRef, canvas_data));
-          console.log("save creative data");
+          console.log(canvas_data);
+          console.log("save canvas image data");
         } catch (e) {
           console.log(e);
           console.log("create new creative data");
@@ -185,9 +173,9 @@ export const useCanvasData = (canvasIdProp: string): CanvasDataInterface => {
   };
 
   const saveCanvasDataMain = async (canvas: Canvas) => {
-    if (!(canvas.canvas_data as string).startsWith("https")) {
-      canvas.canvas_data = "";
-    }
+    // if (!(canvas.canvas_data as string).startsWith("https")) {
+    //   canvas.canvas_data = "";
+    // }
     setCanvasData(canvas);
     try {
       canvas &&
@@ -206,7 +194,6 @@ export const useCanvasData = (canvasIdProp: string): CanvasDataInterface => {
     saveCanvasData,
     saveCanvasImageData,
     saveThumbnail,
-    loadTemplate,
     error,
   };
 };
