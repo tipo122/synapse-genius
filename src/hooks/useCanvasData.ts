@@ -45,6 +45,8 @@ export const initialCanvasData: Canvas = {
   },
   canvas_data: "",
   thumbnail: "",
+  create_dt: null as unknown as Date,
+  update_dt: null as unknown as Date,
 };
 
 export interface CanvasDataInterface {
@@ -176,12 +178,17 @@ export const useCanvasData = (canvasIdProp: string): CanvasDataInterface => {
     // if (!(canvas.canvas_data as string).startsWith("https")) {
     //   canvas.canvas_data = "";
     // }
-    setCanvasData(canvas);
+    const updateDate = new Date();
+    setCanvasData({ ...canvas, update_dt: updateDate });
     try {
       canvas &&
-        (await setDoc(doc(db, "canvases", canvas.uid), canvas, {
-          merge: true,
-        }));
+        (await setDoc(
+          doc(db, "canvases", canvas.uid),
+          { ...canvas, update_dt: updateDate },
+          {
+            merge: true,
+          }
+        ));
     } catch (e: any) {
       console.error(e);
     }
