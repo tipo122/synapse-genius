@@ -53,7 +53,7 @@ export const CreateStart = () => {
               <Radio value={CARD_TYPES.NEW}>
                 <Card style={{ border: "none" }}>
                   <img width={120} height={120} src="/img/TA.png" />
-                  <div>New Itemx</div>
+                  <div>New Item</div>
                 </Card>
               </Radio>
             </Col>
