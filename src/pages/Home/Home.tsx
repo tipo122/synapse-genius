@@ -55,7 +55,10 @@ const Home = () => {
 
   const handleNewCanvas = async () => {
     initialCanvasData.user_id = user_id;
-    const docRef = await addDoc(collection(db, "canvases"), initialCanvasData);
+    const docRef = await addDoc(collection(db, "canvases"), {
+      ...initialCanvasData,
+      create_dt: new Date(),
+    });
     navigate(`/canvas/${docRef.id}`);
   };
 
@@ -64,12 +67,26 @@ const Home = () => {
     loadCanvases();
   };
 
+  const handleSort = (a, b) => {
+    if (a.uid === "new") return -1;
+    if (b.uid === "new") return 1;
+
+    if (!a.create_dt) return 1;
+    if (!b.create_dt) return -1;
+
+    if (a.create_dt?.toDate().getTime() > b.create_dt?.toDate().getTime())
+      return -1;
+    if (a.create_dt?.toDate().getTime() < b.create_dt?.toDate().getTime())
+      return 1;
+    return 0;
+  };
+
   return (
     <>
       <h1>Home</h1>
       <List
         grid={{ gutter: 16, column: 4 }}
-        dataSource={canvases}
+        dataSource={canvases.sort(handleSort)}
         renderItem={(canvas) =>
           canvas.uid === "new" ? (
             <List.Item>
