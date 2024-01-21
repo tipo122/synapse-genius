@@ -73,10 +73,10 @@ const Create = () => {
     try {
       setIsLoading(true);
       initialCanvasData.user_id = userId;
-      const docRef = await addDoc(
-        collection(db, "canvases"),
-        initialCanvasData
-      );
+      const docRef = await addDoc(collection(db, "canvases"), {
+        ...initialCanvasData,
+        create_dt: new Date(),
+      });
       const canvasId = docRef.id;
       const result = await createTemplateElements({
         target_url: targetUrl,
