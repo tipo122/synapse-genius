@@ -1,4 +1,9 @@
-import React, { ReactEventHandler, useContext } from "react";
+import React, {
+  ReactEventHandler,
+  useContext,
+  useState,
+  useEffect,
+} from "react";
 import {
   Button,
   Card,
@@ -9,6 +14,7 @@ import {
   Row,
   Typography,
   theme,
+  Progress,
 } from "antd";
 import { CreateContext } from "./CreateContainer";
 import "./Create.css";
@@ -22,7 +28,7 @@ const CARD_TYPES = {
   SALE: "sale",
 };
 
-export const CreateStart = () => {
+export const CreateStart = ({ isLoading }) => {
   const {
     templateType,
     setTemplateType,
@@ -30,10 +36,34 @@ export const CreateStart = () => {
     setTargetUrl,
     handleStart,
   } = useContext(CreateContext);
+  const twoColors = { "0%": "#108ee9", "100%": "#87d068" };
+  const [percent, setPercent] = useState<number>(0);
 
   const handleTemplateTypeChange = (e: any) => {
     setTemplateType(e.target.value);
   };
+
+  useEffect(() => {
+    let interval;
+    if (isLoading && percent < 100) {
+      interval = setInterval(() => {
+        setPercent((per) => per + 5);
+      }, 2000);
+    }
+
+    return () => clearInterval(interval);
+  }, [isLoading, percent]);
+
+  const loadProgress = (
+    <Progress
+      percent={percent}
+      strokeColor={twoColors}
+      size={[580, 20]}
+      showInfo={false}
+      status="active"
+      style={{ margin: "0 0 2px 0" }}
+    />
+  );
 
   return (
     <>
@@ -88,11 +118,13 @@ export const CreateStart = () => {
         あなたの商品を出品しているECサイトのURLを入力して始める
         <br />
         <Input
-          style={{ width: 600 }}
+          style={{ width: 600, padding: "5px 10px 5px 5px" }}
           onChange={(e) => {
             setTargetUrl(e.target.value);
           }}
           value={targetUrl}
+          suffix={isLoading ? loadProgress : null}
+          key={isLoading ? "loading" : "not-loading"}
         />
       </div>
       <div style={{ width: "600px", textAlign: "right" }}>

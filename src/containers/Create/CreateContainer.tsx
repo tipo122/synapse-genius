@@ -129,13 +129,11 @@ const Create = () => {
         </Header>
         <Content>
           <center>
-            <Spin tip="Loading..." spinning={isLoading}>
-              {contextHolder}
-              <Routes>
-                <Route path="/" element={<CreateStart />} />
-                <Route path="/:canvasId" element={<CreateList />} />
-              </Routes>
-            </Spin>
+            {contextHolder}
+            <Routes>
+              <Route path="/" element={<CreateStart isLoading={isLoading} />} />
+              <Route path="/:canvasId" element={<CreateList />} />
+            </Routes>
           </center>
         </Content>
       </Layout>
