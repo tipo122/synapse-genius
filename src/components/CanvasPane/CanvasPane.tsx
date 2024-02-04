@@ -3,7 +3,7 @@ import {
   FabricJSCanvas,
   useFabricJSEditor,
 } from "../../hooks/useFabricJSEditor";
-import { Button, Input } from "antd";
+import { Button, Input, Spin } from "antd";
 import { SketchPicker } from "react-color";
 import "./CanvasPane.css";
 import { CanvasContext } from "@pages/Canvas/Canvas";
@@ -22,6 +22,7 @@ const CanvasPane = () => {
     onReady,
   } = useContext(CanvasContext);
   const [text, setText] = useState("");
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   const handleSaveData = () => {
     saveTimer.current && clearTimeout(saveTimer.current);
@@ -66,9 +67,25 @@ const CanvasPane = () => {
     };
   }, []);
 
+  useEffect(() => {
+    if (canvasImageData !== "") setIsLoading(false);
+  }, [canvasImageData]);
+
   return (
     <>
       {editor ? <div></div> : <>Loading...</>}
+      {isLoading && (
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "100vh",
+          }}
+        >
+          <Spin size="large" />
+        </div>
+      )}
       <FabricJSCanvas className="synapse-canvas" onReady={onReady} />
     </>
   );
