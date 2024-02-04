@@ -22,7 +22,8 @@ const CanvasPane = () => {
     onReady,
   } = useContext(CanvasContext);
   const [text, setText] = useState("");
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  // ToDo: This doesn't work when clicking '新規作成'
+  // const [isLoading, setIsLoading] = useState<boolean>(true);
 
   const handleSaveData = () => {
     saveTimer.current && clearTimeout(saveTimer.current);
@@ -67,13 +68,16 @@ const CanvasPane = () => {
     };
   }, []);
 
-  useEffect(() => {
-    if (canvasImageData !== "") setIsLoading(false);
-  }, [canvasImageData]);
+  // ToDo: This doesn't work when clicking '新規作成'
+  // useEffect(() => {
+  //   if (canvasImageData !== "") setIsLoading(false);
+  // }, [canvasImageData]);
 
   return (
     <>
       {editor ? <div></div> : <>Loading...</>}
+
+      {/* ToDo: This doesn't work when clicking '新規作成'
       {isLoading && (
         <div
           style={{
@@ -85,7 +89,7 @@ const CanvasPane = () => {
         >
           <Spin size="large" />
         </div>
-      )}
+      )} */}
       <FabricJSCanvas className="synapse-canvas" onReady={onReady} />
     </>
   );
