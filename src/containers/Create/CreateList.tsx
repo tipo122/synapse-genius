@@ -1,6 +1,6 @@
 import { fabric } from "fabric";
 import React, { useContext, useEffect, useRef, useState } from "react";
-import { List, Card, Col, Row } from "antd";
+import { List, Card, Col, Row, Spin } from "antd";
 import { Button, Input, Layout, Typography, theme } from "antd";
 import { CreateContext } from "./CreateContainer";
 import { Link, useNavigate, useParams } from "react-router-dom";
@@ -37,6 +37,7 @@ export const CreateList = () => {
   const canvasFileRef = canvasId ? ref(storage, canvasDataName) : null;
   const alreadyReading = useRef<boolean>(false);
   const ImageStore = useRef<templateImage[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const getEmbeddedTemplate: ({
     template_id,
@@ -47,6 +48,7 @@ export const CreateList = () => {
   );
 
   useEffect(() => {
+    setIsLoading(true);
     if (!alreadyReading.current) {
       alreadyReading.current = true;
       if (templates.length > 0) {
@@ -75,6 +77,7 @@ export const CreateList = () => {
       console.log([...ImageStore.current]);
     }
     alreadyReading.current = true;
+    setIsLoading(false);
   };
 
   const handleClick = async (templateImage: string) => {
@@ -94,6 +97,18 @@ export const CreateList = () => {
 
   return (
     <>
+      {isLoading && (
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "100vh",
+          }}
+        >
+          <Spin size="large" />
+        </div>
+      )}
       <div style={{ width: "500px", textAlign: "right" }}>
         <br />
         {ImageStore.current.length >= 1 ? (
