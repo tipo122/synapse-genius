@@ -56,6 +56,7 @@ export interface CanvasDataInterface {
   saveCanvasData: (canvas: any) => void;
   saveCanvasImageData: (canvas_data: string) => void;
   saveThumbnail: (editor: FabricJSEditor) => void;
+  isLoading: boolean;
   error: boolean;
 }
 
@@ -67,7 +68,7 @@ export const useCanvasData = (canvasIdProp: string): CanvasDataInterface => {
   const [canvasId, setCanvasId] = useState<string>(canvasIdProp);
   const [canvasData, setCanvasData] = useState<Canvas>(initialCanvasData);
   const [canvasImageData, setCanvasImageData] = useState<string>("");
-  const loading = useRef<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const loaded = useRef<boolean>(true);
   const unsub = useRef<() => void>(() => {});
   const canvasDataRef = useRef<Canvas>(initialCanvasData);
@@ -82,9 +83,8 @@ export const useCanvasData = (canvasIdProp: string): CanvasDataInterface => {
   };
 
   useEffect(() => {
-    if (!loading.current && canvasId) {
-      loading.current = true;
-
+    if (!isLoading && canvasId) {
+      setIsLoading(true);
       (async () => {
         if (canvasIdProp === "new") {
           initialCanvasData.user_id = user_id;
@@ -119,7 +119,7 @@ export const useCanvasData = (canvasIdProp: string): CanvasDataInterface => {
         } else {
           setError(true);
         }
-        loading.current = false;
+        setIsLoading(false);
       })();
     }
     return () => {
@@ -201,6 +201,7 @@ export const useCanvasData = (canvasIdProp: string): CanvasDataInterface => {
     saveCanvasData,
     saveCanvasImageData,
     saveThumbnail,
+    isLoading,
     error,
   };
 };
