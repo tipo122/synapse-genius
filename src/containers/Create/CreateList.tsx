@@ -81,6 +81,7 @@ export const CreateList = () => {
   };
 
   const handleClick = async (templateImage: string) => {
+    setIsLoading(true);
     var canvas = new fabric.Canvas("cx");
 
     fabric.loadSVGFromString(atob(templateImage), function (objects, options) {
@@ -93,6 +94,7 @@ export const CreateList = () => {
     canvasFileRef &&
       (await uploadString(canvasFileRef, JSON.stringify(canvas_data)));
     navigate(`/canvas/${canvasId}`);
+    setIsLoading(false);
   };
 
   return (
