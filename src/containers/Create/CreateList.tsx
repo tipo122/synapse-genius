@@ -100,10 +100,13 @@ export const CreateList = () => {
     let loadResolve;
     fabric.loadSVGFromString(
       b64DecodeUnicode(templateImage),
-      function (objects, options) {
-        var svg = fabric.util.groupSVGElements(objects, options);
-        canvas.add(svg);
-        canvas.renderAll();
+      (objects, options) => {
+        // var svg = fabric.util.groupSVGElements(objects, options);
+        // canvas.add(svg);
+        // canvas.renderAll();
+        objects.forEach(function (svg) {
+          canvas.add(svg).renderAll();
+        });
         loadResolve();
       }
     );
