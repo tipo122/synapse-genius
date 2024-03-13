@@ -18,6 +18,7 @@ import TextDrawer from "@components/TextDrawer";
 import OtherDrawer from "@components/OtherDrawer";
 import ObjectDrawer from "@components/ObjectDrawer";
 import ImageDrawer from "@components/ImageDrawer";
+import GptTextViewer from "@components/GptTextViewer";
 
 const { Header, Content, Footer, Sider } = Layout;
 
@@ -239,7 +240,8 @@ const Canvas = () => {
           <Sider theme="light" width={"20%"}>
             <div className="canvas-body-div">
               <ItemProperty />
-              <ChatArea />
+              <GptTextViewer />
+              {/* <ChatArea /> */}
             </div>
           </Sider>
         </Layout>

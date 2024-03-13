@@ -49,7 +49,7 @@ const ItemProperty = () => {
           <EditableCanvasTitle />
         </div>
       </div>
-      <div className="item-property-body-div">
+      {/* {/* <div className="item-property-body-div">
         <p>商品のURL</p>
         <div className="item-property-input-div">
           <Input
@@ -107,7 +107,7 @@ const ItemProperty = () => {
             placeholder="商品の特徴を入力してください"
           />
         </div>
-      </div>
+      </div> */}
     </div>
   );
 };
