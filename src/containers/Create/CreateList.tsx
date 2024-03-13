@@ -94,6 +94,9 @@ export const CreateList = () => {
 
   const loadTemplate = (canvas, templateImage: string) => {
     let loadResolve;
+    const loadPromise = new Promise((resolve) => {
+      loadResolve = resolve;
+    });
     fabric.loadSVGFromString(
       b64DecodeUnicode(templateImage),
       (objects, options) => {
@@ -103,9 +106,7 @@ export const CreateList = () => {
         loadResolve();
       }
     );
-    return new Promise((resolve) => {
-      loadResolve = resolve;
-    });
+    return loadPromise;
   };
 
   const handleClick = async (templateImage: string) => {
