@@ -48,24 +48,20 @@ export const CreateList = () => {
   );
 
   useEffect(() => {
+    if (canvasData.uid === "") return;
+    if (alreadyReading.current) return;
+    alreadyReading.current = true;
     setIsLoading(true);
-    if (!alreadyReading.current) {
-      alreadyReading.current = true;
-      if (templates.length > 0) {
-        setTemplateData(templates);
-      } else {
-        (async () => {
-          console.log(
-            canvasData.template_property.template_type + "-----------"
-          );
-          const resultData = await searchTemplate({
-            text_query: "",
-            // template_type: "",
-            template_type: "feature",
-          });
-          setTemplateData(resultData.data);
-        })();
-      }
+    if (templates.length > 0) {
+      setTemplateData(templates);
+    } else {
+      (async () => {
+        const resultData = await searchTemplate({
+          text_query: "",
+          template_type: canvasData.template_property.template_type,
+        });
+        setTemplateData(resultData.data);
+      })();
     }
   }, [canvasData]);
 
@@ -101,9 +97,6 @@ export const CreateList = () => {
     fabric.loadSVGFromString(
       b64DecodeUnicode(templateImage),
       (objects, options) => {
-        // var svg = fabric.util.groupSVGElements(objects, options);
-        // canvas.add(svg);
-        // canvas.renderAll();
         objects.forEach(function (svg) {
           canvas.add(svg).renderAll();
         });
