@@ -55,9 +55,13 @@ export const CreateList = () => {
         setTemplateData(templates);
       } else {
         (async () => {
+          console.log(
+            canvasData.template_property.template_type + "-----------"
+          );
           const resultData = await searchTemplate({
             text_query: "",
-            template_type: canvasData.template_property.template_type,
+            // template_type: "",
+            template_type: "feature",
           });
           setTemplateData(resultData.data);
         })();
@@ -80,17 +84,24 @@ export const CreateList = () => {
     setIsLoading(false);
   };
 
-  const handleClick = async (templateImage: string) => {
-    setIsLoading(true);
-    var canvas = new fabric.Canvas("cx");
-
+  const loadTemplate = (canvas, templateImage: string) => {
+    let loadResolve;
     fabric.loadSVGFromString(atob(templateImage), function (objects, options) {
       var svg = fabric.util.groupSVGElements(objects, options);
       canvas.add(svg);
       canvas.renderAll();
+      loadResolve();
     });
+    return new Promise((resolve) => {
+      loadResolve = resolve;
+    });
+  };
+
+  const handleClick = async (templateImage: string) => {
+    setIsLoading(true);
+    var canvas = new fabric.Canvas("cx");
+    await loadTemplate(canvas, templateImage);
     var canvas_data = canvas.toJSON();
-    console.log(JSON.stringify(canvas_data));
     canvasFileRef &&
       (await uploadString(canvasFileRef, JSON.stringify(canvas_data)));
     navigate(`/canvas/${canvasId}`);
