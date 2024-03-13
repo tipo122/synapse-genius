@@ -48,20 +48,20 @@ export const CreateList = () => {
   );
 
   useEffect(() => {
+    if (canvasData.uid === "") return;
+    if (alreadyReading.current) return;
+    alreadyReading.current = true;
     setIsLoading(true);
-    if (!alreadyReading.current) {
-      alreadyReading.current = true;
-      if (templates.length > 0) {
-        setTemplateData(templates);
-      } else {
-        (async () => {
-          const resultData = await searchTemplate({
-            text_query: "",
-            template_type: canvasData.template_property.template_type,
-          });
-          setTemplateData(resultData.data);
-        })();
-      }
+    if (templates.length > 0) {
+      setTemplateData(templates);
+    } else {
+      (async () => {
+        const resultData = await searchTemplate({
+          text_query: "",
+          template_type: canvasData.template_property.template_type,
+        });
+        setTemplateData(resultData.data);
+      })();
     }
   }, [canvasData]);
 
@@ -80,17 +80,39 @@ export const CreateList = () => {
     setIsLoading(false);
   };
 
+  function b64DecodeUnicode(str) {
+    return decodeURIComponent(
+      atob(str)
+        .split("")
+        .map(function (c) {
+          return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2);
+        })
+        .join("")
+    );
+  }
+
+  const loadTemplate = (canvas, templateImage: string) => {
+    let loadResolve;
+    const loadPromise = new Promise((resolve) => {
+      loadResolve = resolve;
+    });
+    fabric.loadSVGFromString(
+      b64DecodeUnicode(templateImage),
+      (objects, options) => {
+        objects.forEach(function (svg) {
+          canvas.add(svg).renderAll();
+        });
+        loadResolve();
+      }
+    );
+    return loadPromise;
+  };
+
   const handleClick = async (templateImage: string) => {
     setIsLoading(true);
     var canvas = new fabric.Canvas("cx");
-
-    fabric.loadSVGFromString(atob(templateImage), function (objects, options) {
-      var svg = fabric.util.groupSVGElements(objects, options);
-      canvas.add(svg);
-      canvas.renderAll();
-    });
+    await loadTemplate(canvas, templateImage);
     var canvas_data = canvas.toJSON();
-    console.log(JSON.stringify(canvas_data));
     canvasFileRef &&
       (await uploadString(canvasFileRef, JSON.stringify(canvas_data)));
     navigate(`/canvas/${canvasId}`);
