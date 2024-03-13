@@ -81,7 +81,6 @@ export const CreateList = () => {
   };
 
   function b64DecodeUnicode(str) {
-    // Going backwards: from bytestream, to percent-encoding, to original string.
     return decodeURIComponent(
       atob(str)
         .split("")
