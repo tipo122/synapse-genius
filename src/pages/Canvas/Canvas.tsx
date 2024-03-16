@@ -26,6 +26,8 @@ interface CanvasContexxtInterface extends CanvasDataInterface {
   editor: FabricJSEditor | undefined;
   selectedObjects: any;
   onReady: any;
+  handleDrop: (event: any) => void;
+  setDropItem: (item: string) => void;
 }
 
 export const CanvasContext = createContext<CanvasContexxtInterface>(
@@ -55,7 +57,8 @@ const Canvas = () => {
   const {
     token: { colorBgContainer },
   } = theme.useToken();
-  const { selectedObjects, editor, onReady } = useFabricJSEditor();
+  const { selectedObjects, editor, onReady, handleDrop, setDropItem } =
+    useFabricJSEditor();
 
   const [openDrawer, setOpenDrawer] = useState<number>(DRAWER.NONE);
   const [strokeColorPane, setStrokeColorPane] = useState<boolean>(false);
@@ -123,6 +126,8 @@ const Canvas = () => {
         selectedObjects,
         editor,
         onReady,
+        handleDrop,
+        setDropItem,
       }}
     >
       <Layout style={{ height: "100vh" }}>
