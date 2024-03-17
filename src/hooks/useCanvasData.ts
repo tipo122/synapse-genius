@@ -25,9 +25,7 @@ export const initialCanvasData: Canvas = {
   user_id: "",
   title: "Untitled",
   template_id: "",
-  copy_data: {
-    strings: [""],
-  },
+  copy_data: [{ text: "" }],
   bg_image_uid: "",
   bg_image_prompt: "",
   item_property: {
@@ -43,6 +41,7 @@ export const initialCanvasData: Canvas = {
   template_property: {
     template_type: "",
   },
+  embed_data: {},
   canvas_data: "",
   thumbnail: "",
   create_dt: null as unknown as Date,

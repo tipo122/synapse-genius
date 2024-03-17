@@ -17,7 +17,7 @@ export interface FabricJSEditor {
   addCircle: () => void;
   addRectangle: () => void;
   addLine: () => void;
-  addText: (text: string) => void;
+  addText: (text: string, pos?: { x: number; y: number }) => void;
   updateText: (text: string) => void;
   changeTextFont: (fontFamily: string) => void;
   changeTextSize: (textSize: number) => void;
@@ -39,10 +39,12 @@ export interface FabricJSEditor {
   toSVG: () => any;
   loadSVG: (svgURL: string) => void;
   setCanvas: (text: string) => void;
+  handleDrop: (item: any) => void;
 }
 export interface FabricJSCanvasProps {
   className?: string;
   onReady?: (canvas: fabric.Canvas) => void;
+  onDrop?: (e: any) => void;
 }
 interface FabricJSEditorHookProps {
   defaultFillColor?: string;
@@ -56,6 +58,8 @@ interface FabricJSEditorState {
 interface FabricJSEditorHook extends FabricJSEditorState {
   selectedObjects?: fabric.Object[];
   onReady: (canvas: fabric.Canvas) => void;
+  handleDrop: (event: any) => void;
+  setDropItem: (item: string) => void;
 }
 
 /**
@@ -72,6 +76,9 @@ const buildEditor = (
 ): FabricJSEditor => {
   return {
     canvas,
+    handleDrop: (item) => {
+      debugger;
+    },
     addCircle: () => {
       const object = new fabric.Circle({
         ...CIRCLE,
@@ -98,9 +105,16 @@ const buildEditor = (
       canvas.add(object);
       onChange && onChange(JSON.stringify(canvas));
     },
-    addText: (text: string) => {
+    addText: (text: string, pos?: { x: number; y: number }) => {
       // use stroke in text fill, fill default is most of the time transparent
-      const object = new fabric.Textbox(text, { ...TEXT, fill: strokeColor });
+      const object = new fabric.Textbox(text, {
+        ...TEXT,
+        fill: strokeColor,
+        ...(pos && {
+          left: pos.x,
+          top: pos.y,
+        }),
+      });
       object.set({ text: text });
       canvas.add(object);
       onChange && onChange(JSON.stringify(canvas));
@@ -255,6 +269,30 @@ const useFabricJSEditor = ({
     defaultStrokeColor || STROKE
   );
   const [selectedObjects, setSelectedObject] = useState<fabric.Object[]>([]);
+  const [dropItemText, setDropItemText] = useState<string>("");
+
+  const [editor, setEditor] = useState<FabricJSEditor>(
+    undefined as unknown as FabricJSEditor
+  );
+
+  const setDropItem = (item) => {
+    setDropItemText(item);
+  };
+
+  const handleDrop = (e: DragEvent) => {
+    console.log(dropItemText);
+    editor?.addText(dropItemText, { x: e.clientX, y: e.clientY });
+  };
+
+  const onReady = (canvasReady: fabric.Canvas): void => {
+    console.log("Fabric canvas ready");
+    setCanvas(canvasReady);
+  };
+
+  useEffect(() => {
+    console.log(dropItemText);
+  }, [dropItemText]);
+
   useEffect(() => {
     const bindEvents = (canvas: fabric.Canvas) => {
       canvas.on("selection:cleared", () => {
@@ -273,17 +311,8 @@ const useFabricJSEditor = ({
     if (canvas) {
       bindEvents(canvas);
       canvas.setZoom(0.8);
-    }
-  }, [canvas]);
-
-  return {
-    selectedObjects,
-    onReady: (canvasReady: fabric.Canvas): void => {
-      console.log("Fabric canvas ready");
-      setCanvas(canvasReady);
-    },
-    editor: canvas
-      ? buildEditor(
+      setEditor(
+        buildEditor(
           canvas,
           fillColor,
           strokeColor,
@@ -292,16 +321,30 @@ const useFabricJSEditor = ({
           scaleStep,
           onChange
         )
-      : undefined,
+      );
+    }
+  }, [canvas]);
+
+  return {
+    selectedObjects,
+    onReady,
+    handleDrop,
+    setDropItem,
+    editor,
   };
 };
 
 /**
  * Fabric canvas as component
  */
-const FabricJSCanvas = ({ className, onReady }: FabricJSCanvasProps) => {
+const FabricJSCanvas = ({
+  className,
+  onReady,
+  onDrop,
+}: FabricJSCanvasProps) => {
   const canvasEl = useRef(null);
   const canvasElParent = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     const canvas = new fabric.Canvas(canvasEl.current);
     const setCurrentDimensions = () => {
@@ -318,6 +361,8 @@ const FabricJSCanvas = ({ className, onReady }: FabricJSCanvasProps) => {
     // canvasEl.current && resizeObserver.observe(canvasEl.current);
     window.addEventListener("resize", resizeCanvas, false);
 
+    // canvasElParent.current?.addEventListener("drop", handleDrop, false);
+
     onReady && onReady(canvas);
 
     return () => {
@@ -326,8 +371,20 @@ const FabricJSCanvas = ({ className, onReady }: FabricJSCanvasProps) => {
     };
   }, []);
 
+  const handleDrop = (e) => {
+    if (e.preventDefault) {
+      e.preventDefault();
+    }
+    if (e.stopPropagation) {
+      e.stopPropagation();
+    }
+
+    onDrop && onDrop(e);
+    // debugger;
+  };
+
   return (
-    <div ref={canvasElParent} className={className}>
+    <div ref={canvasElParent} className={className} onDrop={handleDrop}>
       <canvas ref={canvasEl} />
     </div>
   );

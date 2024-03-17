@@ -18,6 +18,7 @@ import TextDrawer from "@components/TextDrawer";
 import OtherDrawer from "@components/OtherDrawer";
 import ObjectDrawer from "@components/ObjectDrawer";
 import ImageDrawer from "@components/ImageDrawer";
+import GptTextViewer from "@components/GptTextViewer";
 
 const { Header, Content, Footer, Sider } = Layout;
 
@@ -25,6 +26,8 @@ interface CanvasContexxtInterface extends CanvasDataInterface {
   editor: FabricJSEditor | undefined;
   selectedObjects: any;
   onReady: any;
+  handleDrop: (event: any) => void;
+  setDropItem: (item: string) => void;
 }
 
 export const CanvasContext = createContext<CanvasContexxtInterface>(
@@ -54,7 +57,8 @@ const Canvas = () => {
   const {
     token: { colorBgContainer },
   } = theme.useToken();
-  const { selectedObjects, editor, onReady } = useFabricJSEditor();
+  const { selectedObjects, editor, onReady, handleDrop, setDropItem } =
+    useFabricJSEditor();
 
   const [openDrawer, setOpenDrawer] = useState<number>(DRAWER.NONE);
   const [strokeColorPane, setStrokeColorPane] = useState<boolean>(false);
@@ -122,6 +126,8 @@ const Canvas = () => {
         selectedObjects,
         editor,
         onReady,
+        handleDrop,
+        setDropItem,
       }}
     >
       <Layout style={{ height: "100vh" }}>
@@ -239,7 +245,8 @@ const Canvas = () => {
           <Sider theme="light" width={"20%"}>
             <div className="canvas-body-div">
               <ItemProperty />
-              <ChatArea />
+              <GptTextViewer />
+              {/* <ChatArea /> */}
             </div>
           </Sider>
         </Layout>

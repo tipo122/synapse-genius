@@ -3,9 +3,8 @@ export interface Canvas {
   user_id: string;
   title: string;
   template_id: string;
-  copy_data: {
-    strings: [strings: string];
-  };
+  copy_data: [strings: { text: string }];
+  embed_data: any;
   bg_image_uid: string;
   bg_image_prompt: string;
   item_property: {

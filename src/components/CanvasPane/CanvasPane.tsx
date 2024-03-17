@@ -20,9 +20,9 @@ const CanvasPane = () => {
     editor,
     selectedObjects,
     onReady,
+    handleDrop,
     isLoading,
   } = useContext(CanvasContext);
-  const [text, setText] = useState("");
 
   const handleSaveData = () => {
     saveTimer.current && clearTimeout(saveTimer.current);
@@ -82,7 +82,11 @@ const CanvasPane = () => {
           <Spin size="large" />
         </div>
       )}
-      <FabricJSCanvas className="synapse-canvas" onReady={onReady} />
+      <FabricJSCanvas
+        className="synapse-canvas"
+        onReady={onReady}
+        onDrop={(e) => handleDrop(e)}
+      />
     </>
   );
 };
