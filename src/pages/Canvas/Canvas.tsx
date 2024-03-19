@@ -58,7 +58,7 @@ const Canvas = () => {
     token: { colorBgContainer },
   } = theme.useToken();
   const { selectedObjects, editor, onReady, handleDrop, setDropItem } =
-    useFabricJSEditor();
+    useFabricJSEditor({ onChange: saveCanvasImageData });
 
   const [openDrawer, setOpenDrawer] = useState<number>(DRAWER.NONE);
   const [strokeColorPane, setStrokeColorPane] = useState<boolean>(false);
