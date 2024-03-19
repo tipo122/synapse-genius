@@ -160,13 +160,14 @@ export const useCanvasData = (canvasIdProp: string): CanvasDataInterface => {
       (async () => {
         try {
           canvasFileRef && (await uploadString(canvasFileRef, canvas_data));
-          console.log(canvas_data);
+          // console.log(canvas_data);
           console.log("save canvas image data");
         } catch (e) {
           console.log(e);
           console.log("create new creative data");
         }
       })();
+      editor && saveThumbnail(editor);
       // // saveCanvasDataMain({ ...canvasDataRef.current, canvas_data: canvas_data });
       // canvas_data &&
       //   setDoc(doc(db, "canvases", canvasId), { canvas_data }, { merge: true });
