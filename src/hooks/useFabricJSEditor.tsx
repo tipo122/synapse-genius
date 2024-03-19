@@ -45,6 +45,7 @@ export interface FabricJSCanvasProps {
   className?: string;
   onReady?: (canvas: fabric.Canvas) => void;
   onDrop?: (e: any) => void;
+  onClick?: (e: any) => void;
 }
 interface FabricJSEditorHookProps {
   defaultFillColor?: string;
@@ -86,7 +87,6 @@ const buildEditor = (
         stroke: strokeColor,
       });
       canvas.add(object);
-      onChange && onChange(JSON.stringify(canvas));
     },
     addRectangle: () => {
       const object = new fabric.Rect({
@@ -95,7 +95,6 @@ const buildEditor = (
         stroke: strokeColor,
       });
       canvas.add(object);
-      onChange && onChange(JSON.stringify(canvas));
     },
     addLine: () => {
       const object = new fabric.Line(LINE.points, {
@@ -103,7 +102,6 @@ const buildEditor = (
         stroke: strokeColor,
       });
       canvas.add(object);
-      onChange && onChange(JSON.stringify(canvas));
     },
     addText: (text: string, pos?: { x: number; y: number }) => {
       // use stroke in text fill, fill default is most of the time transparent
@@ -117,7 +115,6 @@ const buildEditor = (
       });
       object.set({ text: text });
       canvas.add(object);
-      onChange && onChange(JSON.stringify(canvas));
     },
     updateText: (text: string) => {
       const objects: any[] = canvas.getActiveObjects();
@@ -125,7 +122,6 @@ const buildEditor = (
         const textObject: fabric.Textbox = objects[0];
         textObject.set({ text });
         canvas.renderAll();
-        onChange && onChange(JSON.stringify(canvas));
       }
     },
     changeTextFont: (fontFamily: string) => {
@@ -133,14 +129,12 @@ const buildEditor = (
         .getActiveObjects()
         .forEach((object) => object.set({ fontFamily: fontFamily }));
       canvas.renderAll();
-      onChange && onChange(JSON.stringify(canvas));
     },
     changeTextSize: (textSize: number) => {
       canvas
         .getActiveObjects()
         .forEach((object) => object.set({ fontSize: textSize }));
       canvas.renderAll();
-      // onChange && onChange(JSON.stringify(canvas));
     },
     changeBoldFont: (apply: boolean) => {
       if (apply) {
@@ -148,7 +142,6 @@ const buildEditor = (
           .getActiveObjects()
           .forEach((object) => object.set({ fontWeight: "bold" }));
         canvas.renderAll();
-        onChange && onChange(JSON.stringify(canvas));
         return;
       }
       canvas
@@ -162,21 +155,18 @@ const buildEditor = (
           .getActiveObjects()
           .forEach((object) => object.set({ fontStyle: "italic" }));
         canvas.renderAll();
-        // onChange && onChange(JSON.stringify(canvas));
         return;
       }
       canvas
         .getActiveObjects()
         .forEach((object) => object.set({ fontStyle: "normal" }));
       canvas.renderAll();
-      // onChange && onChange(JSON.stringify(canvas));
     },
     changeUnderLineFont: (apply: boolean) => {
       canvas
         .getActiveObjects()
         .forEach((object) => object.set({ underline: apply }));
       canvas.renderAll();
-      // onChange && onChange(JSON.stringify(canvas));
     },
     changeStrikethroughFont: (apply: boolean) => {
       canvas
@@ -188,19 +178,16 @@ const buildEditor = (
       fabric.Image.fromURL(imageUrl, (img) => {
         canvas.add(img);
       });
-      // onChange && onChange(JSON.stringify(canvas));
     },
     deleteAll: () => {
       canvas.getObjects().forEach((object) => canvas.remove(object));
       canvas.discardActiveObject();
       canvas.renderAll();
-      // onChange && onChange(JSON.stringify(canvas));
     },
     deleteSelected: () => {
       canvas.getActiveObjects().forEach((object) => canvas.remove(object));
       canvas.discardActiveObject();
       canvas.renderAll();
-      // onChange && onChange(JSON.stringify(canvas));
     },
     sendBackwards: () => {
       canvas
@@ -228,7 +215,6 @@ const buildEditor = (
       _setFillColor(fill);
       canvas.getActiveObjects().forEach((object) => object.set({ fill }));
       canvas.renderAll();
-      // onChange && onChange(JSON.stringify(canvas));
     },
     setStrokeColor: (stroke: string) => {
       _setStrokeColor(stroke);
@@ -241,7 +227,6 @@ const buildEditor = (
         object.set({ stroke });
       });
       canvas.renderAll();
-      // onChange && onChange(JSON.stringify(canvas));
     },
     zoomIn: () => {
       const zoom = canvas.getZoom();
@@ -304,9 +289,10 @@ const useFabricJSEditor = ({
       canvas.on("selection:updated", (e: any) => {
         setSelectedObject(e.selected);
       });
-      // canvas.on("object:modified", (e: any) => {
-      //   // onChange && onChange(JSON.stringify(canvas));
-      // });
+      canvas.on("object:modified", (e: any) => {
+        console.log("modefied");
+        onChange && onChange(JSON.stringify(canvas));
+      });
     };
     if (canvas) {
       bindEvents(canvas);
@@ -341,6 +327,7 @@ const FabricJSCanvas = ({
   className,
   onReady,
   onDrop,
+  onClick,
 }: FabricJSCanvasProps) => {
   const canvasEl = useRef(null);
   const canvasElParent = useRef<HTMLDivElement>(null);
@@ -384,7 +371,12 @@ const FabricJSCanvas = ({
   };
 
   return (
-    <div ref={canvasElParent} className={className} onDrop={handleDrop}>
+    <div
+      ref={canvasElParent}
+      className={className}
+      onDrop={handleDrop}
+      onClick={onClick}
+    >
       <canvas ref={canvasEl} />
     </div>
   );
