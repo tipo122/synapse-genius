@@ -51,7 +51,7 @@ interface FabricJSEditorHookProps {
   defaultFillColor?: string;
   defaultStrokeColor?: string;
   scaleStep?: number;
-  onChange?: (string: string) => void;
+  onChange?: (string: string, editor: FabricJSEditor) => void;
 }
 interface FabricJSEditorState {
   editor?: FabricJSEditor;
@@ -72,8 +72,7 @@ const buildEditor = (
   strokeColor: string,
   _setFillColor: (color: string) => void,
   _setStrokeColor: (color: string) => void,
-  scaleStep: number,
-  onChange?: (string: string) => void
+  scaleStep: number
 ): FabricJSEditor => {
   return {
     canvas,
@@ -279,6 +278,17 @@ const useFabricJSEditor = ({
   }, [dropItemText]);
 
   useEffect(() => {
+    const editorInstance =
+      canvas &&
+      buildEditor(
+        canvas,
+        fillColor,
+        strokeColor,
+        setFillColor,
+        setStrokeColor,
+        scaleStep
+      );
+
     const bindEvents = (canvas: fabric.Canvas) => {
       canvas.on("selection:cleared", () => {
         setSelectedObject([]);
@@ -291,23 +301,14 @@ const useFabricJSEditor = ({
       });
       canvas.on("object:modified", (e: any) => {
         console.log("modefied");
-        onChange && onChange(JSON.stringify(canvas));
+        onChange &&
+          onChange(JSON.stringify(editorInstance.canvas), editorInstance);
       });
     };
     if (canvas) {
       bindEvents(canvas);
       canvas.setZoom(0.8);
-      setEditor(
-        buildEditor(
-          canvas,
-          fillColor,
-          strokeColor,
-          setFillColor,
-          setStrokeColor,
-          scaleStep,
-          onChange
-        )
-      );
+      setEditor(editorInstance);
     }
   }, [canvas]);
 
